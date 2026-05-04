@@ -37,6 +37,24 @@
       box-shadow: 0 4px 14px rgba(0,0,0,0.08);
     }
 
+    .contents {
+      background: white;
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin: 20px 0 30px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+
+    .contents h2 {
+      margin-top: 0;
+      font-size: 24px;
+    }
+
+    .contents a {
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+
     .section-banner {
       width: 100%;
       height: 120px;
@@ -136,7 +154,13 @@
 
   <img src="mainbanner.png" alt="Science simulations banner" class="hero-image">
 
-  <h2>BioSims</h2>
+  <div class="contents">
+    <h2>Contents</h2>
+    <a href="#biosims">BioSims</a>
+    <a href="#chemsims">ChemSims</a>
+  </div>
+
+  <h2 id="biosims">BioSims</h2>
 
   <img src="biosims.png" alt="BioSims biology simulations banner" class="section-banner">
 
@@ -163,7 +187,7 @@
     </tbody>
   </table>
 
-  <h2>ChemSims</h2>
+  <h2 id="chemsims">ChemSims</h2>
 
   <img src="chemsims.png" alt="ChemSims chemistry simulations banner" class="section-banner">
 
