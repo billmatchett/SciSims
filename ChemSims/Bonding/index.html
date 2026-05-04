@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Electron Shell Bonding Simulator</title>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --ink: #1f2937;
+      --muted: #5b6472;
+      --line: #d8dde7;
+      --accent: #2563eb;
+      --accent2: #16a34a;
+      --gold: #f59e0b;
+      --purple: #7c3aed;
+      --shadow: 0 14px 35px rgba(15, 23, 42, 0.10);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #eaf2ff, var(--bg) 42%, #f7f8fb);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 22px clamp(18px, 4vw, 48px) 12px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: clamp(1.65rem, 3vw, 2.6rem);
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      max-width: 960px;
+      line-height: 1.45;
+      font-size: 1rem;
+    }
+
+    main {
+      padding: 12px clamp(18px, 4vw, 48px) 40px;
+      display: grid;
+      grid-template-columns: minmax(290px, 380px) minmax(520px, 1fr);
+      gap: 22px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.93);
+      border: 1px solid rgba(216, 221, 231, 0.95);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .controls {
+      padding: 18px;
+      align-self: start;
+      position: sticky;
+      top: 14px;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+    }
+
+    h3 {
+      margin: 18px 0 8px;
+      font-size: 0.95rem;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 6px;
+      font-weight: 650;
+      font-size: 0.92rem;
+    }
+
+    select,
+    button {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 750;
+      margin-top: 9px;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .primary { background: var(--accent); color: white; border-color: var(--accent); }
+    .green { background: var(--accent2); color: white; border-color: var(--accent2); }
+    .purple { background: var(--purple); color: white; border-color: var(--purple); }
+    .ghost { background: #f8fafc; }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .note {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 11px 12px;
+      color: var(--muted);
+      line-height: 1.4;
+      font-size: 0.92rem;
+      margin-top: 14px;
+    }
+
+    .screen {
+      padding: 18px;
+      min-height: 660px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .mode-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .tab {
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      border-radius: 14px;
+      padding: 11px 10px;
+      text-align: center;
+      font-weight: 800;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .tab.active {
+      background: #eaf2ff;
+      border-color: #9bbdf8;
+      color: #17469e;
+    }
+
+    .visual-wrap {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .visual {
+      min-height: 430px;
+      background: linear-gradient(180deg, #ffffff, #fbfcff);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .diagram-title {
+      position: absolute;
+      left: 14px;
+      top: 12px;
+      font-weight: 850;
+      z-index: 8;
+      background: rgba(255, 255, 255, 0.86);
+      border-radius: 10px;
+      padding: 5px 8px;
+    }
+
+    .atom-stage {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      inset: 0;
+    }
+
+    .nucleus {
+      position: absolute;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #1f2937, #475569);
+      color: white;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      font-weight: 900;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.24);
+      z-index: 4;
+      line-height: 1;
+      transform: translate(-50%, -50%);
+    }
+
+    .nucleus small {
+      display: block;
+      font-size: 0.65rem;
+      opacity: 0.85;
+      font-weight: 700;
+    }
+
+    .shell {
+      position: absolute;
+      border: 2px solid #cbd5e1;
+      border-radius: 50%;
+      z-index: 1;
+      transform: translate(-50%, -50%);
+    }
+
+    .electron {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid white;
+      box-shadow: 0 3px 8px rgba(37, 99, 235, 0.35);
+      z-index: 3;
+      transform: translate(-50%, -50%);
+    }
+
+    .electron.outer {
+      background: var(--gold);
+      box-shadow: 0 3px 8px rgba(245, 158, 11, 0.35);
+    }
+
+    .electron.moving {
+      animation: pulseMove 0.8s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulseMove {
+      from { transform: translate(-50%, -50%) scale(1); }
+      to { transform: translate(-50%, -50%) scale(1.22); }
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      background: #fbfcff;
+      border-radius: 14px;
+      padding: 11px;
+      min-height: 78px;
+    }
+
+    .stat .label {
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+
+    .stat .value {
+      font-weight: 900;
+      font-size: 1.15rem;
+      line-height: 1.2;
+    }
+
+    .explain {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      background: #fbfcff;
+      line-height: 1.45;
+    }
+
+    .explain strong { color: #111827; }
+
+    .lewis-stage {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .lewis-symbol {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      font-size: 2.1rem;
+      font-weight: 950;
+      color: #111827;
+      z-index: 4;
+    }
+
+    .lewis-dot {
+      position: absolute;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.16);
+    }
+
+    .lewis-dot.bonded { background: var(--accent); }
+    .lewis-dot.lone { background: var(--gold); }
+
+    .lewis-bond-line {
+      position: absolute;
+      height: 3px;
+      background: #cbd5e1;
+      border-radius: 999px;
+      transform-origin: left center;
+      z-index: 1;
+    }
+
+    .legend {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 0.86rem;
+      position: absolute;
+      left: 14px;
+      bottom: 12px;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.88);
+      padding: 6px 8px;
+      border-radius: 10px;
+      border: 1px solid rgba(216, 221, 231, 0.75);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot.bonded { background: var(--accent); }
+    .dot.lone { background: var(--gold); }
+
+    @media (max-width: 970px) {
+      main { grid-template-columns: 1fr; }
+      .controls { position: static; }
+      .visual-wrap { grid-template-columns: 1fr; }
+      .visual { min-height: 360px; }
+      .status-grid { grid-template-columns: 1fr; }
+      .mode-tabs { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Electron Shell Bonding Simulator</h1>
+    <p class="subtitle">Model how atoms gain, lose or share electrons to achieve a stable outer shell. Use the diagrams as a digital version of counters on electron shell mats.</p>
+  </header>
+
+  <main>
+    <section class="card controls">
+      <h2>Controls</h2>
+
+      <label for="modeSelect">Investigation mode</label>
+      <select id="modeSelect">
+        <option value="single">Build one atom</option>
+        <option value="ionic">Ionic transfer</option>
+        <option value="covalent">Covalent sharing</option>
+      </select>
+
+      <div id="singleControls">
+        <label for="singleAtom">Choose an atom</label>
+        <select id="singleAtom"></select>
+        <div class="button-row">
+          <button class="primary" id="gainBtn">Gain 1 e⁻</button>
+          <button class="primary" id="loseBtn">Lose 1 e⁻</button>
+        </div>
+        <button class="ghost" id="resetSingleBtn">Reset atom</button>
+      </div>
+
+      <div id="ionicControls" hidden>
+        <label for="ionicExample">Choose an ionic example</label>
+        <select id="ionicExample"></select>
+        <button class="green" id="transferBtn">Transfer electrons</button>
+        <button class="ghost" id="resetIonicBtn">Reset ionic model</button>
+      </div>
+
+      <div id="covalentControls" hidden>
+        <label for="covalentExample">Choose a covalent example</label>
+        <select id="covalentExample"></select>
+        <button class="ghost" id="resetCovalentBtn">Reset covalent model</button>
+      </div>
+
+      <div class="note">
+        <strong>Teaching note:</strong> This model uses simplified electron shells for the first 18 elements. It is designed to support bonding concepts, not replace more advanced orbital models.
+      </div>
+
+      <h3>Prompt</h3>
+      <div class="note" id="promptBox">Choose an atom and identify its valence electrons.</div>
+    </section>
+
+    <section class="card screen">
+      <div class="mode-tabs">
+        <div class="tab active" id="tabSingle">Build one atom</div>
+        <div class="tab" id="tabIonic">Ionic transfer</div>
+        <div class="tab" id="tabCovalent">Covalent sharing</div>
+      </div>
+
+      <div class="visual-wrap" id="visualWrap">
+        <div class="visual" id="visualA">
+          <div class="diagram-title" id="titleA">Atom</div>
+          <div class="atom-stage" id="atomStageA"></div>
+        </div>
+        <div class="visual" id="visualB" style="display:none;">
+          <div class="diagram-title" id="titleB">Atom</div>
+          <div class="atom-stage" id="atomStageB"></div>
+        </div>
+      </div>
+
+      <div class="status-grid">
+        <div class="stat">
+          <div class="label" id="statLabelA">Electron arrangement</div>
+          <div class="value" id="arrangementStat">2, 4</div>
+        </div>
+        <div class="stat">
+          <div class="label" id="statLabelB">Valence electrons</div>
+          <div class="value" id="valenceStat">4</div>
+        </div>
+        <div class="stat">
+          <div class="label" id="statLabelC">Model result</div>
+          <div class="value" id="resultStat">Neutral atom</div>
+        </div>
+      </div>
+
+      <div class="explain" id="explainBox"></div>
+    </section>
+  </main>
+
+  <script>
+    const elements = {
+      H:  { name: "Hydrogen", z: 1, shells: [1] },
+      He: { name: "Helium", z: 2, shells: [2] },
+      Li: { name: "Lithium", z: 3, shells: [2, 1] },
+      Be: { name: "Beryllium", z: 4, shells: [2, 2] },
+      B:  { name: "Boron", z: 5, shells: [2, 3] },
+      C:  { name: "Carbon", z: 6, shells: [2, 4] },
+      N:  { name: "Nitrogen", z: 7, shells: [2, 5] },
+      O:  { name: "Oxygen", z: 8, shells: [2, 6] },
+      F:  { name: "Fluorine", z: 9, shells: [2, 7] },
+      Ne: { name: "Neon", z: 10, shells: [2, 8] },
+      Na: { name: "Sodium", z: 11, shells: [2, 8, 1] },
+      Mg: { name: "Magnesium", z: 12, shells: [2, 8, 2] },
+      Al: { name: "Aluminium", z: 13, shells: [2, 8, 3] },
+      Si: { name: "Silicon", z: 14, shells: [2, 8, 4] },
+      P:  { name: "Phosphorus", z: 15, shells: [2, 8, 5] },
+      S:  { name: "Sulfur", z: 16, shells: [2, 8, 6] },
+      Cl: { name: "Chlorine", z: 17, shells: [2, 8, 7] },
+      Ar: { name: "Argon", z: 18, shells: [2, 8, 8] }
+    };
+
+    const ionicExamples = {
+      NaCl: { label: "Sodium + chlorine → sodium chloride", metal: "Na", nonmetal: "Cl", move: 1, formula: "Na⁺ + Cl⁻", explanation: "Sodium transfers one electron to chlorine. Sodium becomes a positive ion and chlorine becomes a negative ion. Opposite charges attract." },
+      LiF: { label: "Lithium + fluorine → lithium fluoride", metal: "Li", nonmetal: "F", move: 1, formula: "Li⁺ + F⁻", explanation: "Lithium transfers one electron to fluorine. Both particles then have a stable outer shell arrangement." },
+      MgO: { label: "Magnesium + oxygen → magnesium oxide", metal: "Mg", nonmetal: "O", move: 2, formula: "Mg²⁺ + O²⁻", explanation: "Magnesium transfers two electrons to oxygen. Magnesium forms Mg²⁺ and oxygen forms O²⁻." },
+      AlN: { label: "Aluminium + nitrogen → aluminium nitride", metal: "Al", nonmetal: "N", move: 3, formula: "Al³⁺ + N³⁻", explanation: "Aluminium transfers three electrons to nitrogen. This simplified model shows the electron transfer needed for stable outer shells." }
+    };
+
+    const covalentExamples = {
+      H2: { label: "Hydrogen molecule, H₂", atoms: ["H", "H"], bonds: 1, lonePairs: 0, explanation: "Two hydrogen atoms share one pair of electrons. Each hydrogen then has access to two electrons in its first shell." },
+      Cl2: { label: "Chlorine molecule, Cl₂", atoms: ["Cl", "Cl"], bonds: 1, lonePairs: 6, explanation: "Two chlorine atoms share one pair of electrons. Each chlorine also has three unbonded pairs of electrons." },
+      HCl: { label: "Hydrogen chloride, HCl", atoms: ["H", "Cl"], bonds: 1, lonePairs: 3, explanation: "Hydrogen and chlorine share one pair of electrons. Chlorine also has three unbonded pairs of electrons." },
+      H2O: { label: "Water, H₂O", atoms: ["O", "H", "H"], bonds: 2, lonePairs: 2, explanation: "Oxygen shares one pair of electrons with each hydrogen atom. Oxygen also has two unbonded pairs of electrons." },
+      NH3: { label: "Ammonia, NH₃", atoms: ["N", "H", "H", "H"], bonds: 3, lonePairs: 1, explanation: "Nitrogen shares electrons with three hydrogen atoms. Nitrogen also has one unbonded pair of electrons." },
+      CH4: { label: "Methane, CH₄", atoms: ["C", "H", "H", "H", "H"], bonds: 4, lonePairs: 0, explanation: "Carbon has four valence electrons and shares one pair with each hydrogen atom, forming four covalent bonds." }
+    };
+
+    const state = {
+      mode: "single",
+      singleSymbol: "C",
+      currentShells: [2, 4],
+      ionicKey: "NaCl",
+      ionicTransferred: false,
+      covalentKey: "H2O"
+    };
+
+    const shellCap = [2, 8, 8];
+
+    const modeSelect = document.getElementById("modeSelect");
+    const singleAtom = document.getElementById("singleAtom");
+    const ionicExample = document.getElementById("ionicExample");
+    const covalentExample = document.getElementById("covalentExample");
+
+    const singleControls = document.getElementById("singleControls");
+    const ionicControls = document.getElementById("ionicControls");
+    const covalentControls = document.getElementById("covalentControls");
+
+    const tabs = {
+      single: document.getElementById("tabSingle"),
+      ionic: document.getElementById("tabIonic"),
+      covalent: document.getElementById("tabCovalent")
+    };
+
+    const visualWrap = document.getElementById("visualWrap");
+    const visualB = document.getElementById("visualB");
+    const titleA = document.getElementById("titleA");
+    const titleB = document.getElementById("titleB");
+    const atomStageA = document.getElementById("atomStageA");
+    const atomStageB = document.getElementById("atomStageB");
+
+    const statLabelA = document.getElementById("statLabelA");
+    const statLabelB = document.getElementById("statLabelB");
+    const statLabelC = document.getElementById("statLabelC");
+    const arrangementStat = document.getElementById("arrangementStat");
+    const valenceStat = document.getElementById("valenceStat");
+    const resultStat = document.getElementById("resultStat");
+    const explainBox = document.getElementById("explainBox");
+    const promptBox = document.getElementById("promptBox");
+
+    function fillSelects() {
+      Object.entries(elements).forEach(([symbol, el]) => {
+        const opt = document.createElement("option");
+        opt.value = symbol;
+        opt.textContent = `${el.name} (${symbol})`;
+        singleAtom.appendChild(opt);
+      });
+      singleAtom.value = state.singleSymbol;
+
+      Object.entries(ionicExamples).forEach(([key, ex]) => {
+        const opt = document.createElement("option");
+        opt.value = key;
+        opt.textContent = ex.label;
+        ionicExample.appendChild(opt);
+      });
+      ionicExample.value = state.ionicKey;
+
+      Object.entries(covalentExamples).forEach(([key, ex]) => {
+        const opt = document.createElement("option");
+        opt.value = key;
+        opt.textContent = ex.label;
+        covalentExample.appendChild(opt);
+      });
+      covalentExample.value = state.covalentKey;
+    }
+
+    function cloneShells(symbol) {
+      return [...elements[symbol].shells];
+    }
+
+    function valence(shells) {
+      for (let i = shells.length - 1; i >= 0; i--) {
+        if (shells[i] > 0) return shells[i];
+      }
+      return 0;
+    }
+
+    function activeShellIndex(shells) {
+      for (let i = shells.length - 1; i >= 0; i--) {
+        if (shells[i] > 0) return i;
+      }
+      return -1;
+    }
+
+    function arrangement(shells) {
+      return shells.filter((_, index) => index === 0 || shells[index] > 0).join(", ");
+    }
+
+    function isStable(shells) {
+      const outer = valence(shells);
+      const activeShell = activeShellIndex(shells);
+      if (activeShell < 0) return false;
+      if (activeShell === 0) return outer === 2;
+      return outer === 8;
+    }
+
+    function normaliseShells(shells) {
+      while (shells.length > 1 && shells[shells.length - 1] === 0) shells.pop();
+      return shells;
+    }
+
+    function addElectron(shells) {
+      const copy = [...shells];
+      for (let i = 0; i < shellCap.length; i++) {
+        if (copy[i] === undefined) copy[i] = 0;
+        if (copy[i] < shellCap[i]) {
+          copy[i]++;
+          return normaliseShells(copy);
+        }
+      }
+      return copy;
+    }
+
+    function removeElectron(shells) {
+      const copy = [...shells];
+      for (let i = copy.length - 1; i >= 0; i--) {
+        if (copy[i] > 0) {
+          copy[i]--;
+          return normaliseShells(copy);
+        }
+      }
+      return copy;
+    }
+
+    function setVisualLayout(showSecond) {
+      visualWrap.style.gridTemplateColumns = showSecond ? "1fr 1fr" : "1fr";
+      visualB.style.display = showSecond ? "" : "none";
+      if (!showSecond) atomStageB.innerHTML = "";
+    }
+
+    function drawAtom(stage, symbol, shells, options = {}) {
+      stage.innerHTML = "";
+
+      const rect = stage.getBoundingClientRect();
+      const w = rect.width || stage.clientWidth || 400;
+      const h = rect.height || stage.clientHeight || 400;
+
+      const padX = 24;
+      const padTop = 56;
+      const padBottom = 24;
+      const drawW = Math.max(w - padX * 2, 240);
+      const drawH = Math.max(h - padTop - padBottom, 240);
+
+      const cx = padX + drawW / 2;
+      const cy = padTop + drawH / 2;
+      const maxR = Math.min(drawW, drawH) * 0.42;
+      const spacing = maxR / Math.max(shells.length, 1);
+
+      const angleMap = {
+        1: [-90],
+        2: [-90, 90],
+        3: [-90, 30, 150],
+        4: [-90, 0, 90, 180],
+        5: [-90, -18, 54, 126, 198],
+        6: [-90, -30, 30, 90, 150, 210],
+        7: [-90, -39, 12, 63, 114, 165, 216],
+        8: [-90, -45, 0, 45, 90, 135, 180, 225]
+      };
+
+      shells.forEach((count, s) => {
+        const r = spacing * (s + 1);
+        const shell = document.createElement("div");
+        shell.className = "shell";
+        shell.style.width = `${r * 2}px`;
+        shell.style.height = `${r * 2}px`;
+        shell.style.left = `${cx}px`;
+        shell.style.top = `${cy}px`;
+        stage.appendChild(shell);
+
+        const angles = angleMap[count] || Array.from({ length: count }, (_, i) => -90 + (360 / Math.max(count, 1)) * i);
+
+        angles.forEach((deg, i) => {
+          const angle = deg * Math.PI / 180;
+          const dot = document.createElement("div");
+          const outerClass = s === shells.length - 1 ? " outer" : "";
+          const movingClass = options.movingOuter && s === shells.length - 1 && i >= count - options.movingOuter ? " moving" : "";
+          dot.className = `electron${outerClass}${movingClass}`;
+          dot.style.left = `${cx + Math.cos(angle) * r}px`;
+          dot.style.top = `${cy + Math.sin(angle) * r}px`;
+          stage.appendChild(dot);
+        });
+      });
+
+      const nucleus = document.createElement("div");
+      nucleus.className = "nucleus";
+      nucleus.style.left = `${cx}px`;
+      nucleus.style.top = `${cy}px`;
+      const chargeText = options.charge ? `<small>${options.charge}</small>` : `<small>Z = ${elements[symbol]?.z ?? ""}</small>`;
+      nucleus.innerHTML = `${symbol}${chargeText}`;
+      stage.appendChild(nucleus);
+    }
+
+    function drawLewisStructure(stage, key) {
+      stage.innerHTML = "";
+
+      const rect = stage.getBoundingClientRect();
+      const w = rect.width || stage.clientWidth || 400;
+      const h = rect.height || stage.clientHeight || 400;
+      const cx = w / 2;
+      const cy = h / 2 + 10;
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "lewis-stage";
+      stage.appendChild(wrapper);
+
+      const layouts = {
+        H2: {
+          atoms: {
+            A: { symbol: "H", x: cx - 110, y: cy },
+            B: { symbol: "H", x: cx + 110, y: cy }
+          },
+          bonds: [{ from: "A", to: "B" }],
+          lonePairs: { A: [], B: [] }
+        },
+        Cl2: {
+          atoms: {
+            A: { symbol: "Cl", x: cx - 115, y: cy },
+            B: { symbol: "Cl", x: cx + 115, y: cy }
+          },
+          bonds: [{ from: "A", to: "B" }],
+          lonePairs: { A: ["top", "left", "bottom"], B: ["top", "right", "bottom"] }
+        },
+        HCl: {
+          atoms: {
+            A: { symbol: "H", x: cx - 115, y: cy },
+            B: { symbol: "Cl", x: cx + 115, y: cy }
+          },
+          bonds: [{ from: "A", to: "B" }],
+          lonePairs: { A: [], B: ["top", "right", "bottom"] }
+        },
+        H2O: {
+          atoms: {
+            O: { symbol: "O", x: cx, y: cy },
+            H1: { symbol: "H", x: cx - 125, y: cy + 70 },
+            H2: { symbol: "H", x: cx + 125, y: cy + 70 }
+          },
+          bonds: [{ from: "O", to: "H1" }, { from: "O", to: "H2" }],
+          lonePairs: { O: ["top", "left"], H1: [], H2: [] }
+        },
+        NH3: {
+          atoms: {
+            N: { symbol: "N", x: cx, y: cy },
+            H1: { symbol: "H", x: cx - 125, y: cy + 85 },
+            H2: { symbol: "H", x: cx + 125, y: cy + 85 },
+            H3: { symbol: "H", x: cx, y: cy - 125 }
+          },
+          bonds: [{ from: "N", to: "H1" }, { from: "N", to: "H2" }, { from: "N", to: "H3" }],
+          lonePairs: { N: ["bottom"], H1: [], H2: [], H3: [] }
+        },
+        CH4: {
+          atoms: {
+            C: { symbol: "C", x: cx, y: cy },
+            H1: { symbol: "H", x: cx, y: cy - 125 },
+            H2: { symbol: "H", x: cx + 130, y: cy },
+            H3: { symbol: "H", x: cx, y: cy + 125 },
+            H4: { symbol: "H", x: cx - 130, y: cy }
+          },
+          bonds: [{ from: "C", to: "H1" }, { from: "C", to: "H2" }, { from: "C", to: "H3" }, { from: "C", to: "H4" }],
+          lonePairs: { C: [], H1: [], H2: [], H3: [], H4: [] }
+        }
+      };
+
+      const model = layouts[key];
+      if (!model) return;
+
+      function addSymbol(atom) {
+        const el = document.createElement("div");
+        el.className = "lewis-symbol";
+        el.textContent = atom.symbol;
+        el.style.left = `${atom.x}px`;
+        el.style.top = `${atom.y}px`;
+        wrapper.appendChild(el);
+      }
+
+      function addDot(x, y, cls) {
+        const dot = document.createElement("div");
+        dot.className = `lewis-dot ${cls}`;
+        dot.style.left = `${x}px`;
+        dot.style.top = `${y}px`;
+        wrapper.appendChild(dot);
+      }
+
+      function addPair(x, y, orientation, cls) {
+        const offset = 8;
+        if (orientation === "h") {
+          addDot(x - offset, y, cls);
+          addDot(x + offset, y, cls);
+        } else {
+          addDot(x, y - offset, cls);
+          addDot(x, y + offset, cls);
+        }
+      }
+
+      function pairPosition(atom, side) {
+        const d = 40;
+        if (side === "top") return { x: atom.x, y: atom.y - d, orientation: "h" };
+        if (side === "bottom") return { x: atom.x, y: atom.y + d, orientation: "h" };
+        if (side === "left") return { x: atom.x - d, y: atom.y, orientation: "v" };
+        return { x: atom.x + d, y: atom.y, orientation: "v" };
+      }
+
+      function drawBondLine(a, b) {
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const angle = Math.atan2(dy, dx);
+        const startOffset = 32;
+        const len = Math.max(distance - startOffset * 2, 20);
+
+        const line = document.createElement("div");
+        line.className = "lewis-bond-line";
+        line.style.left = `${a.x + Math.cos(angle) * startOffset}px`;
+        line.style.top = `${a.y + Math.sin(angle) * startOffset}px`;
+        line.style.width = `${len}px`;
+        line.style.transform = `rotate(${angle * 180 / Math.PI}deg)`;
+        wrapper.appendChild(line);
+      }
+
+      function drawBondPair(a, b) {
+        const mx = (a.x + b.x) / 2;
+        const my = (a.y + b.y) / 2;
+        const horizontal = Math.abs(a.x - b.x) >= Math.abs(a.y - b.y);
+        addPair(mx, my, horizontal ? "h" : "v", "bonded");
+      }
+
+      model.bonds.forEach(bond => {
+        const a = model.atoms[bond.from];
+        const b = model.atoms[bond.to];
+        drawBondLine(a, b);
+      });
+
+      Object.values(model.atoms).forEach(addSymbol);
+
+      model.bonds.forEach(bond => {
+        const a = model.atoms[bond.from];
+        const b = model.atoms[bond.to];
+        drawBondPair(a, b);
+      });
+
+      Object.entries(model.lonePairs).forEach(([atomKey, sides]) => {
+        const atom = model.atoms[atomKey];
+        sides.forEach(side => {
+          const pos = pairPosition(atom, side);
+          addPair(pos.x, pos.y, pos.orientation, "lone");
+        });
+      });
+
+      const legend = document.createElement("div");
+      legend.className = "legend";
+      legend.innerHTML = `<span><i class="dot bonded"></i> bonding electrons</span><span><i class="dot lone"></i> unbonded electrons</span>`;
+      wrapper.appendChild(legend);
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      modeSelect.value = mode;
+      singleControls.hidden = mode !== "single";
+      ionicControls.hidden = mode !== "ionic";
+      covalentControls.hidden = mode !== "covalent";
+      Object.entries(tabs).forEach(([key, tab]) => tab.classList.toggle("active", key === mode));
+      render();
+    }
+
+    function resetStatLabels() {
+      statLabelA.textContent = "Electron arrangement";
+      statLabelB.textContent = "Valence electrons";
+      statLabelC.textContent = "Model result";
+    }
+
+    function renderSingle() {
+      setVisualLayout(false);
+      resetStatLabels();
+      titleA.textContent = `${elements[state.singleSymbol].name} atom`;
+      drawAtom(atomStageA, state.singleSymbol, state.currentShells);
+
+      arrangementStat.textContent = arrangement(state.currentShells);
+      valenceStat.textContent = valence(state.currentShells);
+      resultStat.textContent = isStable(state.currentShells) ? "Stable outer shell" : "Not full yet";
+
+      const el = elements[state.singleSymbol];
+      const v = valence(state.currentShells);
+      explainBox.innerHTML = `<strong>${el.name}</strong> has the electron arrangement <strong>${arrangement(state.currentShells)}</strong>. The outer shell contains <strong>${v}</strong> valence electron${v === 1 ? "" : "s"}. A stable outer shell is usually modelled as 2 electrons for the first shell or 8 electrons for shells two and three.`;
+      promptBox.textContent = "Use gain and lose to test how the valence shell changes.";
+    }
+
+    function renderIonic() {
+      setVisualLayout(true);
+      resetStatLabels();
+
+      const ex = ionicExamples[state.ionicKey];
+      const metal = elements[ex.metal];
+      const nonmetal = elements[ex.nonmetal];
+      let metalShells = cloneShells(ex.metal);
+      let nonmetalShells = cloneShells(ex.nonmetal);
+      let metalCharge = "neutral";
+      let nonmetalCharge = "neutral";
+
+      if (state.ionicTransferred) {
+        for (let i = 0; i < ex.move; i++) {
+          metalShells = removeElectron(metalShells);
+          nonmetalShells = addElectron(nonmetalShells);
+        }
+        metalCharge = ex.move === 1 ? "+1" : `+${ex.move}`;
+        nonmetalCharge = ex.move === 1 ? "-1" : `-${ex.move}`;
+      }
+
+      titleA.textContent = `${metal.name} ${state.ionicTransferred ? "ion" : "atom"}`;
+      titleB.textContent = `${nonmetal.name} ${state.ionicTransferred ? "ion" : "atom"}`;
+      drawAtom(atomStageA, ex.metal, metalShells, { charge: metalCharge, movingOuter: state.ionicTransferred ? 0 : ex.move });
+      drawAtom(atomStageB, ex.nonmetal, nonmetalShells, { charge: nonmetalCharge, movingOuter: state.ionicTransferred ? ex.move : 0 });
+
+      arrangementStat.textContent = `${ex.metal}: ${arrangement(metalShells)} | ${ex.nonmetal}: ${arrangement(nonmetalShells)}`;
+      valenceStat.textContent = `${ex.metal}: ${valence(metalShells)} | ${ex.nonmetal}: ${valence(nonmetalShells)}`;
+      resultStat.textContent = state.ionicTransferred ? ex.formula : "Before transfer";
+
+      explainBox.innerHTML = state.ionicTransferred
+        ? `<strong>Ionic transfer:</strong> ${ex.explanation} The electron arrangement changes to <strong>${ex.metal}: ${arrangement(metalShells)}</strong> and <strong>${ex.nonmetal}: ${arrangement(nonmetalShells)}</strong>.`
+        : `<strong>Before transfer:</strong> ${metal.name} has ${valence(metalShells)} valence electron${valence(metalShells) === 1 ? "" : "s"}. ${nonmetal.name} has ${valence(nonmetalShells)} valence electron${valence(nonmetalShells) === 1 ? "" : "s"}. Press transfer to model electrons moving from the metal to the non-metal.`;
+      promptBox.textContent = "Identify which atom loses electrons, which atom gains electrons, and the charges that form.";
+    }
+
+    function renderCovalent() {
+      setVisualLayout(false);
+
+      const ex = covalentExamples[state.covalentKey];
+      titleA.textContent = `${ex.label} Lewis dot structure`;
+      drawLewisStructure(atomStageA, state.covalentKey);
+
+      statLabelA.textContent = "Atoms shown";
+      statLabelB.textContent = "Electron pairs";
+      statLabelC.textContent = "Model result";
+      arrangementStat.textContent = ex.atoms.join(", ");
+      valenceStat.textContent = `${ex.bonds} bonding pair${ex.bonds === 1 ? "" : "s"} | ${ex.lonePairs} unbonded pair${ex.lonePairs === 1 ? "" : "s"}`;
+      resultStat.textContent = "Lewis structure shown";
+
+      explainBox.innerHTML = `<strong>Covalent bonding:</strong> ${ex.explanation} In this model, <strong>bonding electrons are blue</strong> and <strong>unbonded electrons are orange</strong>.`;
+      promptBox.textContent = "Use the colour coding to compare bonding electrons and unbonded electrons.";
+    }
+
+    function render() {
+      requestAnimationFrame(() => {
+        if (state.mode === "single") renderSingle();
+        if (state.mode === "ionic") renderIonic();
+        if (state.mode === "covalent") renderCovalent();
+      });
+    }
+
+    modeSelect.addEventListener("change", e => setMode(e.target.value));
+    tabs.single.addEventListener("click", () => setMode("single"));
+    tabs.ionic.addEventListener("click", () => setMode("ionic"));
+    tabs.covalent.addEventListener("click", () => setMode("covalent"));
+
+    singleAtom.addEventListener("change", e => {
+      state.singleSymbol = e.target.value;
+      state.currentShells = cloneShells(state.singleSymbol);
+      render();
+    });
+
+    document.getElementById("gainBtn").addEventListener("click", () => {
+      state.currentShells = addElectron(state.currentShells);
+      render();
+    });
+
+    document.getElementById("loseBtn").addEventListener("click", () => {
+      state.currentShells = removeElectron(state.currentShells);
+      render();
+    });
+
+    document.getElementById("resetSingleBtn").addEventListener("click", () => {
+      state.currentShells = cloneShells(state.singleSymbol);
+      render();
+    });
+
+    ionicExample.addEventListener("change", e => {
+      state.ionicKey = e.target.value;
+      state.ionicTransferred = false;
+      render();
+    });
+
+    document.getElementById("transferBtn").addEventListener("click", () => {
+      state.ionicTransferred = true;
+      render();
+    });
+
+    document.getElementById("resetIonicBtn").addEventListener("click", () => {
+      state.ionicTransferred = false;
+      render();
+    });
+
+    covalentExample.addEventListener("change", e => {
+      state.covalentKey = e.target.value;
+      render();
+    });
+
+    document.getElementById("resetCovalentBtn").addEventListener("click", () => {
+      render();
+    });
+
+    fillSelects();
+    render();
+    window.addEventListener("resize", render);
+  </script>
+</body>
+</html>
