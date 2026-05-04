@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cations and Anions Simulator</title>
+  <style>
+    :root {
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+      --blue-100: #dbeafe;
+      --blue-200: #bfdbfe;
+      --blue-900: #1e3a8a;
+      --blue-950: #172554;
+      --orange-100: #ffedd5;
+      --orange-200: #fed7aa;
+      --orange-900: #7c2d12;
+      --orange-950: #431407;
+      --emerald-50: #ecfdf5;
+      --emerald-100: #d1fae5;
+      --emerald-200: #a7f3d0;
+      --emerald-700: #047857;
+      --emerald-800: #065f46;
+      --emerald-900: #064e3b;
+      --emerald-950: #022c22;
+      --rose-50: #fff1f2;
+      --rose-100: #ffe4e6;
+      --rose-200: #fecdd3;
+      --rose-700: #be123c;
+      --rose-800: #9f1239;
+      --yellow-50: #fefce8;
+      --yellow-200: #fef08a;
+      --yellow-900: #713f12;
+      --yellow-950: #422006;
+      --white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--slate-100);
+      color: var(--slate-900);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .page {
+      width: min(1280px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: 24px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    }
+
+    .header {
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .header-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--slate-900);
+      color: white;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(32px, 5vw, 52px);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      font-weight: 900;
+    }
+
+    h2, h3, p {
+      margin-top: 0;
+    }
+
+    .lead {
+      max-width: 820px;
+      margin: 14px 0 0;
+      color: var(--slate-600);
+      font-size: clamp(16px, 2vw, 19px);
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 18px;
+      padding: 12px 18px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-dark {
+      background: var(--slate-900);
+      color: white;
+    }
+
+    .btn-dark:hover {
+      background: var(--slate-700);
+    }
+
+    .btn-light {
+      background: var(--slate-100);
+      color: var(--slate-700);
+    }
+
+    .btn-light:hover {
+      background: var(--slate-200);
+    }
+
+    .btn-active {
+      background: var(--slate-900);
+      color: white;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 24px;
+    }
+
+    .side-panel {
+      padding: 20px;
+    }
+
+    .element-list {
+      display: grid;
+      gap: 12px;
+      max-height: 760px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .element-btn {
+      width: 100%;
+      border: 1px solid var(--slate-200);
+      background: white;
+      border-radius: 18px;
+      padding: 14px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: centre;
+      transition: background 0.15s ease, border 0.15s ease, transform 0.15s ease;
+    }
+
+    .element-btn:hover {
+      background: var(--slate-50);
+      transform: translateY(-1px);
+    }
+
+    .element-btn.selected {
+      background: var(--slate-900);
+      border-color: var(--slate-900);
+      color: white;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
+    }
+
+    .element-name {
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .element-subtitle {
+      color: var(--slate-500);
+    }
+
+    .selected .element-subtitle {
+      color: var(--slate-200);
+    }
+
+    .type-chip {
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+      align-self: flex-start;
+    }
+
+    .type-cation {
+      background: var(--blue-100);
+      color: var(--blue-900);
+    }
+
+    .selected .type-cation {
+      background: var(--blue-200);
+      color: var(--blue-950);
+    }
+
+    .type-anion {
+      background: var(--orange-100);
+      color: var(--orange-900);
+    }
+
+    .selected .type-anion {
+      background: var(--orange-200);
+      color: var(--orange-950);
+    }
+
+    .type-stable {
+      background: var(--emerald-100);
+      color: var(--emerald-900);
+    }
+
+    .selected .type-stable {
+      background: var(--emerald-200);
+      color: var(--emerald-950);
+    }
+
+    .rule-box, .info-box, .teacher-box, .note-box {
+      border-radius: 18px;
+      padding: 16px;
+      margin-top: 20px;
+    }
+
+    .rule-box, .info-box {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+    }
+
+    .teacher-box {
+      border: 1px dashed var(--slate-300);
+    }
+
+    .note-box {
+      background: var(--yellow-50);
+      border: 1px solid var(--yellow-200);
+      color: var(--yellow-900);
+    }
+
+    .note-box h3 {
+      color: var(--yellow-950);
+    }
+
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 1fr 410px;
+      gap: 24px;
+    }
+
+    .sim-panel, .explain-panel {
+      padding: 20px;
+    }
+
+    .panel-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .panel-title {
+      font-size: 28px;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+
+    .small-muted {
+      color: var(--slate-600);
+      margin: 0;
+    }
+
+    .bold {
+      font-weight: 900;
+      color: var(--slate-900);
+    }
+
+    .toggle-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .diagram-wrap {
+      background: var(--slate-950, #020617);
+      border-radius: 18px;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.2);
+    }
+
+    svg.atom-svg {
+      width: 100%;
+      max-width: 470px;
+      height: auto;
+      display: block;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .stat-card {
+      padding: 16px;
+      border-radius: 18px;
+      background: white;
+      border: 1px solid var(--slate-200);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    }
+
+    .stat-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--slate-600);
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 30px;
+      font-weight: 900;
+    }
+
+    .stat-subtext {
+      color: var(--slate-500);
+      font-size: 14px;
+      margin-top: 2px;
+    }
+
+    .current-box {
+      background: var(--slate-900);
+      color: white;
+      padding: 20px;
+      border-radius: 18px;
+      margin-bottom: 16px;
+    }
+
+    .current-label {
+      color: var(--slate-300);
+      font-size: 14px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .current-title {
+      font-size: 32px;
+      line-height: 1.1;
+      font-weight: 900;
+    }
+
+    .key-sentence {
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--slate-900);
+      margin-bottom: 0;
+    }
+
+    .footer {
+      padding: 20px;
+      margin-top: 24px;
+    }
+
+    .tests-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .test-card {
+      border-radius: 18px;
+      padding: 14px;
+      border: 1px solid var(--slate-200);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .test-pass {
+      background: var(--emerald-50);
+      border-color: var(--emerald-200);
+    }
+
+    .test-fail {
+      background: var(--rose-50);
+      border-color: var(--rose-200);
+    }
+
+    .test-name {
+      font-weight: 900;
+      color: var(--slate-900);
+    }
+
+    .test-detail {
+      color: var(--slate-700);
+      font-size: 14px;
+    }
+
+    .summary-badges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .summary-badge {
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .badge-dark {
+      background: var(--slate-900);
+      color: white;
+    }
+
+    .badge-pass {
+      background: var(--emerald-100);
+      color: var(--emerald-800);
+    }
+
+    .badge-fail {
+      background: var(--rose-100);
+      color: var(--rose-800);
+    }
+
+    .icon {
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+      vertical-align: middle;
+      flex: 0 0 auto;
+    }
+
+    @media (max-width: 1050px) {
+      .main-grid, .sim-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .element-list {
+        max-height: 430px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        width: min(100% - 20px, 1280px);
+        padding: 12px 0;
+      }
+
+      .header-inner, .panel-top {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .stats-grid, .tests-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="card header">
+      <div class="header-inner">
+        <div>
+          <div class="pill"><span class="icon">⚛</span> Ion model</div>
+          <h1>Cations and Anions Simulator</h1>
+          <p class="lead">Explore the first 20 elements. Build a neutral atom, then form a simple ion by gaining or losing electrons where this is useful in an introductory shell model.</p>
+        </div>
+        <button class="btn btn-dark" id="resetBtn"><span class="icon">↺</span> Reset model</button>
+      </div>
+    </header>
+
+    <main class="main-grid">
+      <section class="card side-panel">
+        <h2>Choose an element</h2>
+        <div class="element-list" id="elementList"></div>
+        <div class="rule-box">
+          <h3>Classroom rule</h3>
+          <p>Metals usually lose electrons to form positive cations. Non-metals often gain electrons to form negative anions. Noble gases already have full outer shells and are usually unreactive.</p>
+        </div>
+      </section>
+
+      <section class="sim-grid">
+        <div class="card sim-panel">
+          <div class="panel-top">
+            <div>
+              <div class="panel-title" id="mainTitle">Na: neutral atom</div>
+              <p class="small-muted">Electron arrangement: <span class="bold" id="configLabel">2, 8, 1</span></p>
+            </div>
+            <div class="toggle-row">
+              <button class="btn btn-active" id="neutralBtn">Neutral atom</button>
+              <button class="btn btn-light" id="ionBtn">Form ion</button>
+            </div>
+          </div>
+
+          <div class="diagram-wrap">
+            <svg class="atom-svg" viewBox="0 0 360 360" aria-label="Atom shell diagram">
+              <defs>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="3" result="blur"></feGaussianBlur>
+                  <feMerge>
+                    <feMergeNode in="blur"></feMergeNode>
+                    <feMergeNode in="SourceGraphic"></feMergeNode>
+                  </feMerge>
+                </filter>
+              </defs>
+              <g id="shellLayer"></g>
+              <g id="nucleusLayer"></g>
+              <g id="electronLayer"></g>
+              <g id="lostLayer"></g>
+            </svg>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-title"><span class="icon">＋</span> Protons</div>
+              <div class="stat-value" id="protonCount">11</div>
+              <div class="stat-subtext">positive particles in the nucleus</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-title"><span class="icon">−</span> Electrons</div>
+              <div class="stat-value" id="electronCount">11</div>
+              <div class="stat-subtext">negative particles in shells</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-title"><span class="icon">↔</span> Overall charge</div>
+              <div class="stat-value" id="chargeValue">0</div>
+              <div class="stat-subtext" id="chargeSubtext">the atom is neutral</div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="card explain-panel">
+          <div class="current-box">
+            <div class="current-label"><span class="icon">✦</span> Current model</div>
+            <div class="current-title" id="currentTitle">Sodium starts as Na</div>
+          </div>
+
+          <div class="info-box">
+            <h3>What happens?</h3>
+            <p id="whatHappens">Sodium begins as a neutral atom.</p>
+          </div>
+
+          <div class="info-box">
+            <h3>Why is the charge formed?</h3>
+            <p id="whyCharge">Neutral atoms have equal numbers of protons and electrons.</p>
+          </div>
+
+          <div class="info-box">
+            <h3>Key sentence</h3>
+            <p class="key-sentence" id="keySentence">Lose electrons → positive ion → cation.</p>
+          </div>
+
+          <div class="note-box" id="noteBox" style="display: none;">
+            <h3>Model note</h3>
+            <p id="noteText"></p>
+          </div>
+
+          <div class="teacher-box">
+            <h3>Teacher prompt</h3>
+            <p>Ask: “Which is now larger, the number of protons or the number of electrons?”</p>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <footer class="card footer">
+      <h2>Model limits</h2>
+      <p>This model uses shell diagrams to make ion formation easier to visualise. Real electrons do not orbit like tiny planets. Some elements in the first 20, especially hydrogen, carbon, silicon and the noble gases, need extra care because their real chemical behaviour is more complex than a simple gain-or-lose electron model.</p>
+    </footer>
+
+    <section class="card footer" id="selfTests"></section>
+  </div>
+
+  <script>
+    const ELEMENTS = [
+      { name: "Hydrogen", symbol: "H", atomicNumber: 1, neutralConfig: [1], ionConfig: [], charge: 1, type: "cation", action: "loses 1 electron", explanation: "Hydrogen can lose one electron. It then has 1 proton and 0 electrons, so it becomes H⁺.", note: "Hydrogen is a special case because it can sometimes form H⁺ or H⁻ depending on the substance." },
+      { name: "Helium", symbol: "He", atomicNumber: 2, neutralConfig: [2], ionConfig: [2], charge: 0, type: "stable", action: "does not usually gain or lose electrons", explanation: "Helium already has a full first shell. In this simple model, it does not usually form a common ion.", note: "Helium is a noble gas and is usually very unreactive." },
+      { name: "Lithium", symbol: "Li", atomicNumber: 3, neutralConfig: [2, 1], ionConfig: [2], charge: 1, type: "cation", action: "loses 1 electron", explanation: "Lithium loses one outer electron. It then has 3 protons and 2 electrons, so it becomes Li⁺." },
+      { name: "Beryllium", symbol: "Be", atomicNumber: 4, neutralConfig: [2, 2], ionConfig: [2], charge: 2, type: "cation", action: "loses 2 electrons", explanation: "Beryllium loses two outer electrons. It then has 4 protons and 2 electrons, so it becomes Be²⁺." },
+      { name: "Boron", symbol: "B", atomicNumber: 5, neutralConfig: [2, 3], ionConfig: [2], charge: 3, type: "cation", action: "loses 3 electrons", explanation: "In this simplified model, boron loses three outer electrons. It then has 5 protons and 2 electrons, so it is shown as B³⁺.", note: "Boron often forms covalent compounds, so this is a simplified shell model rather than its most common behaviour." },
+      { name: "Carbon", symbol: "C", atomicNumber: 6, neutralConfig: [2, 4], ionConfig: [2, 8], charge: -4, type: "anion", action: "gains 4 electrons", explanation: "In this simplified model, carbon gains four electrons. It then has 6 protons and 10 electrons, so it is shown as C⁴⁻.", note: "Carbon usually shares electrons in covalent bonds. This ion view is a simplified model for shell stability." },
+      { name: "Nitrogen", symbol: "N", atomicNumber: 7, neutralConfig: [2, 5], ionConfig: [2, 8], charge: -3, type: "anion", action: "gains 3 electrons", explanation: "Nitrogen can gain three electrons. It then has 7 protons and 10 electrons, so it becomes N³⁻." },
+      { name: "Oxygen", symbol: "O", atomicNumber: 8, neutralConfig: [2, 6], ionConfig: [2, 8], charge: -2, type: "anion", action: "gains 2 electrons", explanation: "Oxygen gains two electrons. It then has 8 protons and 10 electrons, so it becomes O²⁻." },
+      { name: "Fluorine", symbol: "F", atomicNumber: 9, neutralConfig: [2, 7], ionConfig: [2, 8], charge: -1, type: "anion", action: "gains 1 electron", explanation: "Fluorine gains one electron. It then has 9 protons and 10 electrons, so it becomes F⁻." },
+      { name: "Neon", symbol: "Ne", atomicNumber: 10, neutralConfig: [2, 8], ionConfig: [2, 8], charge: 0, type: "stable", action: "does not usually gain or lose electrons", explanation: "Neon already has a full outer shell. In this simple model, it does not usually form a common ion.", note: "Neon is a noble gas and is usually very unreactive." },
+      { name: "Sodium", symbol: "Na", atomicNumber: 11, neutralConfig: [2, 8, 1], ionConfig: [2, 8], charge: 1, type: "cation", action: "loses 1 electron", explanation: "Sodium loses one outer electron. It then has 11 protons and 10 electrons, so it becomes Na⁺." },
+      { name: "Magnesium", symbol: "Mg", atomicNumber: 12, neutralConfig: [2, 8, 2], ionConfig: [2, 8], charge: 2, type: "cation", action: "loses 2 electrons", explanation: "Magnesium loses two outer electrons. It then has 12 protons and 10 electrons, so it becomes Mg²⁺." },
+      { name: "Aluminium", symbol: "Al", atomicNumber: 13, neutralConfig: [2, 8, 3], ionConfig: [2, 8], charge: 3, type: "cation", action: "loses 3 electrons", explanation: "Aluminium loses three outer electrons. It then has 13 protons and 10 electrons, so it becomes Al³⁺." },
+      { name: "Silicon", symbol: "Si", atomicNumber: 14, neutralConfig: [2, 8, 4], ionConfig: [2, 8, 8], charge: -4, type: "anion", action: "gains 4 electrons", explanation: "In this simplified model, silicon gains four electrons. It then has 14 protons and 18 electrons, so it is shown as Si⁴⁻.", note: "Silicon usually forms covalent network substances. This ion view is a simplified model for shell stability." },
+      { name: "Phosphorus", symbol: "P", atomicNumber: 15, neutralConfig: [2, 8, 5], ionConfig: [2, 8, 8], charge: -3, type: "anion", action: "gains 3 electrons", explanation: "Phosphorus can gain three electrons. It then has 15 protons and 18 electrons, so it becomes P³⁻." },
+      { name: "Sulfur", symbol: "S", atomicNumber: 16, neutralConfig: [2, 8, 6], ionConfig: [2, 8, 8], charge: -2, type: "anion", action: "gains 2 electrons", explanation: "Sulfur gains two electrons. It then has 16 protons and 18 electrons, so it becomes S²⁻." },
+      { name: "Chlorine", symbol: "Cl", atomicNumber: 17, neutralConfig: [2, 8, 7], ionConfig: [2, 8, 8], charge: -1, type: "anion", action: "gains 1 electron", explanation: "Chlorine gains one electron. It then has 17 protons and 18 electrons, so it becomes Cl⁻." },
+      { name: "Argon", symbol: "Ar", atomicNumber: 18, neutralConfig: [2, 8, 8], ionConfig: [2, 8, 8], charge: 0, type: "stable", action: "does not usually gain or lose electrons", explanation: "Argon already has a full outer shell. In this simple model, it does not usually form a common ion.", note: "Argon is a noble gas and is usually very unreactive." },
+      { name: "Potassium", symbol: "K", atomicNumber: 19, neutralConfig: [2, 8, 8, 1], ionConfig: [2, 8, 8], charge: 1, type: "cation", action: "loses 1 electron", explanation: "Potassium loses one outer electron. It then has 19 protons and 18 electrons, so it becomes K⁺." },
+      { name: "Calcium", symbol: "Ca", atomicNumber: 20, neutralConfig: [2, 8, 8, 2], ionConfig: [2, 8, 8], charge: 2, type: "cation", action: "loses 2 electrons", explanation: "Calcium loses two outer electrons. It then has 20 protons and 18 electrons, so it becomes Ca²⁺." }
+    ];
+
+    let selectedIndex = 10;
+    let showIon = false;
+
+    const SUPERSCRIPT = {
+      "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹", "+": "⁺", "-": "⁻"
+    };
+
+    function toSuperscript(value) {
+      return String(value).split("").map(char => SUPERSCRIPT[char] || char).join("");
+    }
+
+    function totalElectrons(config) {
+      return config.reduce((sum, value) => sum + value, 0);
+    }
+
+    function chargeText(charge) {
+      if (charge === 0) return "0";
+      const abs = Math.abs(charge);
+      const sign = charge > 0 ? "+" : "−";
+      return abs === 1 ? sign : `${abs}${sign}`;
+    }
+
+    function ionSymbol(element) {
+      if (element.charge === 0) return element.symbol;
+      const abs = Math.abs(element.charge);
+      const sign = element.charge > 0 ? "+" : "-";
+      const chargePart = abs === 1 ? toSuperscript(sign) : toSuperscript(abs + sign);
+      return `${element.symbol}${chargePart}`;
+    }
+
+    function shellLabel(config) {
+      return config.length === 0 ? "no electrons" : config.join(", ");
+    }
+
+    function electronPositions(config) {
+      const radii = [54, 90, 126, 162];
+      const positions = [];
+
+      config.forEach((count, shellIndex) => {
+        const radius = radii[shellIndex] || radii[radii.length - 1] + (shellIndex - radii.length + 1) * 36;
+        const offset = shellIndex % 2 === 0 ? -90 : -75;
+
+        for (let i = 0; i < count; i += 1) {
+          const angle = (((360 / count) * i + offset) * Math.PI) / 180;
+          positions.push({
+            id: `${shellIndex}-${i}`,
+            x: 180 + Math.cos(angle) * radius,
+            y: 180 + Math.sin(angle) * radius,
+            shell: shellIndex,
+            gained: false
+          });
+        }
+      });
+
+      return positions;
+    }
+
+    function gainedElectronIds(element) {
+      if (element.type !== "anion") return new Set();
+
+      const neutralCount = totalElectrons(element.neutralConfig);
+      const ionCount = totalElectrons(element.ionConfig);
+      const gained = ionCount - neutralCount;
+      if (gained <= 0) return new Set();
+
+      const shellIndex = element.ionConfig.length - 1;
+      const shellCount = element.ionConfig[shellIndex];
+      const ids = new Set();
+
+      for (let i = shellCount - gained; i < shellCount; i += 1) {
+        ids.add(`${shellIndex}-${i}`);
+      }
+
+      return ids;
+    }
+
+    function getVisibleElectrons(element, currentShowIon) {
+      if (!currentShowIon) return electronPositions(element.neutralConfig);
+
+      const base = electronPositions(element.ionConfig);
+      const gainedIds = gainedElectronIds(element);
+
+      return base.map(electron => ({
+        ...electron,
+        gained: gainedIds.has(electron.id)
+      }));
+    }
+
+    function getRemovedCount(element, currentShowIon) {
+      if (!currentShowIon || element.type !== "cation") return 0;
+      return totalElectrons(element.neutralConfig) - totalElectrons(element.ionConfig);
+    }
+
+    function getModelSummary(element, currentShowIon) {
+      const config = currentShowIon ? element.ionConfig : element.neutralConfig;
+      const electrons = totalElectrons(config);
+      const charge = currentShowIon ? element.charge : 0;
+
+      return {
+        symbol: currentShowIon ? ionSymbol(element) : element.symbol,
+        electrons,
+        protons: element.atomicNumber,
+        charge,
+        configLabel: shellLabel(config)
+      };
+    }
+
+    function elementSubtitle(element) {
+      return element.charge === 0 ? `${element.symbol} remains ${element.symbol}` : `${element.symbol} → ${ionSymbol(element)}`;
+    }
+
+    function currentStatusText(element) {
+      if (element.type === "stable") return "stable atom";
+      return showIon ? "ion" : "neutral atom";
+    }
+
+    function currentSubtext(element) {
+      if (!showIon) return "the atom is neutral";
+      if (element.type === "stable") return `${element.name} does not usually form a common ion in this model`;
+      const article = element.type === "anion" ? "an" : "a";
+      return `${element.name} is now ${article} ${element.type}`;
+    }
+
+    function ruleText(element) {
+      if (!showIon) return "Neutral atoms have equal numbers of protons and electrons.";
+      if (element.type === "cation") return "Cations are positive because electrons have been lost.";
+      if (element.type === "anion") return "Anions are negative because electrons have been gained.";
+      return "This atom already has a full outer shell in this simple model.";
+    }
+
+    function keySentence(element) {
+      if (element.type === "cation") return "Lose electrons → positive ion → cation.";
+      if (element.type === "anion") return "Gain electrons → negative ion → anion.";
+      return "Full outer shell → low reactivity → stable atom.";
+    }
+
+    function makeSvgElement(tag, attrs = {}) {
+      const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+      Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, value));
+      return el;
+    }
+
+    function drawAtom(element, currentShowIon) {
+      const config = currentShowIon ? element.ionConfig : element.neutralConfig;
+      const electrons = getVisibleElectrons(element, currentShowIon);
+      const shellLayer = document.getElementById("shellLayer");
+      const nucleusLayer = document.getElementById("nucleusLayer");
+      const electronLayer = document.getElementById("electronLayer");
+      const lostLayer = document.getElementById("lostLayer");
+      const shellRadii = [54, 90, 126, 162].slice(0, Math.max(config.length, 1));
+      const removedCount = getRemovedCount(element, currentShowIon);
+
+      shellLayer.innerHTML = "";
+      nucleusLayer.innerHTML = "";
+      electronLayer.innerHTML = "";
+      lostLayer.innerHTML = "";
+
+      shellRadii.forEach((radius, index) => {
+        shellLayer.appendChild(makeSvgElement("circle", {
+          cx: 180,
+          cy: 180,
+          r: radius,
+          fill: "none",
+          stroke: "rgba(148, 163, 184, 0.45)",
+          "stroke-width": 2,
+          "stroke-dasharray": index === config.length - 1 ? "0" : "5 5"
+        }));
+      });
+
+      nucleusLayer.appendChild(makeSvgElement("circle", {
+        cx: 180,
+        cy: 180,
+        r: 38,
+        fill: currentShowIon ? "#334155" : "#475569",
+        stroke: "rgba(255,255,255,0.55)",
+        "stroke-width": 2
+      }));
+
+      const label = makeSvgElement("text", {
+        x: 180,
+        y: 171,
+        "text-anchor": "middle",
+        fill: "white",
+        "font-size": 22,
+        "font-weight": 700
+      });
+      label.textContent = currentShowIon ? ionSymbol(element) : element.symbol;
+      nucleusLayer.appendChild(label);
+
+      const protonLabel = makeSvgElement("text", {
+        x: 180,
+        y: 195,
+        "text-anchor": "middle",
+        fill: "#e2e8f0",
+        "font-size": 12
+      });
+      protonLabel.textContent = `${element.atomicNumber}p⁺`;
+      nucleusLayer.appendChild(protonLabel);
+
+      electrons.forEach(electron => {
+        const group = makeSvgElement("g", { transform: `translate(${electron.x}, ${electron.y})` });
+        group.appendChild(makeSvgElement("circle", {
+          r: 9,
+          fill: electron.gained ? "#fb923c" : "#38bdf8",
+          stroke: "white",
+          "stroke-width": 1.5,
+          filter: "url(#glow)"
+        }));
+        const minus = makeSvgElement("text", {
+          y: 4,
+          "text-anchor": "middle",
+          fill: "white",
+          "font-size": 11,
+          "font-weight": 700
+        });
+        minus.textContent = "−";
+        group.appendChild(minus);
+        electronLayer.appendChild(group);
+      });
+
+      if (removedCount > 0) {
+        for (let index = 0; index < removedCount; index += 1) {
+          const group = makeSvgElement("g", { transform: `translate(${300 + index * 20}, ${58 + index * 16})` });
+          group.appendChild(makeSvgElement("circle", {
+            r: 9,
+            fill: "#38bdf8",
+            stroke: "white",
+            "stroke-width": 1.5,
+            opacity: 0.55
+          }));
+          const minus = makeSvgElement("text", {
+            y: 4,
+            "text-anchor": "middle",
+            fill: "white",
+            "font-size": 11,
+            "font-weight": 700
+          });
+          minus.textContent = "−";
+          group.appendChild(minus);
+          group.appendChild(makeSvgElement("line", {
+            x1: -12,
+            y1: -12,
+            x2: 12,
+            y2: 12,
+            stroke: "#f87171",
+            "stroke-width": 3
+          }));
+          lostLayer.appendChild(group);
+        }
+
+        const lostText = makeSvgElement("text", {
+          x: 302,
+          y: 110,
+          fill: "#fecaca",
+          "font-size": 12,
+          "font-weight": 600
+        });
+        lostText.textContent = "lost";
+        lostLayer.appendChild(lostText);
+      }
+    }
+
+    function renderElementList() {
+      const list = document.getElementById("elementList");
+      list.innerHTML = "";
+
+      ELEMENTS.forEach((element, index) => {
+        const button = document.createElement("button");
+        button.className = `element-btn ${index === selectedIndex ? "selected" : ""}`;
+        button.type = "button";
+        button.addEventListener("click", () => {
+          selectedIndex = index;
+          showIon = false;
+          render();
+        });
+
+        const left = document.createElement("div");
+        const name = document.createElement("div");
+        name.className = "element-name";
+        name.textContent = `${element.atomicNumber}. ${element.name}`;
+        const subtitle = document.createElement("div");
+        subtitle.className = "element-subtitle";
+        subtitle.textContent = elementSubtitle(element);
+        left.appendChild(name);
+        left.appendChild(subtitle);
+
+        const chip = document.createElement("div");
+        chip.className = `type-chip type-${element.type}`;
+        chip.textContent = element.type;
+
+        button.appendChild(left);
+        button.appendChild(chip);
+        list.appendChild(button);
+      });
+    }
+
+    function render() {
+      const element = ELEMENTS[selectedIndex];
+      const summary = getModelSummary(element, showIon);
+      const article = element.type === "anion" ? "an" : "a";
+
+      renderElementList();
+      drawAtom(element, showIon);
+
+      document.getElementById("mainTitle").textContent = `${summary.symbol}: ${currentStatusText(element)}`;
+      document.getElementById("configLabel").textContent = summary.configLabel;
+      document.getElementById("protonCount").textContent = summary.protons;
+      document.getElementById("electronCount").textContent = summary.electrons;
+      document.getElementById("chargeValue").textContent = chargeText(summary.charge);
+      document.getElementById("chargeSubtext").textContent = currentSubtext(element);
+      document.getElementById("ionBtn").textContent = element.type === "stable" ? "Show stable form" : "Form ion";
+      document.getElementById("neutralBtn").className = showIon ? "btn btn-light" : "btn btn-active";
+      document.getElementById("ionBtn").className = showIon ? "btn btn-active" : "btn btn-light";
+
+      document.getElementById("currentTitle").textContent = showIon
+        ? element.type === "stable"
+          ? `${element.name} is stable`
+          : `${element.name} forms ${ionSymbol(element)}`
+        : `${element.name} starts as ${element.symbol}`;
+
+      document.getElementById("whatHappens").textContent = showIon
+        ? `${element.name} ${element.action}.`
+        : `${element.name} begins as a neutral atom.`;
+
+      document.getElementById("whyCharge").textContent = showIon ? element.explanation : ruleText(element);
+      document.getElementById("keySentence").textContent = keySentence(element);
+
+      const noteBox = document.getElementById("noteBox");
+      if (element.note) {
+        noteBox.style.display = "block";
+        document.getElementById("noteText").textContent = element.note;
+      } else {
+        noteBox.style.display = "none";
+      }
+    }
+
+    function addResult(results, name, actual, expected) {
+      const pass = JSON.stringify(actual) === JSON.stringify(expected);
+      results.push({ name, actual, expected, pass });
+    }
+
+    function runSelfTests() {
+      const results = [];
+      addResult(results, "first 20 elements loaded", ELEMENTS.length, 20);
+      addResult(results, "hydrogen neutral electrons", getModelSummary(ELEMENTS[0], false).electrons, 1);
+      addResult(results, "hydrogen ion electrons", getModelSummary(ELEMENTS[0], true).electrons, 0);
+      addResult(results, "helium remains neutral", getModelSummary(ELEMENTS[1], true).charge, 0);
+      addResult(results, "totalElectrons([2,8,1])", totalElectrons([2, 8, 1]), 11);
+      addResult(results, "totalElectrons([2,8])", totalElectrons([2, 8]), 10);
+      addResult(results, "chargeText(0)", chargeText(0), "0");
+      addResult(results, "chargeText(1)", chargeText(1), "+");
+      addResult(results, "chargeText(-2)", chargeText(-2), "2−");
+      addResult(results, "ionSymbol(Sodium)", ionSymbol(ELEMENTS[10]), "Na⁺");
+      addResult(results, "ionSymbol(Magnesium)", ionSymbol(ELEMENTS[11]), "Mg²⁺");
+      addResult(results, "ionSymbol(Oxygen)", ionSymbol(ELEMENTS[7]), "O²⁻");
+      addResult(results, "ionSymbol(Neon)", ionSymbol(ELEMENTS[9]), "Ne");
+      addResult(results, "shellLabel([2,8,7])", shellLabel([2, 8, 7]), "2, 8, 7");
+      addResult(results, "removed electrons for sodium ion", getRemovedCount(ELEMENTS[10], true), 1);
+      addResult(results, "removed electrons for oxygen ion", getRemovedCount(ELEMENTS[7], true), 0);
+      addResult(results, "neutral sodium electrons", getModelSummary(ELEMENTS[10], false).electrons, 11);
+      addResult(results, "ion sodium electrons", getModelSummary(ELEMENTS[10], true).electrons, 10);
+      addResult(results, "ion oxygen electrons", getModelSummary(ELEMENTS[7], true).electrons, 10);
+      addResult(results, "ion chlorine config label", getModelSummary(ELEMENTS[16], true).configLabel, "2, 8, 8");
+      addResult(results, "potassium ion config label", getModelSummary(ELEMENTS[18], true).configLabel, "2, 8, 8");
+      addResult(results, "calcium ion symbol", ionSymbol(ELEMENTS[19]), "Ca²⁺");
+      return results;
+    }
+
+    function renderSelfTests() {
+      const tests = runSelfTests();
+      const passed = tests.filter(test => test.pass).length;
+      const failed = tests.length - passed;
+      const container = document.getElementById("selfTests");
+      container.innerHTML = "";
+
+      const title = document.createElement("h2");
+      title.textContent = "Self-checks";
+      container.appendChild(title);
+
+      const intro = document.createElement("p");
+      intro.textContent = "These simple built-in checks test the key helper functions used by the simulator.";
+      container.appendChild(intro);
+
+      const badges = document.createElement("div");
+      badges.className = "summary-badges";
+      badges.innerHTML = `
+        <div class="summary-badge badge-dark">Total: ${tests.length}</div>
+        <div class="summary-badge badge-pass">Passed: ${passed}</div>
+        <div class="summary-badge badge-fail">Failed: ${failed}</div>
+      `;
+      container.appendChild(badges);
+
+      const grid = document.createElement("div");
+      grid.className = "tests-grid";
+
+      tests.forEach(test => {
+        const card = document.createElement("div");
+        card.className = `test-card ${test.pass ? "test-pass" : "test-fail"}`;
+        card.innerHTML = `
+          <div class="icon">${test.pass ? "✓" : "✕"}</div>
+          <div>
+            <div class="test-name"></div>
+            <div class="test-detail">Expected: <strong></strong></div>
+            <div class="test-detail">Actual: <strong></strong></div>
+          </div>
+        `;
+        card.querySelector(".test-name").textContent = test.name;
+        const strongs = card.querySelectorAll("strong");
+        strongs[0].textContent = String(test.expected);
+        strongs[1].textContent = String(test.actual);
+        grid.appendChild(card);
+      });
+
+      container.appendChild(grid);
+    }
+
+    document.getElementById("neutralBtn").addEventListener("click", () => {
+      showIon = false;
+      render();
+    });
+
+    document.getElementById("ionBtn").addEventListener("click", () => {
+      showIon = true;
+      render();
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      showIon = false;
+      render();
+    });
+
+    render();
+    renderSelfTests();
+  </script>
+</body>
+</html>
