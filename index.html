@@ -6,7 +6,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 900px;
+      max-width: 1000px;
       margin: 40px auto;
       padding: 20px;
       background: #f5f7fb;
@@ -18,12 +18,51 @@
       margin-bottom: 5px;
     }
 
-    .card {
+    h2 {
+      margin-top: 34px;
+      font-size: 28px;
+    }
+
+    p {
+      line-height: 1.5;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
       background: white;
       border-radius: 14px;
-      padding: 20px;
-      margin: 16px 0;
+      overflow: hidden;
       box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      margin: 16px 0 30px;
+    }
+
+    th {
+      background: #e9eef8;
+      text-align: left;
+      padding: 14px 16px;
+      font-size: 15px;
+    }
+
+    td {
+      padding: 16px;
+      border-top: 1px solid #e5e7eb;
+      vertical-align: top;
+    }
+
+    .sim-name {
+      font-weight: bold;
+      font-size: 18px;
+      width: 30%;
+    }
+
+    .sim-description {
+      width: 50%;
+    }
+
+    .sim-link {
+      width: 20%;
+      text-align: right;
     }
 
     a {
@@ -34,64 +73,102 @@
       text-decoration: none;
       border-radius: 8px;
       font-weight: bold;
+      white-space: nowrap;
     }
 
     a:hover {
       background: #1d4ed8;
     }
+
+    @media (max-width: 700px) {
+      table, thead, tbody, tr, th, td {
+        display: block;
+      }
+
+      thead {
+        display: none;
+      }
+
+      tr {
+        border-top: 1px solid #e5e7eb;
+        padding: 12px 0;
+      }
+
+      td {
+        border-top: none;
+        padding: 8px 16px;
+      }
+
+      .sim-name,
+      .sim-description,
+      .sim-link {
+        width: auto;
+        text-align: left;
+      }
+    }
   </style>
 </head>
+
 <body>
 
   <h1>SciSims</h1>
   <p>A collection of classroom science simulations.</p>
-<h2>BioSims</h2>
-  <div class="card">
-    
-  <h2>Pandemic Simulation</h2>
-  <p>Model how an infectious disease can spread through a population.</p>
-  <a href="BioSims/Pandemic/">Open sim</a>
-</div>
-  <div class="card">
-  <h3>Petri Dish Bacterial Growth Simulator</h3>
-  <p>Explore how bacteria grow in a petri dish under different conditions.</p>
-  <a href="BioSims/PetriBacteria/">Open sim</a>
-</div>
+
+  <h2>BioSims</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Simulation</th>
+        <th>Description</th>
+        <th>Open</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="sim-name">Pandemic Simulation</td>
+        <td class="sim-description">Model how an infectious disease can spread through a population.</td>
+        <td class="sim-link"><a href="BioSims/Pandemic/">Open sim</a></td>
+      </tr>
+
+      <tr>
+        <td class="sim-name">Petri Dish Bacterial Growth Simulator</td>
+        <td class="sim-description">Explore how bacteria grow in a petri dish under different conditions.</td>
+        <td class="sim-link"><a href="BioSims/PetriBacteria/">Open sim</a></td>
+      </tr>
+    </tbody>
+  </table>
+
   <h2>ChemSims</h2>
-  <div class="card">
-    <h2>Element Symbol and Name Matching Game</h2>
-    <p>Match chemical symbols to their correct element names.</p>
-<a href="ChemSims/Element_Game/">Open sim</a>
-  </div>
-<h2>ChemSims</h2>
 
-<div class="card">
-  <h3>Element Symbol and Name Matching Game</h3>
-  <p>Match chemical symbols to their correct element names.</p>
-  <a href="ChemSims/Element_Game/">Open sim</a>
-</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Simulation</th>
+        <th>Description</th>
+        <th>Open</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="sim-name">Element Symbol and Name Matching Game</td>
+        <td class="sim-description">Match chemical symbols to their correct element names.</td>
+        <td class="sim-link"><a href="ChemSims/Element_Game/">Open sim</a></td>
+      </tr>
 
-<div class="card">
-  <h3>Cations and Anions Simulator</h3>
-  <p>Model how atoms gain or lose electrons to form positive and negative ions.</p>
-  <a href="ChemSims/CationsAnions/">Open sim</a>
-</div>
+      <tr>
+        <td class="sim-name">Cations and Anions Simulator</td>
+        <td class="sim-description">Model how atoms gain or lose electrons to form positive and negative ions.</td>
+        <td class="sim-link"><a href="ChemSims/CationsAnions/">Open sim</a></td>
+      </tr>
 
-<div class="card">
-  <h3>Bonding Simulator</h3>
-  <p>Explore how atoms interact through ionic and covalent bonding.</p>
-  <a href="ChemSims/Bonding/">Open sim</a>
-</div>
-  <div class="card">
-  <h3>Cations and Anions Simulator</h3>
-  <p>Model how atoms gain or lose electrons to form positive and negative ions.</p>
-  <a href="ChemSims/CationsAnions/">Open sim</a>
-</div>
+      <tr>
+        <td class="sim-name">Bonding Simulator</td>
+        <td class="sim-description">Explore how atoms interact through ionic and covalent bonding.</td>
+        <td class="sim-link"><a href="ChemSims/Bonding/">Open sim</a></td>
+      </tr>
+    </tbody>
+  </table>
 
-<div class="card">
-  <h3>Bonding Simulator</h3>
-  <p>Explore how atoms interact through ionic and covalent bonding.</p>
-  <a href="ChemSims/Bonding/">Open sim</a>
-</div>
 </body>
 </html>
