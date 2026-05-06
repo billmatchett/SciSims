@@ -1,16 +1,39 @@
-<!DOCTYPE html> 
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en-AU">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SciSims</title>
   <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #5f6b7a;
+      --line: #e5e7eb;
+      --header: #e9eef8;
+      --button: #2563eb;
+      --button-hover: #1d4ed8;
+      --inactive: #94a3b8;
+      --shadow: 0 4px 14px rgba(0,0,0,0.08);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       font-family: Arial, sans-serif;
       max-width: 1000px;
       margin: 40px auto;
       padding: 20px;
-      background: #f5f7fb;
-      color: #1f2937;
+      background: var(--bg);
+      color: var(--text);
     }
 
     h1 {
@@ -31,18 +54,18 @@
       width: 100%;
       max-height: 260px;
       object-fit: cover;
-      border-radius: 14px;
+      border-radius: var(--radius);
       display: block;
       margin: 20px 0 30px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      box-shadow: var(--shadow);
     }
 
     .contents {
-      background: white;
-      border-radius: 14px;
+      background: var(--panel);
+      border-radius: var(--radius);
       padding: 18px 20px;
       margin: 20px 0 30px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      box-shadow: var(--shadow);
     }
 
     .contents h2 {
@@ -50,33 +73,41 @@
       font-size: 24px;
     }
 
-    .contents a {
-      margin-right: 10px;
-      margin-bottom: 10px;
+    .contents-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .section-intro {
+      color: var(--muted);
+      margin-top: -8px;
+      margin-bottom: 14px;
     }
 
     .section-banner {
       width: 100%;
       height: 120px;
       object-fit: cover;
-      border-radius: 14px;
+      border-radius: var(--radius);
       display: block;
       margin: 10px 0 16px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      box-shadow: var(--shadow);
+      background: #dbe4f0;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      background: white;
-      border-radius: 14px;
+      background: var(--panel);
+      border-radius: var(--radius);
       overflow: hidden;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      box-shadow: var(--shadow);
       margin: 16px 0 30px;
     }
 
     th {
-      background: #e9eef8;
+      background: var(--header);
       text-align: left;
       padding: 14px 16px;
       font-size: 15px;
@@ -84,7 +115,7 @@
 
     td {
       padding: 16px;
-      border-top: 1px solid #e5e7eb;
+      border-top: 1px solid var(--line);
       vertical-align: top;
     }
 
@@ -106,7 +137,7 @@
     a {
       display: inline-block;
       padding: 10px 16px;
-      background: #2563eb;
+      background: var(--button);
       color: white;
       text-decoration: none;
       border-radius: 8px;
@@ -115,10 +146,42 @@
     }
 
     a:hover {
-      background: #1d4ed8;
+      background: var(--button-hover);
+    }
+
+    .coming-soon {
+      display: inline-block;
+      padding: 10px 16px;
+      background: var(--inactive);
+      color: white;
+      border-radius: 8px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .placeholder-row td {
+      color: var(--muted);
+      background: #f8fafc;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-top: 36px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
     }
 
     @media (max-width: 700px) {
+      body {
+        margin: 20px auto;
+        padding: 14px;
+      }
+
+      h1 {
+        font-size: 34px;
+      }
+
       table, thead, tbody, tr, th, td {
         display: block;
       }
@@ -128,7 +191,7 @@
       }
 
       tr {
-        border-top: 1px solid #e5e7eb;
+        border-top: 1px solid var(--line);
         padding: 12px 0;
       }
 
@@ -143,6 +206,10 @@
         width: auto;
         text-align: left;
       }
+
+      .sim-link {
+        padding-top: 12px;
+      }
     }
   </style>
 </head>
@@ -154,71 +221,156 @@
 
   <img src="mainbanner.png" alt="Science simulations banner" class="hero-image">
 
-  <div class="contents">
+  <nav class="contents" aria-label="SciSims contents">
     <h2>Contents</h2>
-    <a href="#biosims">BioSims</a>
-    <a href="#chemsims">ChemSims</a>
-  </div>
+    <div class="contents-links">
+      <a href="#biosims">BioSims</a>
+      <a href="#chemsims">ChemSims</a>
+      <a href="#earthsims">Earth Science</a>
+      <a href="#physicssims">Physics</a>
+      <a href="#interestingsims">Interesting Sims</a>
+    </div>
+  </nav>
 
-  <h2 id="biosims">BioSims</h2>
+  <section class="sim-section" id="biosims">
+    <h2>BioSims</h2>
+    <p class="section-intro">Biology simulations for modelling living systems, disease, growth and change.</p>
 
-  <img src="biosims.png" alt="BioSims biology simulations banner" class="section-banner">
+    <img src="biosims.png" alt="BioSims biology simulations banner" class="section-banner">
 
-  <table>
-    <thead>
-      <tr>
-        <th>Simulation</th>
-        <th>Description</th>
-        <th>Open</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="sim-name">Pandemic Simulation</td>
-        <td class="sim-description">Model how an infectious disease can spread through a population.</td>
-        <td class="sim-link"><a href="BioSims/Pandemic/">Open sim</a></td>
-      </tr>
+    <table>
+      <thead>
+        <tr>
+          <th>Simulation</th>
+          <th>Description</th>
+          <th>Open</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="sim-name">Pandemic Simulation</td>
+          <td class="sim-description">Model how an infectious disease can spread through a population.</td>
+          <td class="sim-link"><a href="BioSims/Pandemic/">Open sim</a></td>
+        </tr>
 
-      <tr>
-        <td class="sim-name">Petri Dish Bacterial Growth Simulator</td>
-        <td class="sim-description">Explore how bacteria grow in a petri dish under different conditions.</td>
-        <td class="sim-link"><a href="BioSims/PetriBacteria/">Open sim</a></td>
-      </tr>
-    </tbody>
-  </table>
+        <tr>
+          <td class="sim-name">Petri Dish Bacterial Growth Simulator</td>
+          <td class="sim-description">Explore how bacteria grow in a petri dish under different conditions.</td>
+          <td class="sim-link"><a href="BioSims/PetriBacteria/">Open sim</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
 
-  <h2 id="chemsims">ChemSims</h2>
+  <section class="sim-section" id="chemsims">
+    <h2>ChemSims</h2>
+    <p class="section-intro">Chemistry simulations and games for atoms, elements, ions and bonding.</p>
 
-  <img src="chemsims.png" alt="ChemSims chemistry simulations banner" class="section-banner">
+    <img src="chemsims.png" alt="ChemSims chemistry simulations banner" class="section-banner">
 
-  <table>
-    <thead>
-      <tr>
-        <th>Simulation</th>
-        <th>Description</th>
-        <th>Open</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="sim-name">Element Symbol and Name Matching Game</td>
-        <td class="sim-description">Match chemical symbols to their correct element names.</td>
-        <td class="sim-link"><a href="ChemSims/Element_Game/">Open sim</a></td>
-      </tr>
+    <table>
+      <thead>
+        <tr>
+          <th>Simulation</th>
+          <th>Description</th>
+          <th>Open</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="sim-name">Element Symbol and Name Matching Game</td>
+          <td class="sim-description">Match chemical symbols to their correct element names.</td>
+          <td class="sim-link"><a href="ChemSims/Element_Game/">Open sim</a></td>
+        </tr>
 
-      <tr>
-        <td class="sim-name">Cations and Anions Simulator</td>
-        <td class="sim-description">Model how atoms gain or lose electrons to form positive and negative ions.</td>
-        <td class="sim-link"><a href="ChemSims/CationsAnions/">Open sim</a></td>
-      </tr>
+        <tr>
+          <td class="sim-name">Cations and Anions Simulator</td>
+          <td class="sim-description">Model how atoms gain or lose electrons to form positive and negative ions.</td>
+          <td class="sim-link"><a href="ChemSims/CationsAnions/">Open sim</a></td>
+        </tr>
 
-      <tr>
-        <td class="sim-name">Bonding Simulator</td>
-        <td class="sim-description">Explore how atoms interact through ionic and covalent bonding.</td>
-        <td class="sim-link"><a href="ChemSims/Bonding/">Open sim</a></td>
-      </tr>
-    </tbody>
-  </table>
+        <tr>
+          <td class="sim-name">Bonding Simulator</td>
+          <td class="sim-description">Explore how atoms interact through ionic and covalent bonding.</td>
+          <td class="sim-link"><a href="ChemSims/Bonding/">Open sim</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="sim-section" id="earthsims">
+    <h2>Earth Science</h2>
+    <p class="section-intro">Earth and space simulations for geology, weather, climate, resources and planetary systems.</p>
+
+    <img src="earthsims.png" alt="Earth Science simulations banner" class="section-banner">
+
+    <table>
+      <thead>
+        <tr>
+          <th>Simulation</th>
+          <th>Description</th>
+          <th>Open</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="placeholder-row">
+          <td class="sim-name">Future Earth Science sim</td>
+          <td class="sim-description">Add Earth Science simulations here as they are created.</td>
+          <td class="sim-link"><span class="coming-soon">Coming soon</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="sim-section" id="physicssims">
+    <h2>Physics</h2>
+    <p class="section-intro">Physics simulations for forces, motion, energy, waves, electricity and light.</p>
+
+    <img src="physicssims.png" alt="Physics simulations banner" class="section-banner">
+
+    <table>
+      <thead>
+        <tr>
+          <th>Simulation</th>
+          <th>Description</th>
+          <th>Open</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="placeholder-row">
+          <td class="sim-name">Future Physics sim</td>
+          <td class="sim-description">Add Physics simulations here as they are created.</td>
+          <td class="sim-link"><span class="coming-soon">Coming soon</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="sim-section" id="interestingsims">
+    <h2>Interesting Sims</h2>
+    <p class="section-intro">Cross-topic, unusual or experimental simulations that do not fit neatly into one science area.</p>
+
+    <img src="interestingsims.png" alt="Interesting simulations banner" class="section-banner">
+
+    <table>
+      <thead>
+        <tr>
+          <th>Simulation</th>
+          <th>Description</th>
+          <th>Open</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="placeholder-row">
+          <td class="sim-name">Future interesting sim</td>
+          <td class="sim-description">Add unusual, cross-topic or experimental sims here.</td>
+          <td class="sim-link"><span class="coming-soon">Coming soon</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <p class="footer-note">To add a new sim, copy one table row, update the simulation name, description and folder link, then place the new HTML file in the matching GitHub Pages folder.</p>
 
 </body>
 </html>
