@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Greenhouse Effect Energy Balance Simulator</title>
+  <style>
+    :root {
+      --bg: #eef5fb;
+      --panel: #ffffff;
+      --ink: #162033;
+      --muted: #5b6b7d;
+      --line: #d7e2ee;
+      --blue: #2563eb;
+      --blue-dark: #1d4ed8;
+      --sun: #fbbf24;
+      --ir: #ef4444;
+      --surface: #2f855a;
+      --space: #0f172a;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.10);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at top left, #e0f2fe 0%, var(--bg) 45%, #f8fafc 100%);
+    }
+
+    .page {
+      width: min(1300px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 20px 0 36px;
+    }
+
+    .home-link {
+      display: inline-block;
+      margin: 0 0 16px 0;
+      padding: 10px 14px;
+      background: #e0ecff;
+      color: #1d4ed8;
+      text-decoration: none;
+      font-weight: 800;
+      border-radius: 10px;
+      border: 1px solid #bfdbfe;
+    }
+
+    .home-link:hover { background: #c7ddff; }
+
+    header {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+    }
+
+    .subtitle {
+      max-width: 950px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin: 0;
+      font-size: 1.02rem;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 18px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .controls {
+      padding: 18px;
+      align-self: start;
+      position: sticky;
+      top: 14px;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 1rem;
+    }
+
+    .control-group {
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+      margin-top: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .slider-row {
+      display: grid;
+      gap: 6px;
+    }
+
+    .label-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 0.93rem;
+    }
+
+    .value {
+      color: var(--blue);
+      white-space: nowrap;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #f8fafc;
+      color: var(--ink);
+      padding: 11px 12px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.12s ease, background 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.10);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .primary {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: white;
+    }
+
+    .primary:hover { background: var(--blue-dark); }
+
+    .note {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .stage {
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .top-readouts {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .readout {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #f8fafc;
+      padding: 11px;
+    }
+
+    .readout-label {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .readout-value {
+      font-size: 1.15rem;
+      font-weight: 900;
+    }
+
+    .sim-area {
+      position: relative;
+      height: min(62vw, 560px);
+      min-height: 440px;
+      overflow: hidden;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #071126 0%, #123563 35%, #76b7e5 63%, #d6f0ff 100%);
+    }
+
+    .space-label,
+    .atmosphere-label,
+    .surface-label {
+      position: absolute;
+      left: 14px;
+      z-index: 10;
+      font-weight: 900;
+      color: white;
+      background: rgba(15, 23, 42, 0.42);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 999px;
+      padding: 7px 11px;
+      backdrop-filter: blur(6px);
+    }
+
+    .space-label { top: 14px; }
+    .atmosphere-label { top: 43%; }
+    .surface-label { bottom: 18px; }
+
+    .sun {
+      position: absolute;
+      top: 44px;
+      left: 34px;
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #fff7b2 0%, #fbbf24 45%, #f97316 100%);
+      box-shadow: 0 0 35px rgba(251, 191, 36, 0.8), 0 0 90px rgba(251, 191, 36, 0.45);
+      z-index: 4;
+    }
+
+    .atmosphere-band {
+      position: absolute;
+      left: -8%;
+      right: -8%;
+      top: 38%;
+      height: 26%;
+      border-radius: 50%;
+      background: rgba(125, 211, 252, 0.26);
+      border-top: 2px solid rgba(186, 230, 253, 0.55);
+      border-bottom: 2px solid rgba(186, 230, 253, 0.55);
+      box-shadow: inset 0 0 40px rgba(255, 255, 255, 0.18);
+      z-index: 1;
+    }
+
+    .clouds {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 34%;
+      height: 70px;
+      pointer-events: none;
+      opacity: 0.35;
+      z-index: 3;
+    }
+
+    .cloud {
+      position: absolute;
+      width: 130px;
+      height: 38px;
+      background: rgba(255, 255, 255, 0.84);
+      border-radius: 999px;
+      filter: blur(0.2px);
+    }
+
+    .cloud::before,
+    .cloud::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.86);
+    }
+
+    .cloud::before {
+      width: 54px;
+      height: 54px;
+      left: 22px;
+      top: -24px;
+    }
+
+    .cloud::after {
+      width: 68px;
+      height: 68px;
+      left: 58px;
+      top: -34px;
+    }
+
+    .surface {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 22%;
+      background: linear-gradient(180deg, #56a66f 0%, #2f855a 52%, #1f5f44 100%);
+      border-top: 5px solid rgba(236, 253, 245, 0.45);
+      z-index: 2;
+    }
+
+    .surface.dark {
+      background: linear-gradient(180deg, #5f6b3a 0%, #3f4f2f 58%, #27331f 100%);
+    }
+
+    .surface.ice {
+      background: linear-gradient(180deg, #e0f2fe 0%, #bae6fd 48%, #eaf9ff 100%);
+    }
+
+    .molecule-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .molecule {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid rgba(37, 99, 235, 0.65);
+      box-shadow: 0 0 10px rgba(96, 165, 250, 0.45);
+    }
+
+    .molecule::before,
+    .molecule::after {
+      content: "";
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(96, 165, 250, 0.92);
+      top: 4px;
+    }
+
+    .molecule::before { left: -9px; }
+    .molecule::after { right: -9px; }
+
+    .molecule.flash {
+      animation: flashMolecule 0.7s ease-out;
+    }
+
+    @keyframes flashMolecule {
+      0% { box-shadow: 0 0 8px rgba(96, 165, 250, 0.35); transform: scale(1); }
+      35% { box-shadow: 0 0 24px rgba(251, 113, 133, 0.95); transform: scale(1.25); }
+      100% { box-shadow: 0 0 8px rgba(96, 165, 250, 0.35); transform: scale(1); }
+    }
+
+    canvas#arrowCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 6;
+      pointer-events: none;
+    }
+
+    .thermometer {
+      position: absolute;
+      right: 22px;
+      bottom: 28px;
+      width: 76px;
+      height: 220px;
+      border-radius: 999px 999px 40px 40px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 2px solid rgba(255, 255, 255, 0.86);
+      z-index: 8;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.22);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 18px;
+    }
+
+    .tube {
+      position: relative;
+      width: 18px;
+      height: 160px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 2px solid #cbd5e1;
+    }
+
+    .mercury {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 48%;
+      background: linear-gradient(180deg, #fca5a5, var(--ir));
+      border-radius: 999px;
+    }
+
+    .bulb {
+      position: absolute;
+      bottom: 12px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--ir);
+      border: 3px solid #fee2e2;
+    }
+
+    .graph-card {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #f8fafc;
+    }
+
+    .graph-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+
+    canvas#graphCanvas {
+      width: 100%;
+      height: 170px;
+      background: white;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      display: block;
+    }
+
+    .explain {
+      padding: 14px 16px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      line-height: 1.5;
+    }
+
+    .balance-warming { color: #dc2626; }
+    .balance-cooling { color: #2563eb; }
+    .balance-stable { color: #047857; }
+
+    @media (max-width: 1050px) {
+      .layout { grid-template-columns: 1fr; }
+      .controls { position: static; }
+      .top-readouts { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+    }
+
+    @media (max-width: 650px) {
+      .page { width: min(100% - 20px, 1300px); padding-top: 12px; }
+      .button-grid { grid-template-columns: 1fr; }
+      .top-readouts { grid-template-columns: 1fr; }
+      .sim-area { min-height: 500px; }
+      .thermometer { transform: scale(0.85); transform-origin: bottom right; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+
+    <header>
+      <h1>Greenhouse Effect Energy Balance Simulator</h1>
+      <p class="subtitle">A simplified classroom model showing how incoming sunlight, reflection, outgoing infrared radiation and greenhouse gas absorption affect Earth’s surface temperature.</p>
+    </header>
+
+    <div class="layout">
+      <aside class="card controls">
+        <h2>Controls</h2>
+        <div class="button-grid">
+          <button id="playPauseBtn" class="primary">Pause</button>
+          <button id="resetBtn">Reset</button>
+        </div>
+
+        <div class="control-group">
+          <div class="slider-row">
+            <div class="label-line"><span>Greenhouse gas level</span><span class="value" id="ghgValue">45%</span></div>
+            <input id="ghg" type="range" min="0" max="100" step="1" value="45" />
+          </div>
+          <div class="slider-row">
+            <div class="label-line"><span>Solar intensity</span><span class="value" id="solarValue">100%</span></div>
+            <input id="solar" type="range" min="60" max="140" step="1" value="100" />
+          </div>
+          <div class="slider-row">
+            <div class="label-line"><span>Surface albedo</span><span class="value" id="albedoValue">30%</span></div>
+            <input id="albedo" type="range" min="5" max="80" step="1" value="30" />
+          </div>
+          <div class="slider-row">
+            <div class="label-line"><span>Cloud cover</span><span class="value" id="cloudValue">25%</span></div>
+            <input id="cloud" type="range" min="0" max="100" step="1" value="25" />
+          </div>
+          <div class="slider-row">
+            <div class="label-line"><span>Simulation speed</span><span class="value" id="speedValue">1.0×</span></div>
+            <input id="speed" type="range" min="0.2" max="4" step="0.1" value="1" />
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>Presets</h3>
+          <div class="button-grid">
+            <button data-preset="none">No atmosphere</button>
+            <button data-preset="natural">Natural effect</button>
+            <button data-preset="enhanced">Enhanced effect</button>
+            <button data-preset="ice">High albedo ice</button>
+            <button data-preset="dark">Dark surface</button>
+            <button data-preset="cloudy">Cloudy world</button>
+          </div>
+        </div>
+
+        <div class="note">
+          <strong>Model limit:</strong> This is not a full climate model. It is designed to show the basic energy balance idea: if Earth absorbs more energy than it loses to space, temperature rises. If it loses more energy than it absorbs, temperature falls.
+        </div>
+      </aside>
+
+      <main class="card stage">
+        <section class="top-readouts">
+          <div class="readout">
+            <div class="readout-label">Surface temperature</div>
+            <div class="readout-value" id="tempReadout">15.0 °C</div>
+          </div>
+          <div class="readout">
+            <div class="readout-label">Absorbed sunlight</div>
+            <div class="readout-value" id="absorbedReadout">0 W/m²</div>
+          </div>
+          <div class="readout">
+            <div class="readout-label">Reflected sunlight</div>
+            <div class="readout-value" id="reflectedReadout">0 W/m²</div>
+          </div>
+          <div class="readout">
+            <div class="readout-label">Escaping infrared</div>
+            <div class="readout-value" id="escapingReadout">0 W/m²</div>
+          </div>
+          <div class="readout">
+            <div class="readout-label">Energy balance</div>
+            <div class="readout-value" id="balanceReadout">stable</div>
+          </div>
+        </section>
+
+        <section class="sim-area" id="simArea" aria-label="Greenhouse effect visual model">
+          <div class="space-label">Space</div>
+          <div class="atmosphere-label">Atmosphere</div>
+          <div class="surface-label">Surface</div>
+          <div class="sun"></div>
+          <div class="atmosphere-band"></div>
+          <div class="clouds" id="cloudLayer">
+            <div class="cloud" style="left:18%; top:18px;"></div>
+            <div class="cloud" style="left:43%; top:6px; transform:scale(0.85);"></div>
+            <div class="cloud" style="left:68%; top:22px; transform:scale(1.08);"></div>
+          </div>
+          <div class="surface" id="surface"></div>
+          <div class="molecule-layer" id="moleculeLayer"></div>
+          <canvas id="arrowCanvas"></canvas>
+          <div class="thermometer">
+            <div class="tube"><div class="mercury" id="mercury"></div></div>
+            <div class="bulb"></div>
+          </div>
+        </section>
+
+        <section class="graph-card">
+          <div class="graph-top">
+            <span>Temperature over model time</span>
+            <span id="timeReadout">Model time: 0 days</span>
+          </div>
+          <canvas id="graphCanvas" width="1000" height="220"></canvas>
+        </section>
+
+        <section class="explain" id="explainBox">
+          Greenhouse gases allow most incoming sunlight through, but absorb and re-emit some outgoing infrared radiation. More retained infrared energy tends to increase the surface temperature until a new energy balance is reached.
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const controls = {
+      ghg: document.getElementById('ghg'),
+      solar: document.getElementById('solar'),
+      albedo: document.getElementById('albedo'),
+      cloud: document.getElementById('cloud'),
+      speed: document.getElementById('speed')
+    };
+
+    const readouts = {
+      ghgValue: document.getElementById('ghgValue'),
+      solarValue: document.getElementById('solarValue'),
+      albedoValue: document.getElementById('albedoValue'),
+      cloudValue: document.getElementById('cloudValue'),
+      speedValue: document.getElementById('speedValue'),
+      temp: document.getElementById('tempReadout'),
+      absorbed: document.getElementById('absorbedReadout'),
+      reflected: document.getElementById('reflectedReadout'),
+      escaping: document.getElementById('escapingReadout'),
+      balance: document.getElementById('balanceReadout'),
+      time: document.getElementById('timeReadout')
+    };
+
+    const arrowCanvas = document.getElementById('arrowCanvas');
+    const arrowCtx = arrowCanvas.getContext('2d');
+    const graphCanvas = document.getElementById('graphCanvas');
+    const graphCtx = graphCanvas.getContext('2d');
+    const moleculeLayer = document.getElementById('moleculeLayer');
+    const cloudLayer = document.getElementById('cloudLayer');
+    const mercury = document.getElementById('mercury');
+    const surface = document.getElementById('surface');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const explainBox = document.getElementById('explainBox');
+
+    let running = true;
+    let temperatureC = 15;
+    let modelDays = 0;
+    let lastFrame = 0;
+    let pulse = 0;
+    let history = [];
+    let rays = [];
+    let moleculeFlashTimer = 0;
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function rand(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    function pointOnQuadraticBezier(p0, p1, p2, t) {
+      const x =
+        (1 - t) * (1 - t) * p0.x +
+        2 * (1 - t) * t * p1.x +
+        t * t * p2.x;
+
+      const y =
+        (1 - t) * (1 - t) * p0.y +
+        2 * (1 - t) * t * p1.y +
+        t * t * p2.y;
+
+      return { x, y };
+    }
+
+    function currentSettings() {
+      return {
+        ghg: Number(controls.ghg.value) / 100,
+        solar: Number(controls.solar.value) / 100,
+        albedo: Number(controls.albedo.value) / 100,
+        cloud: Number(controls.cloud.value) / 100,
+        speed: Number(controls.speed.value)
+      };
+    }
+
+    function calculateEnergy() {
+      const s = currentSettings();
+      const incomingSolar = 340 * s.solar;
+      const cloudReflection = s.cloud * 0.22;
+      const effectiveAlbedo = clamp(s.albedo + cloudReflection, 0.03, 0.90);
+      const reflectedSolar = incomingSolar * effectiveAlbedo;
+      const absorbedSolar = incomingSolar - reflectedSolar;
+      const tempK = temperatureC + 273.15;
+      const surfaceIR = 390 * Math.pow(tempK / 288.15, 4);
+      const ghgRetention = clamp(0.18 + s.ghg * 0.42 + s.cloud * 0.10, 0.02, 0.82);
+      const retainedIR = surfaceIR * ghgRetention;
+      const escapingIR = surfaceIR - retainedIR;
+      const imbalance = absorbedSolar - escapingIR;
+
+      return { incomingSolar, effectiveAlbedo, reflectedSolar, absorbedSolar, surfaceIR, ghgRetention, retainedIR, escapingIR, imbalance };
+    }
+
+    function resizeCanvasToDisplaySize(canvas) {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const width = Math.round(rect.width * dpr);
+      const height = Math.round(rect.height * dpr);
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+      }
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return { width: rect.width, height: rect.height };
+    }
+
+    function spawnRay(type, w, h) {
+      const s = currentSettings();
+      const e = calculateEnergy();
+
+      if (type === 'solar') {
+        const startY = rand(88, 285);
+        const endX = rand(w * 0.42, w * 0.64);
+        const endY = rand(h * 0.70, h * 0.80);
+        return {
+          type,
+          t: rand(-0.20, 1),
+          speed: rand(0.18, 0.34) * clamp(s.solar, 0.5, 1.5),
+          width: rand(3.5, 5.6),
+          alpha: rand(0.58, 1),
+          colour: '#fbbf24',
+          glow: '#fde68a',
+          wobble: rand(4, 10),
+          phase: rand(0, Math.PI * 2),
+          p0: { x: 120, y: startY },
+          p1: { x: w * 0.28, y: lerp(startY, endY, 0.45) + rand(-45, 45) },
+          p2: { x: endX, y: endY }
+        };
+      }
+
+      if (type === 'reflected') {
+        const startX = rand(w * 0.30, w * 0.64);
+        const startY = rand(h * 0.58, h * 0.70);
+        return {
+          type,
+          t: rand(-0.30, 1),
+          speed: rand(0.18, 0.34) * clamp(e.effectiveAlbedo + 0.6, 0.5, 1.4),
+          width: rand(2.4, 4.1),
+          alpha: rand(0.42, 0.82),
+          colour: '#fde68a',
+          glow: '#fef3c7',
+          wobble: rand(3, 8),
+          phase: rand(0, Math.PI * 2),
+          p0: { x: startX, y: startY },
+          p1: { x: startX - rand(20, 95), y: h * 0.38 + rand(-32, 22) },
+          p2: { x: startX - rand(45, 140), y: rand(70, 160) }
+        };
+      }
+
+      if (type === 'escapingIR') {
+        const startX = rand(w * 0.34, w * 0.70);
+        const startY = rand(h * 0.73, h * 0.81);
+        return {
+          type,
+          t: rand(-0.25, 1),
+          speed: rand(0.15, 0.28),
+          width: rand(3.2, 5.2),
+          alpha: rand(0.44, 0.88),
+          colour: '#ef4444',
+          glow: '#fecaca',
+          wobble: rand(7, 15),
+          phase: rand(0, Math.PI * 2),
+          p0: { x: startX, y: startY },
+          p1: { x: startX + rand(-30, 30), y: h * 0.47 + rand(-35, 35) },
+          p2: { x: startX + rand(-42, 42), y: rand(58, 132) }
+        };
+      }
+
+      const midX = rand(w * 0.30, w * 0.70);
+      const midY = rand(h * 0.41, h * 0.58);
+      return {
+        type: 'retainedIR',
+        t: rand(-0.25, 1),
+        speed: rand(0.14, 0.25) * clamp(e.ghgRetention + 0.55, 0.45, 1.35),
+        width: rand(2.7, 4.5),
+        alpha: rand(0.40, 0.86),
+        colour: '#fb7185',
+        glow: '#fda4af',
+        wobble: rand(8, 17),
+        phase: rand(0, Math.PI * 2),
+        p0: { x: midX, y: midY },
+        p1: { x: midX + rand(-70, 70), y: midY + rand(25, 80) },
+        p2: { x: midX + rand(-95, 95), y: h * 0.75 + rand(-10, 18) }
+      };
+    }
+
+    function desiredRayCounts(w, h) {
+      const s = currentSettings();
+      const e = calculateEnergy();
+
+      return {
+        solar: Math.round(8 + s.solar * 8),
+        reflected: Math.round(2 + e.effectiveAlbedo * 10),
+        escapingIR: Math.round(3 + (e.escapingIR / 310) * 8),
+        retainedIR: Math.round(2 + e.ghgRetention * 14)
+      };
+    }
+
+    function syncRays() {
+      const { width: w, height: h } = resizeCanvasToDisplaySize(arrowCanvas);
+      const targets = desiredRayCounts(w, h);
+      const types = ['solar', 'reflected', 'escapingIR', 'retainedIR'];
+
+      types.forEach(type => {
+        const current = rays.filter(ray => ray.type === type).length;
+        const needed = targets[type] - current;
+
+        if (needed > 0) {
+          for (let i = 0; i < needed; i++) rays.push(spawnRay(type, w, h));
+        }
+
+        if (needed < -2) {
+          let removeCount = Math.abs(needed);
+          rays = rays.filter(ray => {
+            if (ray.type === type && removeCount > 0 && ray.t > 0.65) {
+              removeCount--;
+              return false;
+            }
+            return true;
+          });
+        }
+      });
+    }
+
+    function updateRays(dt) {
+      const { width: w, height: h } = resizeCanvasToDisplaySize(arrowCanvas);
+      rays.forEach(ray => {
+        ray.t += ray.speed * dt;
+        ray.phase += dt * 4;
+      });
+
+      rays = rays.map(ray => {
+        if (ray.t <= 1) return ray;
+        return spawnRay(ray.type, w, h);
+      });
+    }
+
+    function drawRayHead(ctx, x, y, angle, size, colour, alpha) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = colour;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(-size, size * 0.45);
+      ctx.lineTo(-size, -size * 0.45);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawRays() {
+      const { width: w, height: h } = resizeCanvasToDisplaySize(arrowCanvas);
+      arrowCtx.clearRect(0, 0, w, h);
+
+      rays.forEach(ray => {
+        const t = clamp(ray.t, 0, 1);
+        const tailT = clamp(t - 0.10, 0, 1);
+        const head = pointOnQuadraticBezier(ray.p0, ray.p1, ray.p2, t);
+        const tail = pointOnQuadraticBezier(ray.p0, ray.p1, ray.p2, tailT);
+        const dx = head.x - tail.x;
+        const dy = head.y - tail.y;
+        const angle = Math.atan2(dy, dx);
+        const wobbleOffset = Math.sin(ray.phase + t * 10) * ray.wobble;
+        const nx = Math.cos(angle + Math.PI / 2) * wobbleOffset * 0.16;
+        const ny = Math.sin(angle + Math.PI / 2) * wobbleOffset * 0.16;
+        const fade = Math.sin(t * Math.PI);
+        const alpha = ray.alpha * fade;
+
+        arrowCtx.save();
+        arrowCtx.globalAlpha = alpha;
+        arrowCtx.strokeStyle = ray.colour;
+        arrowCtx.lineWidth = ray.width;
+        arrowCtx.lineCap = 'round';
+        arrowCtx.shadowColor = ray.glow;
+        arrowCtx.shadowBlur = 11;
+        arrowCtx.beginPath();
+        arrowCtx.moveTo(tail.x - nx, tail.y - ny);
+        arrowCtx.lineTo(head.x + nx, head.y + ny);
+        arrowCtx.stroke();
+        arrowCtx.restore();
+
+        drawRayHead(
+          arrowCtx,
+          head.x + nx,
+          head.y + ny,
+          angle,
+          ray.width * 3.2,
+          ray.colour,
+          alpha
+        );
+      });
+    }
+
+    function flashRandomMolecule(dt) {
+      moleculeFlashTimer -= dt;
+      const s = currentSettings();
+      if (moleculeFlashTimer > 0 || s.ghg < 0.08) return;
+
+      moleculeFlashTimer = rand(0.18, 0.55) / clamp(s.ghg + 0.35, 0.35, 1.35);
+      const molecules = moleculeLayer.querySelectorAll('.molecule');
+      if (molecules.length === 0) return;
+      const molecule = molecules[Math.floor(Math.random() * molecules.length)];
+      molecule.classList.remove('flash');
+      void molecule.offsetWidth;
+      molecule.classList.add('flash');
+    }
+
+    function resetModel(temp = 15) {
+      temperatureC = temp;
+      modelDays = 0;
+      history = [];
+      rays = [];
+      for (let i = 0; i < 120; i++) history.push(temperatureC);
+      updateEverything();
+    }
+
+    function applyPreset(name) {
+      const presets = {
+        none: { ghg: 0, solar: 100, albedo: 30, cloud: 0, temp: -5 },
+        natural: { ghg: 45, solar: 100, albedo: 30, cloud: 25, temp: 15 },
+        enhanced: { ghg: 82, solar: 100, albedo: 30, cloud: 25, temp: 15 },
+        ice: { ghg: 45, solar: 100, albedo: 68, cloud: 20, temp: -10 },
+        dark: { ghg: 45, solar: 100, albedo: 12, cloud: 10, temp: 20 },
+        cloudy: { ghg: 45, solar: 100, albedo: 30, cloud: 80, temp: 15 }
+      };
+      const p = presets[name];
+      controls.ghg.value = p.ghg;
+      controls.solar.value = p.solar;
+      controls.albedo.value = p.albedo;
+      controls.cloud.value = p.cloud;
+      resetModel(p.temp);
+    }
+
+    function updateLabels() {
+      readouts.ghgValue.textContent = `${controls.ghg.value}%`;
+      readouts.solarValue.textContent = `${controls.solar.value}%`;
+      readouts.albedoValue.textContent = `${controls.albedo.value}%`;
+      readouts.cloudValue.textContent = `${controls.cloud.value}%`;
+      readouts.speedValue.textContent = `${Number(controls.speed.value).toFixed(1)}×`;
+    }
+
+    function updateMolecules() {
+      const s = currentSettings();
+      const target = Math.round(5 + s.ghg * 35);
+      moleculeLayer.innerHTML = '';
+      for (let i = 0; i < target; i++) {
+        const mol = document.createElement('div');
+        mol.className = 'molecule';
+        const x = 18 + ((i * 17) % 70) + Math.sin(i * 2.1) * 4;
+        const y = 40 + ((i * 23) % 18) + Math.cos(i * 1.3) * 4;
+        mol.style.left = `${x}%`;
+        mol.style.top = `${y}%`;
+        mol.style.transform = `scale(${0.75 + (i % 5) * 0.06}) rotate(${i * 23}deg)`;
+        mol.style.opacity = `${0.35 + s.ghg * 0.55}`;
+        moleculeLayer.appendChild(mol);
+      }
+      cloudLayer.style.opacity = `${0.12 + s.cloud * 0.75}`;
+
+      const albedo = Number(controls.albedo.value);
+      surface.classList.toggle('ice', albedo > 55);
+      surface.classList.toggle('dark', albedo < 18);
+    }
+
+    function setBalanceReadout(imbalance) {
+      const abs = Math.abs(imbalance);
+      readouts.balance.classList.remove('balance-warming', 'balance-cooling', 'balance-stable');
+      if (abs < 3) {
+        readouts.balance.textContent = 'stable';
+        readouts.balance.classList.add('balance-stable');
+      } else if (imbalance > 0) {
+        readouts.balance.textContent = 'warming';
+        readouts.balance.classList.add('balance-warming');
+      } else {
+        readouts.balance.textContent = 'cooling';
+        readouts.balance.classList.add('balance-cooling');
+      }
+    }
+
+    function updateReadouts() {
+      const e = calculateEnergy();
+      readouts.temp.textContent = `${temperatureC.toFixed(1)} °C`;
+      readouts.absorbed.textContent = `${Math.round(e.absorbedSolar)} W/m²`;
+      readouts.reflected.textContent = `${Math.round(e.reflectedSolar)} W/m²`;
+      readouts.escaping.textContent = `${Math.round(e.escapingIR)} W/m²`;
+      readouts.time.textContent = `Model time: ${Math.round(modelDays)} days`;
+      setBalanceReadout(e.imbalance);
+
+      const mercuryHeight = clamp((temperatureC + 30) / 90, 0.03, 0.98) * 100;
+      mercury.style.height = `${mercuryHeight}%`;
+
+      explainBox.innerHTML = `Absorbed sunlight is <strong>${Math.round(e.absorbedSolar)} W/m²</strong>. Escaping infrared is <strong>${Math.round(e.escapingIR)} W/m²</strong>. The current imbalance is <strong>${e.imbalance.toFixed(1)} W/m²</strong>, so the model is <strong>${readouts.balance.textContent}</strong>.`;
+    }
+
+    function drawGraph() {
+      const ctx = graphCtx;
+      const w = graphCanvas.width;
+      const h = graphCanvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.strokeStyle = '#e5e7eb';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 5; i++) {
+        const y = 20 + i * ((h - 40) / 5);
+        ctx.beginPath();
+        ctx.moveTo(40, y);
+        ctx.lineTo(w - 16, y);
+        ctx.stroke();
+      }
+
+      const minT = -30;
+      const maxT = 60;
+      function yForTemp(t) {
+        return 20 + (maxT - t) / (maxT - minT) * (h - 40);
+      }
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = '13px Arial';
+      [-20, 0, 20, 40, 60].forEach(t => {
+        ctx.fillText(`${t}°C`, 5, yForTemp(t) + 4);
+      });
+
+      if (history.length < 2) return;
+      ctx.strokeStyle = '#dc2626';
+      ctx.lineWidth = 4;
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      history.forEach((t, i) => {
+        const x = 42 + i / (history.length - 1) * (w - 60);
+        const y = yForTemp(t);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+    }
+
+    function step(dt) {
+      const s = currentSettings();
+      const e = calculateEnergy();
+      const modelStep = dt * s.speed;
+      const heatCapacity = 0.0045;
+      temperatureC += e.imbalance * heatCapacity * modelStep;
+      temperatureC = clamp(temperatureC, -40, 70);
+      modelDays += modelStep * 3;
+
+      if (history.length === 0 || Math.abs(history[history.length - 1] - temperatureC) > 0.08 || Math.random() < 0.08) {
+        history.push(temperatureC);
+        if (history.length > 180) history.shift();
+      }
+    }
+
+    function updateEverything() {
+      updateLabels();
+      updateMolecules();
+      updateReadouts();
+      syncRays();
+      drawRays();
+      drawGraph();
+    }
+
+    function animate(timestamp) {
+      if (!lastFrame) lastFrame = timestamp;
+      const dt = clamp((timestamp - lastFrame) / 1000, 0, 0.05);
+      lastFrame = timestamp;
+      pulse += dt;
+
+      if (running) {
+        step(dt * 10);
+        updateRays(dt);
+        flashRandomMolecule(dt);
+      }
+
+      updateEverything();
+      requestAnimationFrame(animate);
+    }
+
+    Object.values(controls).forEach(control => {
+      control.addEventListener('input', () => {
+        syncRays();
+        updateEverything();
+      });
+    });
+
+    document.querySelectorAll('[data-preset]').forEach(button => {
+      button.addEventListener('click', () => applyPreset(button.dataset.preset));
+    });
+
+    playPauseBtn.addEventListener('click', () => {
+      running = !running;
+      playPauseBtn.textContent = running ? 'Pause' : 'Play';
+      playPauseBtn.classList.toggle('primary', running);
+    });
+
+    resetBtn.addEventListener('click', () => resetModel(15));
+    window.addEventListener('resize', () => {
+      rays = [];
+      updateEverything();
+    });
+
+    resetModel(15);
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>
