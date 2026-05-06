@@ -32,6 +32,22 @@
       padding: 22px clamp(18px, 4vw, 48px) 12px;
     }
 
+    .home-link {
+      display: inline-block;
+      margin: 0 0 16px 0;
+      padding: 10px 14px;
+      background: #e0ecff;
+      color: #1d4ed8;
+      text-decoration: none;
+      font-weight: 800;
+      border-radius: 10px;
+      border: 1px solid #bfdbfe;
+    }
+
+    .home-link:hover {
+      background: #c7ddff;
+    }
+
     h1 {
       margin: 0 0 6px;
       font-size: clamp(1.65rem, 3vw, 2.6rem);
@@ -379,6 +395,7 @@
 </head>
 <body>
   <header>
+    <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
     <h1>Electron Shell Bonding Simulator</h1>
     <p class="subtitle">Model how atoms gain, lose or share electrons to achieve a stable outer shell. Use the diagrams as a digital version of counters on electron shell mats.</p>
   </header>
