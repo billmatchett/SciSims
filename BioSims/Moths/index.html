@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Peppered Moth Evolution Simulator</title>
+  <style>
+    :root {
+      --bg: #f3f6fb;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #64748b;
+      --line: #d7dee8;
+      --accent: #2563eb;
+      --accent-dark: #1d4ed8;
+      --good: #15803d;
+      --bad: #b91c1c;
+      --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    .page {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 22px;
+    }
+
+    .home-link {
+      display: inline-block;
+      margin-bottom: 16px;
+      padding: 9px 14px;
+      border-radius: 999px;
+      background: #e0ecff;
+      color: #1e3a8a;
+      text-decoration: none;
+      font-weight: 700;
+      border: 1px solid #bcd3ff;
+    }
+
+    header {
+      background: linear-gradient(135deg, #eaf2ff 0%, #ffffff 58%, #eefdf3 100%);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 44px);
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      max-width: 960px;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 16px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 20px;
+    }
+
+    .control {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    label span:last-child {
+      color: var(--accent-dark);
+      font-variant-numeric: tabular-nums;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    select {
+      width: 100%;
+      padding: 9px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 12px;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: var(--accent-dark);
+    }
+
+    button.secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    button.secondary:hover {
+      background: #d1d5db;
+    }
+
+    button.green {
+      background: var(--good);
+    }
+
+    button.red {
+      background: var(--bad);
+    }
+
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(100px, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .stat {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    .stat .number {
+      display: block;
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 3px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .stat .label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.25;
+    }
+
+    canvas {
+      width: 100%;
+      display: block;
+      background: #d7c8a4;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+    }
+
+    #worldCanvas {
+      height: 440px;
+    }
+
+    #graphCanvas {
+      height: 270px;
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .timeline-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px;
+      background: #f8fafc;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .timeline-card strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .timeline-card.active {
+      border-color: var(--accent);
+      background: #eff6ff;
+      box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.2);
+    }
+
+    .current-explanation {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: #ecfdf5;
+      border: 1px solid #bbf7d0;
+      color: #14532d;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .current-explanation strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 9px;
+      background: #ffffff;
+    }
+
+    .swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      border: 1px solid rgba(0, 0, 0, 0.2);
+    }
+
+    .explain {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .idea {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 12px;
+      min-height: 125px;
+    }
+
+    .idea strong {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 14px;
+    }
+
+    .idea p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.42;
+    }
+
+    .notice {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #7c2d12;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .mini-note {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 1040px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .explain {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 14px;
+      }
+
+      .stats,
+      .explain,
+      .button-grid,
+      .timeline {
+        grid-template-columns: 1fr;
+      }
+
+      #worldCanvas {
+        height: 370px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <a class="home-link" href="/SciSims/">&larr; Back to main SciSims page</a>
+
+    <header>
+      <h1>Peppered Moth Evolution Simulator</h1>
+      <p class="subtitle">Model the classic peppered moth example of natural selection. The population begins in a clean, light-barked environment, then pollution darkens the tree bark, and later the environment becomes cleaner again. Survival advantage shifts as camouflage changes.</p>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <h2>Controls</h2>
+
+        <div class="control">
+          <label for="environmentMode">Environment mode</label>
+          <select id="environmentMode">
+            <option value="auto">Auto story: clean to polluted to clean again</option>
+            <option value="manual">Manual environment</option>
+            <option value="cycle">Auto cycle</option>
+          </select>
+        </div>
+
+        <div class="control">
+          <label for="manualEnvironment">Manual environment</label>
+          <select id="manualEnvironment">
+            <option value="clean">Clean light bark</option>
+            <option value="polluted">Polluted dark bark</option>
+            <option value="recovery">Recovering bark</option>
+          </select>
+        </div>
+
+        <div class="control">
+          <label for="predationSlider">Selection pressure <span id="predationValue">75%</span></label>
+          <input id="predationSlider" type="range" min="0" max="100" value="75">
+        </div>
+
+        <div class="control">
+          <label for="mutationSlider">Mutation chance <span id="mutationValue">2%</span></label>
+          <input id="mutationSlider" type="range" min="0" max="20" value="2">
+        </div>
+
+        <div class="control">
+          <label for="populationSlider">Population size <span id="populationValue">160</span></label>
+          <input id="populationSlider" type="range" min="40" max="300" value="160" step="10">
+        </div>
+
+        <div class="control">
+          <label for="speedSlider">Simulation speed <span id="speedValue">650 ms</span></label>
+          <input id="speedSlider" type="range" min="120" max="1600" value="650" step="20">
+        </div>
+
+        <div class="control">
+          <label for="startLightSlider">Starting light moths <span id="startLightValue">80%</span></label>
+          <input id="startLightSlider" type="range" min="0" max="100" value="80">
+        </div>
+
+        <div class="button-grid">
+          <button id="playPauseBtn" class="green">Start</button>
+          <button id="stepBtn">Step 1 generation</button>
+          <button id="stepTenBtn">Step 10 generations</button>
+          <button id="resetBtn" class="secondary">Reset</button>
+          <button id="exportBtn" class="secondary">Download data</button>
+          <button id="randomiseBtn" class="secondary">Randomise start</button>
+          <button id="cleanBtn" class="secondary">Clean bark</button>
+          <button id="pollutedBtn" class="secondary">Polluted bark</button>
+        </div>
+
+        <div class="notice">The moths do not change colour during their own lifetime. Evolution is shown by changes in the percentage of light and dark moths across generations.</div>
+      </section>
+
+      <section class="sim-grid">
+        <section class="panel">
+          <div class="stats">
+            <div class="stat"><span id="generationStat" class="number">0</span><span class="label">Generation</span></div>
+            <div class="stat"><span id="environmentStat" class="number">Clean</span><span class="label">Environment</span></div>
+            <div class="stat"><span id="lightStat" class="number">80%</span><span class="label">Light moths</span></div>
+            <div class="stat"><span id="darkStat" class="number">20%</span><span class="label">Dark moths</span></div>
+            <div class="stat"><span id="survivalStat" class="number">0%</span><span class="label">Survived last generation</span></div>
+            <div class="stat"><span id="advantageStat" class="number">Light</span><span class="label">Current advantage</span></div>
+          </div>
+
+          <canvas id="worldCanvas" width="900" height="440" aria-label="Peppered moth population simulation canvas"></canvas>
+
+          <div class="timeline">
+            <div id="phaseClean" class="timeline-card"><strong>Generations 0 to 20</strong>Clean environment. Light moths are harder for predators to see.</div>
+            <div id="phasePolluted" class="timeline-card"><strong>Generations 21 to 40</strong>Pollution darkens bark. Dark moths now have better camouflage.</div>
+            <div id="phaseRecovery" class="timeline-card"><strong>Generations 41 to 60</strong>Clean-up begins. Bark becomes lighter and the advantage starts to shift.</div>
+            <div id="phaseCleanAgain" class="timeline-card"><strong>Generations 61 onwards</strong>Clean environment returns. Light moths are again harder to see.</div>
+          </div>
+
+          <div id="currentExplanation" class="current-explanation">
+            <strong>Current explanation</strong>
+            Clean, light bark makes light moths harder to see, so light moths currently have the survival advantage.
+          </div>
+
+          <div class="legend">
+            <span class="pill"><span class="swatch" style="background:#e8dfc4"></span> Light moth</span>
+            <span class="pill"><span class="swatch" style="background:#1f2937"></span> Dark moth</span>
+            <span class="pill">Bird predation favours the better-camouflaged moth type</span>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Population change over time</h2>
+          <canvas id="graphCanvas" width="900" height="270" aria-label="Graph showing light moths, dark moths and environment over generations"></canvas>
+          <div class="legend">
+            <span class="pill"><span class="swatch" style="background:#2563eb"></span> Light moth percentage</span>
+            <span class="pill"><span class="swatch" style="background:#1f2937"></span> Dark moth percentage</span>
+            <span class="pill"><span class="swatch" style="background:#b45309"></span> Bark lightness</span>
+            <span class="pill">Vertical markers show auto-story pollution and clean-up events</span>
+          </div>
+          <p class="mini-note">Bark lightness is scaled from 0% dark to 100% light. Event markers are shown in auto story and auto cycle modes. The graph shows the most recent 120 generations.</p>
+        </section>
+
+        <section class="panel">
+          <h2>What the model represents</h2>
+          <div class="explain">
+            <div class="idea"><strong>Variation</strong><p>The population contains both light and dark moths. This inherited variation is already present before selection occurs.</p></div>
+            <div class="idea"><strong>Environmental change</strong><p>When pollution darkens bark, the trait with the survival advantage changes. When bark lightens again, the advantage can shift back.</p></div>
+            <div class="idea"><strong>Natural selection</strong><p>Predators are more likely to catch moths that stand out. Better-camouflaged moths are more likely to survive and reproduce.</p></div>
+            <div class="idea"><strong>Inheritance and mutation</strong><p>Offspring usually match their parent colour. Rare mutation can switch colour and add variation to the next generation.</p></div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    var worldCanvas = document.getElementById("worldCanvas");
+    var worldCtx = worldCanvas.getContext("2d");
+    var graphCanvas = document.getElementById("graphCanvas");
+    var graphCtx = graphCanvas.getContext("2d");
+
+    var environmentMode = document.getElementById("environmentMode");
+    var manualEnvironment = document.getElementById("manualEnvironment");
+    var predationSlider = document.getElementById("predationSlider");
+    var mutationSlider = document.getElementById("mutationSlider");
+    var populationSlider = document.getElementById("populationSlider");
+    var speedSlider = document.getElementById("speedSlider");
+    var startLightSlider = document.getElementById("startLightSlider");
+
+    var predationValue = document.getElementById("predationValue");
+    var mutationValue = document.getElementById("mutationValue");
+    var populationValue = document.getElementById("populationValue");
+    var speedValue = document.getElementById("speedValue");
+    var startLightValue = document.getElementById("startLightValue");
+
+    var playPauseBtn = document.getElementById("playPauseBtn");
+    var stepBtn = document.getElementById("stepBtn");
+    var stepTenBtn = document.getElementById("stepTenBtn");
+    var resetBtn = document.getElementById("resetBtn");
+    var exportBtn = document.getElementById("exportBtn");
+    var randomiseBtn = document.getElementById("randomiseBtn");
+    var cleanBtn = document.getElementById("cleanBtn");
+    var pollutedBtn = document.getElementById("pollutedBtn");
+
+    var generationStat = document.getElementById("generationStat");
+    var environmentStat = document.getElementById("environmentStat");
+    var lightStat = document.getElementById("lightStat");
+    var darkStat = document.getElementById("darkStat");
+    var survivalStat = document.getElementById("survivalStat");
+    var advantageStat = document.getElementById("advantageStat");
+
+    var phaseClean = document.getElementById("phaseClean");
+    var phasePolluted = document.getElementById("phasePolluted");
+    var phaseRecovery = document.getElementById("phaseRecovery");
+    var phaseCleanAgain = document.getElementById("phaseCleanAgain");
+    var currentExplanation = document.getElementById("currentExplanation");
+
+    var CLEAN_LIGHTNESS = 86;
+    var POLLUTED_LIGHTNESS = 16;
+    var RECOVERY_LIGHTNESS = 62;
+    var CLEAN_END = 20;
+    var POLLUTED_END = 40;
+    var RECOVERY_END = 60;
+
+    var population = [];
+    var simHistory = [];
+    var generation = 0;
+    var running = false;
+    var generationTimer = null;
+    var lastSurvivalPercent = 0;
+    var lastMutationCount = 0;
+    var animationTime = 0;
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function rand(min, max) {
+      return min + Math.random() * (max - min);
+    }
+
+    function getSettings() {
+      return {
+        mode: environmentMode.value,
+        manual: manualEnvironment.value,
+        predation: Number(predationSlider.value),
+        mutation: Number(mutationSlider.value),
+        populationSize: Number(populationSlider.value),
+        speed: Number(speedSlider.value),
+        startLight: Number(startLightSlider.value)
+      };
+    }
+
+    function environmentForGeneration(gen) {
+      var settings = getSettings();
+      var storyGen;
+      var progress;
+      var lightness;
+
+      if (typeof gen !== "number") {
+        gen = generation;
+      }
+
+      if (settings.mode === "manual") {
+        if (settings.manual === "clean") {
+          return { name: "Clean", lightness: CLEAN_LIGHTNESS, phase: "clean" };
+        }
+        if (settings.manual === "polluted") {
+          return { name: "Polluted", lightness: POLLUTED_LIGHTNESS, phase: "polluted" };
+        }
+        return { name: "Recovering", lightness: RECOVERY_LIGHTNESS, phase: "recovery" };
+      }
+
+      storyGen = gen;
+
+      if (settings.mode === "cycle") {
+        storyGen = gen % (RECOVERY_END + 1);
+      }
+
+      if (storyGen <= CLEAN_END) {
+        return { name: "Clean", lightness: CLEAN_LIGHTNESS, phase: "clean" };
+      }
+
+      if (storyGen <= POLLUTED_END) {
+        return { name: "Polluted", lightness: POLLUTED_LIGHTNESS, phase: "polluted" };
+      }
+
+      if (storyGen <= RECOVERY_END) {
+        progress = (storyGen - POLLUTED_END) / (RECOVERY_END - POLLUTED_END);
+        lightness = POLLUTED_LIGHTNESS + (CLEAN_LIGHTNESS - POLLUTED_LIGHTNESS) * progress;
+        return { name: "Recovering", lightness: lightness, phase: "recovery" };
+      }
+
+      return { name: "Clean again", lightness: CLEAN_LIGHTNESS, phase: "clean-again" };
+    }
+
+    function updateLabels() {
+      var settings = getSettings();
+      predationValue.textContent = settings.predation + "%";
+      mutationValue.textContent = settings.mutation + "%";
+      populationValue.textContent = String(settings.populationSize);
+      speedValue.textContent = settings.speed + " ms";
+      startLightValue.textContent = settings.startLight + "%";
+    }
+
+    function createMoth(type) {
+      var margin = 30;
+      return {
+        type: type,
+        x: rand(margin, Math.max(margin + 1, worldCanvas.width - margin)),
+        y: rand(margin, Math.max(margin + 1, worldCanvas.height - margin)),
+        vx: rand(-0.16, 0.16),
+        vy: rand(-0.12, 0.12),
+        angle: rand(0, Math.PI * 2),
+        wingPhase: rand(0, Math.PI * 2),
+        size: rand(5.5, 8.5),
+        survivor: true
+      };
+    }
+
+    function createInitialPopulation(randomise) {
+      var settings = getSettings();
+      var lightPercent = settings.startLight;
+      var i;
+      var type;
+
+      if (randomise) {
+        lightPercent = Math.round(rand(20, 90));
+        startLightSlider.value = String(lightPercent);
+      }
+
+      population = [];
+
+      for (i = 0; i < settings.populationSize; i += 1) {
+        type = Math.random() * 100 < lightPercent ? "light" : "dark";
+        population.push(createMoth(type));
+      }
+    }
+
+    function lightPercentage() {
+      var lightCount = 0;
+      var i;
+
+      if (population.length === 0) {
+        return 0;
+      }
+
+      for (i = 0; i < population.length; i += 1) {
+        if (population[i].type === "light") {
+          lightCount += 1;
+        }
+      }
+
+      return Math.round((lightCount / population.length) * 100);
+    }
+
+    function darkPercentage() {
+      return 100 - lightPercentage();
+    }
+
+    function survivalChance(moth, env) {
+      var settings = getSettings();
+      var mothLightness = moth.type === "light" ? 88 : 12;
+      var contrast = Math.abs(mothLightness - env.lightness) / 100;
+      var camouflage = 1 - contrast;
+      var pressure = settings.predation / 100;
+      var baseSurvival = 0.93 - pressure * 0.58;
+      var camouflageBonus = camouflage * pressure * 0.76;
+      return clamp(baseSurvival + camouflageBonus, 0.03, 0.98);
+    }
+
+    function currentAdvantage(env) {
+      var lightChance;
+      var darkChance;
+
+      if (!env) {
+        env = environmentForGeneration();
+      }
+
+      lightChance = survivalChance({ type: "light" }, env);
+      darkChance = survivalChance({ type: "dark" }, env);
+
+      if (Math.abs(lightChance - darkChance) < 0.03) {
+        return "Similar";
+      }
+
+      return lightChance > darkChance ? "Light" : "Dark";
+    }
+
+    function runGeneration() {
+      var settings = getSettings();
+      var env = environmentForGeneration(generation);
+      var survivors = [];
+      var nextPopulation = [];
+      var i;
+      var moth;
+      var chance;
+      var parent;
+      var childType;
+
+      for (i = 0; i < population.length; i += 1) {
+        moth = population[i];
+        chance = survivalChance(moth, env);
+        moth.survivor = Math.random() < chance;
+        if (moth.survivor) {
+          survivors.push(moth);
+        }
+      }
+
+      if (survivors.length === 0) {
+        survivors.push(createMoth(env.lightness > 50 ? "light" : "dark"));
+      }
+
+      lastSurvivalPercent = Math.round((survivors.length / population.length) * 100);
+      lastMutationCount = 0;
+
+      while (nextPopulation.length < settings.populationSize) {
+        parent = survivors[Math.floor(Math.random() * survivors.length)];
+        childType = parent.type;
+
+        if (Math.random() < settings.mutation / 100) {
+          childType = childType === "light" ? "dark" : "light";
+          lastMutationCount += 1;
+        }
+
+        nextPopulation.push(createMoth(childType));
+      }
+
+      population = nextPopulation;
+      generation += 1;
+      recordHistory();
+      updateStats();
+      drawGraph();
+    }
+
+    function recordHistory() {
+      var env = environmentForGeneration(generation);
+
+      simHistory.push({
+        generation: generation,
+        environmentName: env.name,
+        barkLightness: Number(env.lightness.toFixed(2)),
+        lightPercent: lightPercentage(),
+        darkPercent: darkPercentage(),
+        survivalPercent: lastSurvivalPercent,
+        advantage: currentAdvantage(env),
+        mutations: lastMutationCount
+      });
+
+      if (simHistory.length > 320) {
+        simHistory.shift();
+      }
+    }
+
+    function resetSimulation(randomise) {
+      stopSimulation();
+      generation = 0;
+      lastSurvivalPercent = 0;
+      lastMutationCount = 0;
+      createInitialPopulation(Boolean(randomise));
+      simHistory = [];
+      recordHistory();
+      updateStats();
+      drawGraph();
+      runSelfTests();
+    }
+
+    function stopSimulation() {
+      running = false;
+      clearTimeout(generationTimer);
+      generationTimer = null;
+      playPauseBtn.textContent = "Start";
+      playPauseBtn.classList.add("green");
+      playPauseBtn.classList.remove("red");
+    }
+
+    function startSimulation() {
+      running = true;
+      playPauseBtn.textContent = "Pause";
+      playPauseBtn.classList.remove("green");
+      playPauseBtn.classList.add("red");
+      generationLoop();
+    }
+
+    function generationLoop() {
+      if (!running) {
+        return;
+      }
+
+      runGeneration();
+      generationTimer = setTimeout(generationLoop, getSettings().speed);
+    }
+
+    function updateStats() {
+      var env = environmentForGeneration();
+
+      generationStat.textContent = String(generation);
+      environmentStat.textContent = env.name;
+      lightStat.textContent = lightPercentage() + "%";
+      darkStat.textContent = darkPercentage() + "%";
+      survivalStat.textContent = lastSurvivalPercent + "%";
+      advantageStat.textContent = currentAdvantage(env);
+
+      phaseClean.classList.toggle("active", env.phase === "clean");
+      phasePolluted.classList.toggle("active", env.phase === "polluted");
+      phaseRecovery.classList.toggle("active", env.phase === "recovery");
+      phaseCleanAgain.classList.toggle("active", env.phase === "clean-again");
+
+      updateCurrentExplanation(env);
+      updateLabels();
+    }
+
+    function updateCurrentExplanation(env) {
+      var advantage = currentAdvantage(env);
+      var message;
+
+      if (advantage === "Light") {
+        message = env.name + ", lighter bark makes light moths harder to see. More light moths are likely to survive and reproduce.";
+      } else if (advantage === "Dark") {
+        message = env.name + ", darker bark makes dark moths harder to see. More dark moths are likely to survive and reproduce.";
+      } else {
+        message = env.name + ", both moth colours have a similar survival chance under the current conditions.";
+      }
+
+      currentExplanation.innerHTML = "<strong>Current explanation</strong>" + message;
+    }
+
+    function barkColour(lightness) {
+      var dark = [48, 45, 42];
+      var light = [196, 187, 162];
+      var t = lightness / 100;
+      var r = Math.round(dark[0] + (light[0] - dark[0]) * t);
+      var g = Math.round(dark[1] + (light[1] - dark[1]) * t);
+      var b = Math.round(dark[2] + (light[2] - dark[2]) * t);
+      return "rgb(" + r + "," + g + "," + b + ")";
+    }
+
+    function drawBark(ctx, env) {
+      var w = worldCanvas.width;
+      var h = worldCanvas.height;
+      var darkness = 1 - env.lightness / 100;
+      var i;
+      var x;
+      var y;
+      var shade;
+      var radius;
+
+      ctx.fillStyle = barkColour(env.lightness);
+      ctx.fillRect(0, 0, w, h);
+      ctx.lineWidth = Math.max(2, w * 0.003);
+
+      for (i = 0; i < 24; i += 1) {
+        x = (i / 24) * w + Math.sin(i * 2.1) * 18;
+        shade = 70 + Math.round(env.lightness * 0.8);
+        ctx.strokeStyle = "rgba(" + shade + "," + (shade - 10) + "," + (shade - 28) + ",0.25)";
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        for (y = 0; y <= h; y += 28) {
+          ctx.lineTo(x + Math.sin(y * 0.018 + i) * 20, y);
+        }
+        ctx.stroke();
+      }
+
+      for (i = 0; i < 45; i += 1) {
+        x = (i * 73) % w;
+        y = (i * 47) % h;
+        ctx.strokeStyle = "rgba(20,20,20," + (0.18 + darkness * 0.22) + ")";
+        ctx.lineWidth = 1 + (i % 3);
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + Math.sin(i) * 16, y + 30 + (i % 7) * 8);
+        ctx.stroke();
+      }
+
+      if (env.lightness < 40) {
+        ctx.globalAlpha = 0.18 + darkness * 0.18;
+        for (i = 0; i < 140; i += 1) {
+          x = (i * 91) % w;
+          y = (i * 53) % h;
+          radius = 2 + (i % 5);
+          ctx.fillStyle = "#0f172a";
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      if (env.lightness > 55) {
+        ctx.globalAlpha = 0.16;
+        for (i = 0; i < 70; i += 1) {
+          x = (i * 67) % w;
+          y = (i * 41) % h;
+          ctx.fillStyle = "#e9e2c9";
+          ctx.beginPath();
+          ctx.ellipse(x, y, 8 + (i % 8), 4 + (i % 5), i, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    function drawMoth(ctx, moth) {
+      var flap = Math.sin(animationTime * 0.08 + moth.wingPhase) * 0.18;
+      var isLight = moth.type === "light";
+      var fill = isLight ? "#e8dfc4" : "#1f2937";
+      var stroke = isLight ? "rgba(85,70,45,0.65)" : "rgba(230,230,230,0.35)";
+      var spot = isLight ? "rgba(74,60,42,0.55)" : "rgba(235,235,235,0.18)";
+      var i;
+      var side;
+      var offset;
+
+      ctx.save();
+      ctx.translate(moth.x, moth.y);
+      ctx.rotate(moth.angle);
+      ctx.fillStyle = fill;
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = 1;
+
+      ctx.beginPath();
+      ctx.ellipse(-moth.size * 0.85, 0, moth.size * 1.3, moth.size * (0.8 + flap), -0.35, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.ellipse(moth.size * 0.85, 0, moth.size * 1.3, moth.size * (0.8 - flap), 0.35, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = isLight ? "#5b4630" : "#111827";
+      ctx.beginPath();
+      ctx.ellipse(0, 0, moth.size * 0.32, moth.size * 1.15, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = spot;
+      for (i = 0; i < 4; i += 1) {
+        side = i < 2 ? -1 : 1;
+        offset = i % 2 === 0 ? -0.35 : 0.35;
+        ctx.beginPath();
+        ctx.arc(side * moth.size * 0.9, offset * moth.size, moth.size * 0.18, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    function drawRoundedRect(ctx, x, y, width, height, radius) {
+      var r = Math.min(radius, width / 2, height / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + width - r, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+      ctx.lineTo(x + width, y + height - r);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+      ctx.lineTo(x + r, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    function drawEnvironmentBanner(ctx, env) {
+      var x = 18;
+      var y = 18;
+      var width = 280;
+      var height = 58;
+      var barX = x + 145;
+      var barY = y + 34;
+      var barW = 110;
+      var markerX = barX + (env.lightness / 100) * barW;
+      var grad = ctx.createLinearGradient(barX, barY, barX + barW, barY);
+
+      ctx.fillStyle = "rgba(255,255,255,0.86)";
+      ctx.strokeStyle = "rgba(15,23,42,0.18)";
+      ctx.lineWidth = 1;
+      drawRoundedRect(ctx, x, y, width, height, 14);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#111827";
+      ctx.font = "bold 16px Arial";
+      ctx.fillText(env.name + " environment", x + 14, y + 23);
+      ctx.font = "12px Arial";
+      ctx.fillStyle = "#475569";
+      ctx.fillText("Bark lightness: " + Math.round(env.lightness) + "%", x + 14, y + 43);
+
+      grad.addColorStop(0, barkColour(0));
+      grad.addColorStop(1, barkColour(100));
+      ctx.fillStyle = grad;
+      ctx.fillRect(barX, barY, barW, 10);
+      ctx.strokeStyle = "rgba(15,23,42,0.35)";
+      ctx.strokeRect(barX, barY, barW, 10);
+      ctx.fillStyle = "#b45309";
+      ctx.beginPath();
+      ctx.moveTo(markerX, barY - 2);
+      ctx.lineTo(markerX - 5, barY - 10);
+      ctx.lineTo(markerX + 5, barY - 10);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function moveMoths() {
+      var w = worldCanvas.width;
+      var h = worldCanvas.height;
+      var margin = 14;
+      var i;
+      var moth;
+
+      for (i = 0; i < population.length; i += 1) {
+        moth = population[i];
+        moth.x += moth.vx;
+        moth.y += moth.vy;
+        moth.angle += Math.sin(animationTime * 0.01 + moth.wingPhase) * 0.002;
+
+        if (moth.x < margin || moth.x > w - margin) {
+          moth.vx *= -1;
+        }
+
+        if (moth.y < margin || moth.y > h - margin) {
+          moth.vy *= -1;
+        }
+
+        moth.x = clamp(moth.x, margin, w - margin);
+        moth.y = clamp(moth.y, margin, h - margin);
+      }
+    }
+
+    function drawWorld() {
+      var env = environmentForGeneration();
+      var i;
+
+      worldCtx.clearRect(0, 0, worldCanvas.width, worldCanvas.height);
+      drawBark(worldCtx, env);
+
+      for (i = 0; i < population.length; i += 1) {
+        drawMoth(worldCtx, population[i]);
+      }
+
+      drawEnvironmentBanner(worldCtx, env);
+    }
+
+    function drawGraph() {
+      var w = graphCanvas.width;
+      var h = graphCanvas.height;
+      var padLeft = 54;
+      var padRight = 18;
+      var padTop = 22;
+      var padBottom = 40;
+      var plotW = w - padLeft - padRight;
+      var plotH = h - padTop - padBottom;
+      var visible = simHistory.slice(-120);
+      var minGen;
+      var maxGen;
+      var genRange;
+      var i;
+      var y;
+      var value;
+
+      graphCtx.clearRect(0, 0, w, h);
+      graphCtx.fillStyle = "#ffffff";
+      graphCtx.fillRect(0, 0, w, h);
+      graphCtx.strokeStyle = "#e2e8f0";
+      graphCtx.lineWidth = 1;
+      graphCtx.fillStyle = "#64748b";
+      graphCtx.font = "12px Arial";
+
+      for (i = 0; i <= 5; i += 1) {
+        y = padTop + (plotH * i) / 5;
+        value = 100 - i * 20;
+        graphCtx.beginPath();
+        graphCtx.moveTo(padLeft, y);
+        graphCtx.lineTo(w - padRight, y);
+        graphCtx.stroke();
+        graphCtx.fillText(String(value), 16, y + 4);
+      }
+
+      graphCtx.strokeStyle = "#94a3b8";
+      graphCtx.beginPath();
+      graphCtx.moveTo(padLeft, padTop);
+      graphCtx.lineTo(padLeft, h - padBottom);
+      graphCtx.lineTo(w - padRight, h - padBottom);
+      graphCtx.stroke();
+
+      if (visible.length < 2) {
+        return;
+      }
+
+      minGen = visible[0].generation;
+      maxGen = visible[visible.length - 1].generation;
+      genRange = Math.max(1, maxGen - minGen);
+
+      function xPos(point) {
+        return padLeft + ((point.generation - minGen) / genRange) * plotW;
+      }
+
+      function yPos(v) {
+        return padTop + (1 - v / 100) * plotH;
+      }
+
+      function drawEventLine(gen, label) {
+        var x;
+
+        if (gen < minGen || gen > maxGen) {
+          return;
+        }
+
+        x = padLeft + ((gen - minGen) / genRange) * plotW;
+        graphCtx.strokeStyle = "rgba(180,83,9,0.5)";
+        graphCtx.setLineDash([6, 5]);
+        graphCtx.beginPath();
+        graphCtx.moveTo(x, padTop);
+        graphCtx.lineTo(x, h - padBottom);
+        graphCtx.stroke();
+        graphCtx.setLineDash([]);
+        graphCtx.save();
+        graphCtx.translate(x + 6, padTop + 100);
+        graphCtx.rotate(-Math.PI / 2);
+        graphCtx.fillStyle = "#92400e";
+        graphCtx.font = "bold 12px Arial";
+        graphCtx.fillText(label, 0, 0);
+        graphCtx.restore();
+      }
+
+      function drawLine(key, colour, width) {
+        var j;
+        var point;
+
+        graphCtx.strokeStyle = colour;
+        graphCtx.lineWidth = width;
+        graphCtx.beginPath();
+
+        for (j = 0; j < visible.length; j += 1) {
+          point = visible[j];
+          if (j === 0) {
+            graphCtx.moveTo(xPos(point), yPos(point[key]));
+          } else {
+            graphCtx.lineTo(xPos(point), yPos(point[key]));
+          }
+        }
+
+        graphCtx.stroke();
+      }
+
+      if (getSettings().mode !== "manual") {
+        drawEventLine(CLEAN_END + 1, "Pollution begins");
+        drawEventLine(POLLUTED_END + 1, "Clean-up begins");
+      }
+
+      drawLine("barkLightness", "#b45309", 2);
+      drawLine("darkPercent", "#1f2937", 3);
+      drawLine("lightPercent", "#2563eb", 3);
+
+      graphCtx.fillStyle = "#64748b";
+      graphCtx.font = "12px Arial";
+      graphCtx.fillText("Gen " + minGen, padLeft, h - 14);
+      graphCtx.fillText("Gen " + maxGen, w - padRight - 58, h - 14);
+      graphCtx.save();
+      graphCtx.translate(16, h / 2 + 38);
+      graphCtx.rotate(-Math.PI / 2);
+      graphCtx.fillText("Percentage or bark lightness", 0, 0);
+      graphCtx.restore();
+    }
+
+    function exportData() {
+      var headers = ["generation", "environment", "bark_lightness_percent", "light_moths_percent", "dark_moths_percent", "survival_percent", "advantage", "mutation_count"];
+      var rows = [];
+      var i;
+      var row;
+      var csv;
+      var blob;
+      var url;
+      var link;
+
+      for (i = 0; i < simHistory.length; i += 1) {
+        row = simHistory[i];
+        rows.push([row.generation, row.environmentName, row.barkLightness, row.lightPercent, row.darkPercent, row.survivalPercent, row.advantage, row.mutations]);
+      }
+
+      csv = headers.join(",") + String.fromCharCode(10);
+
+      for (i = 0; i < rows.length; i += 1) {
+        csv += rows[i].join(",") + String.fromCharCode(10);
+      }
+
+      blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      url = URL.createObjectURL(blob);
+      link = document.createElement("a");
+      link.href = url;
+      link.download = "peppered_moth_evolution_data.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    function resizeCanvasToDisplaySize(canvas, fixedHeight) {
+      var rect = canvas.getBoundingClientRect();
+      var dpr = window.devicePixelRatio || 1;
+      var width = Math.max(300, Math.round(rect.width * dpr));
+      var height = Math.max(180, Math.round(fixedHeight * dpr));
+
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+      }
+    }
+
+    function handleResize() {
+      var i;
+
+      resizeCanvasToDisplaySize(worldCanvas, worldCanvas.getBoundingClientRect().height || 440);
+      resizeCanvasToDisplaySize(graphCanvas, graphCanvas.getBoundingClientRect().height || 270);
+
+      for (i = 0; i < population.length; i += 1) {
+        population[i].x = rand(20, worldCanvas.width - 20);
+        population[i].y = rand(20, worldCanvas.height - 20);
+      }
+
+      drawGraph();
+    }
+
+    function animationLoop() {
+      animationTime += 1;
+      moveMoths();
+      drawWorld();
+      window.requestAnimationFrame(animationLoop);
+    }
+
+    function runSelfTests() {
+      var oldMode = environmentMode.value;
+      var oldManual = manualEnvironment.value;
+      var oldPredation = predationSlider.value;
+      var total;
+      var cleanAdvantage;
+      var pollutedAdvantage;
+
+      environmentMode.value = "auto";
+      predationSlider.value = "75";
+
+      console.assert(environmentForGeneration(0).phase === "clean", "generation 0 should be clean");
+      console.assert(environmentForGeneration(21).phase === "polluted", "generation 21 should be polluted");
+      console.assert(environmentForGeneration(41).phase === "recovery", "generation 41 should be recovery");
+      console.assert(environmentForGeneration(61).phase === "clean-again", "generation 61 should be clean again");
+
+      environmentMode.value = "manual";
+      manualEnvironment.value = "clean";
+      console.assert(environmentForGeneration(10).phase === "clean", "manual clean should be clean");
+
+      manualEnvironment.value = "polluted";
+      console.assert(environmentForGeneration(10).phase === "polluted", "manual polluted should be polluted");
+
+      total = lightPercentage() + darkPercentage();
+      console.assert(total === 100, "light and dark percentages should sum to 100");
+
+      cleanAdvantage = currentAdvantage({ name: "Clean", lightness: CLEAN_LIGHTNESS, phase: "clean" });
+      pollutedAdvantage = currentAdvantage({ name: "Polluted", lightness: POLLUTED_LIGHTNESS, phase: "polluted" });
+      console.assert(cleanAdvantage === "Light", "clean bark should favour light moths");
+      console.assert(pollutedAdvantage === "Dark", "polluted bark should favour dark moths");
+      console.assert(Array.isArray(simHistory), "simHistory should be an array");
+      console.assert(simHistory.length >= 1, "simHistory should contain at least one row after reset");
+
+      predationSlider.value = oldPredation;
+      environmentMode.value = oldMode;
+      manualEnvironment.value = oldManual;
+      updateLabels();
+    }
+
+    environmentMode.addEventListener("change", function () {
+      updateStats();
+      drawGraph();
+    });
+
+    manualEnvironment.addEventListener("change", function () {
+      environmentMode.value = "manual";
+      updateStats();
+      drawGraph();
+    });
+
+    predationSlider.addEventListener("input", function () {
+      updateLabels();
+      updateStats();
+    });
+
+    mutationSlider.addEventListener("input", function () {
+      updateLabels();
+      updateStats();
+    });
+
+    speedSlider.addEventListener("input", function () {
+      updateLabels();
+      updateStats();
+    });
+
+    startLightSlider.addEventListener("input", function () {
+      updateLabels();
+      updateStats();
+    });
+
+    populationSlider.addEventListener("input", updateLabels);
+
+    populationSlider.addEventListener("change", function () {
+      resetSimulation(false);
+    });
+
+    playPauseBtn.addEventListener("click", function () {
+      if (running) {
+        stopSimulation();
+      } else {
+        startSimulation();
+      }
+    });
+
+    stepBtn.addEventListener("click", function () {
+      stopSimulation();
+      runGeneration();
+    });
+
+    stepTenBtn.addEventListener("click", function () {
+      var i;
+      stopSimulation();
+      for (i = 0; i < 10; i += 1) {
+        runGeneration();
+      }
+    });
+
+    resetBtn.addEventListener("click", function () {
+      resetSimulation(false);
+    });
+
+    randomiseBtn.addEventListener("click", function () {
+      resetSimulation(true);
+    });
+
+    exportBtn.addEventListener("click", exportData);
+
+    cleanBtn.addEventListener("click", function () {
+      environmentMode.value = "manual";
+      manualEnvironment.value = "clean";
+      updateStats();
+      drawGraph();
+    });
+
+    pollutedBtn.addEventListener("click", function () {
+      environmentMode.value = "manual";
+      manualEnvironment.value = "polluted";
+      updateStats();
+      drawGraph();
+    });
+
+    window.addEventListener("resize", handleResize);
+
+    updateLabels();
+    handleResize();
+    resetSimulation(false);
+    animationLoop();
+  </script>
+</body>
+</html>
