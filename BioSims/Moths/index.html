@@ -163,8 +163,13 @@
 
     .sim-grid {
       display: grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.85fr);
       gap: 18px;
+      align-items: start;
+    }
+
+    .explain-panel {
+      grid-column: 1 / -1;
     }
 
     .stats {
@@ -210,7 +215,7 @@
     }
 
     #graphCanvas {
-      height: 270px;
+      height: 440px;
     }
 
     .timeline {
@@ -333,6 +338,14 @@
     @media (max-width: 1040px) {
       .layout {
         grid-template-columns: 1fr;
+      }
+
+      .sim-grid {
+        grid-template-columns: 1fr;
+      }
+
+      #graphCanvas {
+        height: 300px;
       }
 
       .stats {
@@ -476,7 +489,7 @@
           <p class="mini-note">Bark lightness is scaled from 0% dark to 100% light. Event markers are shown in auto story and auto cycle modes. The graph shows the most recent 120 generations.</p>
         </section>
 
-        <section class="panel">
+        <section class="panel explain-panel">
           <h2>What the model represents</h2>
           <div class="explain">
             <div class="idea"><strong>Variation</strong><p>The population contains both light and dark moths. This inherited variation is already present before selection occurs.</p></div>
