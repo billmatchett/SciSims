@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pedigree Simulator</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --line: #d8e2ee;
+      --text: #172033;
+      --muted: #607086;
+      --accent: #2563eb;
+      --accent-dark: #1d4ed8;
+      --good: #15803d;
+      --good-bg: #dcfce7;
+      --bad: #b91c1c;
+      --bad-bg: #fee2e2;
+      --warn: #b45309;
+      --warn-bg: #fef3c7;
+      --shadow: rgba(15, 23, 42, 0.09);
+      --affected: #111827;
+      --carrier: #94a3b8;
+      --unaffected: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background: radial-gradient(circle at top left, #e0f2fe 0, #f4f7fb 38%, #f8fafc 100%);
+    }
+
+    .page {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .home-link {
+      display: inline-block;
+      margin-bottom: 16px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: #ffffff;
+      color: var(--accent-dark);
+      text-decoration: none;
+      font-weight: 700;
+      border: 1px solid var(--line);
+      box-shadow: 0 6px 16px var(--shadow);
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb 55%, #38bdf8);
+      color: white;
+      padding: 26px 28px;
+      border-radius: 24px;
+      box-shadow: 0 14px 34px rgba(37, 99, 235, 0.24);
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(30px, 4vw, 48px);
+      letter-spacing: -0.03em;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 920px;
+      color: #eaf4ff;
+      line-height: 1.5;
+      font-size: 17px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 350px minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: 0 10px 24px var(--shadow);
+      padding: 18px;
+    }
+
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 22px;
+    }
+
+    .panel h3 {
+      margin: 18px 0 9px;
+      font-size: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+
+    select {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      background: white;
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .summary, .instructions, .legend, .person-card {
+      border-radius: 16px;
+      padding: 12px;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .summary {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      color: #334155;
+    }
+
+    .instructions {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #14532d;
+      margin-top: 14px;
+    }
+
+    .legend {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #7c2d12;
+      margin-top: 14px;
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 7px 0;
+    }
+
+    .mini-symbol {
+      width: 22px;
+      height: 22px;
+      border: 2px solid #111827;
+      display: inline-block;
+      background: #ffffff;
+      flex: 0 0 auto;
+    }
+
+    .mini-symbol.circle {
+      border-radius: 50%;
+    }
+
+    .mini-symbol.affected {
+      background: #111827;
+    }
+
+    .mini-symbol.carrier {
+      background: linear-gradient(90deg, #94a3b8 0 50%, #ffffff 50% 100%);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 10px 0 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 13px;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(37, 99, 235, 0.18);
+    }
+
+    button:hover {
+      background: var(--accent-dark);
+    }
+
+    button.secondary {
+      background: #e2e8f0;
+      color: #1f2937;
+      box-shadow: none;
+    }
+
+    button.secondary:hover {
+      background: #cbd5e1;
+    }
+
+    button.green {
+      background: var(--good);
+    }
+
+    button.green:hover {
+      background: #166534;
+    }
+
+    .status {
+      min-height: 50px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      padding: 12px;
+      line-height: 1.35;
+      font-size: 14px;
+      color: #334155;
+      margin-bottom: 14px;
+    }
+
+    .status.good {
+      border-color: #86efac;
+      background: var(--good-bg);
+      color: #14532d;
+    }
+
+    .status.bad {
+      border-color: #fecaca;
+      background: var(--bad-bg);
+      color: #7f1d1d;
+    }
+
+    .status.warn {
+      border-color: #fde68a;
+      background: var(--warn-bg);
+      color: #78350f;
+    }
+
+    .main-top {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .person-card {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      min-height: 120px;
+    }
+
+    .person-card h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .pedigree-wrap {
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: #ffffff;
+    }
+
+    .pedigree-line {
+      stroke: #334155;
+      stroke-width: 3;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .person-symbol {
+      stroke: #111827;
+      stroke-width: 3;
+      cursor: pointer;
+      transition: transform 0.15s ease, stroke 0.15s ease;
+    }
+
+    .person-symbol:hover {
+      stroke: var(--accent);
+      transform: scale(1.04);
+      transform-origin: center;
+    }
+
+    .person-symbol.selected {
+      stroke: #f59e0b;
+      stroke-width: 5;
+    }
+
+    .person-label {
+      font-size: 16px;
+      font-weight: 700;
+      fill: #334155;
+      text-anchor: middle;
+    }
+
+    .person-genotype {
+      font-size: 14px;
+      fill: #64748b;
+      text-anchor: middle;
+      font-weight: 700;
+    }
+
+    .generation-label {
+      font-size: 16px;
+      fill: #475569;
+      font-weight: 800;
+    }
+
+    .clue-box {
+      display: none;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 16px;
+      padding: 12px;
+      font-size: 14px;
+      line-height: 1.45;
+      color: #1e3a8a;
+      margin-top: 14px;
+    }
+
+    .clue-box.visible {
+      display: block;
+    }
+
+    .ratio-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    .ratio-table th, .ratio-table td {
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      padding: 7px 4px;
+    }
+
+    .ratio-table th {
+      color: #334155;
+      font-size: 13px;
+    }
+
+    @media (max-width: 1080px) {
+      .layout, .main-top {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        padding: 14px;
+      }
+
+      .hero {
+        padding: 20px;
+      }
+
+      .panel {
+        padding: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+
+    <section class="hero">
+      <h1>Pedigree Simulator</h1>
+      <p>Explore how traits can appear across generations. Use the pedigree to identify affected individuals, carriers and likely inheritance patterns.</p>
+    </section>
+
+    <div class="layout">
+      <aside class="panel">
+        <h2>Set up the pedigree</h2>
+
+        <div class="field">
+          <label for="challengeSelect">Pedigree challenge</label>
+          <select id="challengeSelect">
+            <option value="familyA">Family A - introductory</option>
+            <option value="familyB">Family B - introductory</option>
+            <option value="familyC">Family C - introductory</option>
+            <option value="familyD">Family D - practice</option>
+            <option value="familyE">Family E - practice</option>
+            <option value="familyF">Family F - practice</option>
+            <option value="familyG">Family G - challenge</option>
+            <option value="familyH">Family H - challenge</option>
+            <option value="familyI">Family I - challenge</option>
+          </select>
+        </div>
+
+        <div class="summary" id="patternSummary"></div>
+
+        <div class="button-row">
+          <button id="newFamilyBtn">New family</button>
+          <button id="toggleGenotypesBtn" class="secondary">Show genotypes</button>
+          <button id="toggleCluesBtn" class="secondary">Show clues</button>
+        </div>
+
+        <h3>Student prediction</h3>
+        <div class="field">
+          <label for="studentPrediction">What pattern best explains this pedigree?</label>
+          <select id="studentPrediction">
+            <option value="">Choose an answer</option>
+            <option value="ar">Autosomal recessive</option>
+            <option value="ad">Autosomal dominant</option>
+            <option value="xlr">X-linked recessive</option>
+          </select>
+        </div>
+
+        <div class="button-row">
+          <button id="checkPredictionBtn" class="green">Check prediction</button>
+        </div>
+
+        <div class="legend">
+          <strong>Pedigree symbols</strong>
+          <div class="legend-row"><span class="mini-symbol"></span> Male</div>
+          <div class="legend-row"><span class="mini-symbol circle"></span> Female</div>
+          <div class="legend-row"><span class="mini-symbol affected"></span> Affected</div>
+          <div class="legend-row"><span class="mini-symbol carrier"></span> Carrier, shown only when useful</div>
+        </div>
+
+        <div class="instructions">
+          <strong>How to use:</strong><br>
+          Click a person in the pedigree to inspect them. Use the affected individuals, unaffected individuals and family pattern to decide how the trait is inherited.
+        </div>
+      </aside>
+
+      <main class="panel">
+        <div class="main-top">
+          <div>
+            <h2 id="pedigreeTitle">Family pedigree</h2>
+            <div class="status" id="statusBox">Select a family and inspect the pedigree.</div>
+          </div>
+          <div class="person-card" id="personCard">
+            <h3>Selected person</h3>
+            Click a symbol in the pedigree to see details.
+          </div>
+        </div>
+
+        <div class="pedigree-wrap">
+          <svg id="pedigreeSvg" viewBox="0 0 1000 600" role="img" aria-label="Interactive family pedigree"></svg>
+        </div>
+
+        <div class="clue-box" id="clueBox"></div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const CHALLENGES = {
+      familyA: { pattern: 'ar', caseId: 'case1', label: 'Family A', level: 'Introductory' },
+      familyB: { pattern: 'ad', caseId: 'case1', label: 'Family B', level: 'Introductory' },
+      familyC: { pattern: 'xlr', caseId: 'case1', label: 'Family C', level: 'Introductory' },
+      familyD: { pattern: 'ar', caseId: 'case2', label: 'Family D', level: 'Practice' },
+      familyE: { pattern: 'ad', caseId: 'case2', label: 'Family E', level: 'Practice' },
+      familyF: { pattern: 'xlr', caseId: 'case2', label: 'Family F', level: 'Practice' },
+      familyG: { pattern: 'ar', caseId: 'case3', label: 'Family G', level: 'Challenge' },
+      familyH: { pattern: 'ad', caseId: 'case3', label: 'Family H', level: 'Challenge' },
+      familyI: { pattern: 'xlr', caseId: 'case3', label: 'Family I', level: 'Challenge' }
+    };
+
+    const DATA = {
+      ar: {
+        label: 'Autosomal recessive',
+        summary: 'A recessive trait can appear when a person inherits two recessive alleles. Unaffected parents can have an affected child if both are carriers.',
+        alleleKey: 'A = unaffected dominant allele, a = recessive allele linked to the trait',
+        cases: {
+          case1: {
+            people: {
+              I1:  { sex: 'M', genotype: 'Aa', x: 360, y: 100 },
+              I2:  { sex: 'F', genotype: 'Aa', x: 500, y: 100 },
+              II1: { sex: 'F', genotype: 'AA', x: 300, y: 300 },
+              II2: { sex: 'M', genotype: 'aa', x: 430, y: 300 },
+              II3: { sex: 'F', genotype: 'Aa', x: 560, y: 300 }
+            },
+            couples: [['I1','I2']],
+            children: [{ parents:['I1','I2'], kids:['II1','II2','II3'] }]
+          },
+          case2: {
+            people: {
+              I1:  { sex: 'M', genotype: 'AA', x: 340, y: 80 },
+              I2:  { sex: 'F', genotype: 'Aa', x: 480, y: 80 },
+              II1: { sex: 'M', genotype: 'Aa', x: 260, y: 250 },
+              II2: { sex: 'F', genotype: 'Aa', x: 400, y: 250 },
+              II3: { sex: 'M', genotype: 'AA', x: 540, y: 250 },
+              II4: { sex: 'F', genotype: 'Aa', x: 680, y: 250 },
+              III1:{ sex: 'M', genotype: 'aa', x: 320, y: 430 },
+              III2:{ sex: 'F', genotype: 'Aa', x: 440, y: 430 },
+              III3:{ sex: 'M', genotype: 'AA', x: 560, y: 430 }
+            },
+            couples: [['I1','I2'], ['II1','II2']],
+            children: [{ parents:['I1','I2'], kids:['II1','II2','II3','II4'] }, { parents:['II1','II2'], kids:['III1','III2','III3'] }]
+          },
+          case3: {
+            people: {
+              I1:  { sex: 'M', genotype: 'Aa', x: 350, y: 80 },
+              I2:  { sex: 'F', genotype: 'aa', x: 490, y: 80 },
+              II1: { sex: 'F', genotype: 'Aa', x: 260, y: 250 },
+              II2: { sex: 'M', genotype: 'aa', x: 400, y: 250 },
+              II3: { sex: 'F', genotype: 'Aa', x: 540, y: 250 },
+              II4: { sex: 'M', genotype: 'Aa', x: 680, y: 250 },
+              III1:{ sex: 'F', genotype: 'aa', x: 400, y: 430 },
+              III2:{ sex: 'M', genotype: 'Aa', x: 520, y: 430 },
+              III3:{ sex: 'F', genotype: 'Aa', x: 640, y: 430 }
+            },
+            couples: [['I1','I2'], ['II3','II4']],
+            children: [{ parents:['I1','I2'], kids:['II1','II2','II3','II4'] }, { parents:['II3','II4'], kids:['III1','III2','III3'] }]
+          }
+        }
+      },
+      ad: {
+        label: 'Autosomal dominant',
+        summary: 'A dominant trait can appear when a person inherits one copy of the dominant allele. The trait often appears in every generation.',
+        alleleKey: 'D = dominant allele linked to the trait, d = unaffected recessive allele',
+        cases: {
+          case1: {
+            people: {
+              I1:  { sex: 'M', genotype: 'Dd', x: 360, y: 100 },
+              I2:  { sex: 'F', genotype: 'dd', x: 500, y: 100 },
+              II1: { sex: 'F', genotype: 'Dd', x: 300, y: 300 },
+              II2: { sex: 'M', genotype: 'dd', x: 430, y: 300 },
+              II3: { sex: 'M', genotype: 'Dd', x: 560, y: 300 }
+            },
+            couples: [['I1','I2']],
+            children: [{ parents:['I1','I2'], kids:['II1','II2','II3'] }]
+          },
+          case2: {
+            people: {
+              I1:  { sex: 'M', genotype: 'dd', x: 350, y: 80 },
+              I2:  { sex: 'F', genotype: 'Dd', x: 490, y: 80 },
+              II1: { sex: 'M', genotype: 'dd', x: 240, y: 250 },
+              II2: { sex: 'F', genotype: 'Dd', x: 360, y: 250 },
+              II3: { sex: 'F', genotype: 'dd', x: 500, y: 250 },
+              II4: { sex: 'M', genotype: 'Dd', x: 640, y: 250 },
+              III1:{ sex: 'F', genotype: 'Dd', x: 320, y: 430 },
+              III2:{ sex: 'M', genotype: 'dd', x: 440, y: 430 },
+              III3:{ sex: 'F', genotype: 'Dd', x: 560, y: 430 }
+            },
+            couples: [['I1','I2'], ['II2','II1']],
+            children: [{ parents:['I1','I2'], kids:['II1','II2','II3','II4'] }, { parents:['II2','II1'], kids:['III1','III2','III3'] }]
+          },
+          case3: {
+            people: {
+              I1:  { sex: 'M', genotype: 'Dd', x: 360, y: 80 },
+              I2:  { sex: 'F', genotype: 'Dd', x: 500, y: 80 },
+              II1: { sex: 'F', genotype: 'DD', x: 220, y: 250 },
+              II2: { sex: 'M', genotype: 'Dd', x: 340, y: 250 },
+              II3: { sex: 'M', genotype: 'dd', x: 460, y: 250 },
+              II4: { sex: 'F', genotype: 'Dd', x: 580, y: 250 },
+              III1:{ sex: 'M', genotype: 'Dd', x: 440, y: 430 },
+              III2:{ sex: 'F', genotype: 'dd', x: 560, y: 430 },
+              III3:{ sex: 'M', genotype: 'Dd', x: 680, y: 430 }
+            },
+            couples: [['I1','I2'], ['II4','II3']],
+            children: [{ parents:['I1','I2'], kids:['II1','II2','II3','II4'] }, { parents:['II4','II3'], kids:['III1','III2','III3'] }]
+          }
+        }
+      },
+      xlr: {
+        label: 'X-linked recessive',
+        summary: 'An X-linked recessive trait is linked to a gene on the X chromosome. Males are more commonly affected because they have one X chromosome.',
+        alleleKey: 'Xᴺ = usual X chromosome, Xⁿ = X chromosome with the recessive allele, Y = Y chromosome',
+        cases: {
+          case1: {
+            people: {
+              I1:  { sex: 'M', genotype: 'XᴺY', x: 360, y: 100 },
+              I2:  { sex: 'F', genotype: 'XᴺXⁿ', x: 500, y: 100 },
+              II1: { sex: 'M', genotype: 'XⁿY', x: 260, y: 300 },
+              II2: { sex: 'F', genotype: 'XᴺXⁿ', x: 390, y: 300 },
+              II3: { sex: 'M', genotype: 'XᴺY', x: 520, y: 300 },
+              II4: { sex: 'F', genotype: 'XᴺXᴺ', x: 650, y: 300 }
+            },
+            couples: [['I1','I2']],
+            children: [{ parents:['I1','I2'], kids:['II1','II2','II3','II4'] }]
+          },
+          case2: {
+            people: {
+              I1:  { sex: 'M', genotype: 'XⁿY', x: 350, y: 80 },
+              I2:  { sex: 'F', genotype: 'XᴺXᴺ', x: 490, y: 80 },
+              II1: { sex: 'F', genotype: 'XᴺXⁿ', x: 260, y: 250 },
+              II2: { sex: 'F', genotype: 'XᴺXⁿ', x: 400, y: 250 },
+              II3: { sex: 'M', genotype: 'XᴺY', x: 540, y: 250 },
+              II4: { sex: 'M', genotype: 'XᴺY', x: 680, y: 250 },
+              III1:{ sex: 'M', genotype: 'XⁿY', x: 360, y: 430 },
+              III2:{ sex: 'F', genotype: 'XᴺXⁿ', x: 480, y: 430 },
+              III3:{ sex: 'M', genotype: 'XᴺY', x: 600, y: 430 }
+            },
+            couples: [['I1','I2'], ['II1','II3']],
+            children: [{ parents:['I1','I2'], kids:['II1','II2','II3','II4'] }, { parents:['II1','II3'], kids:['III1','III2','III3'] }]
+          },
+          case3: {
+            people: {
+              I1:  { sex: 'M', genotype: 'XᴺY', x: 360, y: 80 },
+              I2:  { sex: 'F', genotype: 'XᴺXⁿ', x: 500, y: 80 },
+              II1: { sex: 'M', genotype: 'XᴺY', x: 240, y: 250 },
+              II2: { sex: 'F', genotype: 'XᴺXⁿ', x: 360, y: 250 },
+              II3: { sex: 'M', genotype: 'XⁿY', x: 500, y: 250 },
+              II4: { sex: 'F', genotype: 'XᴺXᴺ', x: 640, y: 250 },
+              III1:{ sex: 'M', genotype: 'XⁿY', x: 320, y: 430 },
+              III2:{ sex: 'M', genotype: 'XᴺY', x: 440, y: 430 },
+              III3:{ sex: 'F', genotype: 'XᴺXⁿ', x: 560, y: 430 }
+            },
+            couples: [['I1','I2'], ['II2','II1']],
+            children: [{ parents:['I1','I2'], kids:['II1','II2','II3','II4'] }, { parents:['II2','II1'], kids:['III1','III2','III3'] }]
+          }
+        }
+      }
+    };
+
+    const els = {
+      challengeSelect: document.getElementById('challengeSelect'),
+      studentPrediction: document.getElementById('studentPrediction'),
+      patternSummary: document.getElementById('patternSummary'),
+      pedigreeTitle: document.getElementById('pedigreeTitle'),
+      statusBox: document.getElementById('statusBox'),
+      personCard: document.getElementById('personCard'),
+      pedigreeSvg: document.getElementById('pedigreeSvg'),
+      clueBox: document.getElementById('clueBox'),
+      toggleGenotypesBtn: document.getElementById('toggleGenotypesBtn'),
+      toggleCluesBtn: document.getElementById('toggleCluesBtn')
+    };
+
+    let showGenotypes = false;
+    let showClues = false;
+    let selectedPerson = null;
+
+    function getCurrentChallenge() {
+      return CHALLENGES[els.challengeSelect.value] || CHALLENGES.familyA;
+    }
+
+    function getCurrentPatternKey() {
+      return getCurrentChallenge().pattern;
+    }
+
+    function getCurrentPattern() {
+      return DATA[getCurrentPatternKey()];
+    }
+
+    function getCurrentFamily() {
+      const challenge = getCurrentChallenge();
+      return DATA[challenge.pattern].cases[challenge.caseId];
+    }
+
+    function isAffected(person) {
+      const pattern = getCurrentPatternKey();
+      const g = person.genotype;
+      if (pattern === 'ar') return g === 'aa';
+      if (pattern === 'ad') return g.includes('D');
+      if (pattern === 'xlr') return (person.sex === 'M' && g.includes('XⁿY')) || (person.sex === 'F' && g === 'XⁿXⁿ');
+      return false;
+    }
+
+    function isCarrier(person) {
+      const pattern = getCurrentPatternKey();
+      const g = person.genotype;
+      if (pattern === 'ar') return g === 'Aa';
+      if (pattern === 'xlr') return person.sex === 'F' && g === 'XᴺXⁿ';
+      return false;
+    }
+
+    function phenotypeText(person) {
+      if (isAffected(person)) return 'Affected';
+      if (isCarrier(person)) return 'Unaffected carrier';
+      return 'Unaffected';
+    }
+
+    function setStatus(message, type = '') {
+      els.statusBox.textContent = message;
+      els.statusBox.className = 'status' + (type ? ' ' + type : '');
+    }
+
+    function svgLine(x1, y1, x2, y2) {
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', x1);
+      line.setAttribute('y1', y1);
+      line.setAttribute('x2', x2);
+      line.setAttribute('y2', y2);
+      line.setAttribute('class', 'pedigree-line');
+      return line;
+    }
+
+    function svgText(text, x, y, className) {
+      const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      t.textContent = text;
+      t.setAttribute('x', x);
+      t.setAttribute('y', y);
+      t.setAttribute('class', className);
+      return t;
+    }
+
+    function personFill(person) {
+      if (isAffected(person)) return '#111827';
+      if (showGenotypes && isCarrier(person)) return 'url(#carrierFill)';
+      return '#ffffff';
+    }
+
+    function drawConnections(family) {
+      family.couples.forEach(pair => {
+        const p1 = family.people[pair[0]];
+        const p2 = family.people[pair[1]];
+        svgLine(p1.x + 30, p1.y, p2.x - 30, p2.y);
+      });
+
+      family.children.forEach(group => {
+        const p1 = family.people[group.parents[0]];
+        const p2 = family.people[group.parents[1]];
+        const midX = (p1.x + p2.x) / 2;
+        const parentY = p1.y;
+        const childY = family.people[group.kids[0]].y;
+        const horizontalY = childY - 60;
+        const firstKid = family.people[group.kids[0]];
+        const lastKid = family.people[group.kids[group.kids.length - 1]];
+
+        els.pedigreeSvg.appendChild(svgLine(midX, parentY, midX, horizontalY));
+        els.pedigreeSvg.appendChild(svgLine(firstKid.x, horizontalY, lastKid.x, horizontalY));
+
+        group.kids.forEach(kidId => {
+          const kid = family.people[kidId];
+          els.pedigreeSvg.appendChild(svgLine(kid.x, horizontalY, kid.x, kid.y - 30));
+        });
+      });
+    }
+
+    function drawPerson(id, person) {
+      let shape;
+      if (person.sex === 'M') {
+        shape = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        shape.setAttribute('x', person.x - 30);
+        shape.setAttribute('y', person.y - 30);
+        shape.setAttribute('width', 60);
+        shape.setAttribute('height', 60);
+        shape.setAttribute('rx', 4);
+      } else {
+        shape = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        shape.setAttribute('cx', person.x);
+        shape.setAttribute('cy', person.y);
+        shape.setAttribute('r', 31);
+      }
+
+      shape.setAttribute('fill', personFill(person));
+      shape.setAttribute('class', 'person-symbol' + (selectedPerson === id ? ' selected' : ''));
+      shape.setAttribute('data-id', id);
+      shape.addEventListener('click', () => selectPerson(id));
+
+      els.pedigreeSvg.appendChild(shape);
+      els.pedigreeSvg.appendChild(svgText(id, person.x, person.y + 52, 'person-label'));
+
+      if (showGenotypes) {
+        els.pedigreeSvg.appendChild(svgText(person.genotype, person.x, person.y + 76, 'person-genotype'));
+      }
+    }
+
+    function drawPedigree() {
+      const pattern = getCurrentPattern();
+      const family = getCurrentFamily();
+      els.pedigreeSvg.innerHTML = '';
+
+      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      defs.innerHTML = '<linearGradient id="carrierFill" x1="0" x2="1" y1="0" y2="0"><stop offset="0%" stop-color="#94a3b8"/><stop offset="50%" stop-color="#94a3b8"/><stop offset="50%" stop-color="#ffffff"/><stop offset="100%" stop-color="#ffffff"/></linearGradient>';
+      els.pedigreeSvg.appendChild(defs);
+
+      els.pedigreeSvg.appendChild(svgText('I', 40, 90, 'generation-label'));
+      els.pedigreeSvg.appendChild(svgText('II', 40, 260, 'generation-label'));
+      els.pedigreeSvg.appendChild(svgText('III', 40, 440, 'generation-label'));
+
+      drawConnections(family);
+      Object.keys(family.people).forEach(id => drawPerson(id, family.people[id]));
+
+      els.pedigreeTitle.textContent = getCurrentChallenge().label + ' pedigree';
+      buildSummary();
+      buildClues();
+      updateSelectedCard();
+    }
+
+    function buildSummary() {
+      const challenge = getCurrentChallenge();
+      const pattern = getCurrentPattern();
+      if (showGenotypes) {
+        els.patternSummary.innerHTML = '<strong>' + challenge.label + ' - ' + challenge.level + '</strong><br>Genotypes are now visible. Use them as evidence, but still explain the pedigree pattern.<br><br><strong>Allele key:</strong><br>' + pattern.alleleKey;
+      } else {
+        els.patternSummary.innerHTML = '<strong>' + challenge.label + ' - ' + challenge.level + '</strong><br>Inspect the pedigree without the answer shown. Families A, B and C are introductory examples with fewer people and one very clear pattern.';
+      }
+    }
+
+    function buildClues() {
+      const pattern = getCurrentPatternKey();
+      let clues = '';
+      if (pattern === 'ar') {
+        clues = '<strong>Clues:</strong><br>• Introductory idea: two unaffected parents can have an affected child.<br>• This suggests the affected child received one hidden recessive allele from each parent.<br>• The trait can appear to skip a generation.';
+      } else if (pattern === 'ad') {
+        clues = '<strong>Clues:</strong><br>• Introductory idea: an affected parent can pass the trait to children.<br>• The trait usually does not hide in unaffected carriers.<br>• The trait often appears in each generation.';
+      } else {
+        clues = '<strong>Clues:</strong><br>• Introductory idea: sons can be affected when they inherit the changed X chromosome from a carrier mother.<br>• Males are often affected more because they have only one X chromosome.<br>• Daughters may be carriers without being affected.';
+      }
+      els.clueBox.innerHTML = clues;
+      els.clueBox.className = 'clue-box' + (showClues ? ' visible' : '');
+    }
+
+    function selectPerson(id) {
+      selectedPerson = id;
+      updateSelectedCard();
+      drawPedigree();
+    }
+
+    function updateSelectedCard() {
+      const family = getCurrentFamily();
+      if (!selectedPerson || !family.people[selectedPerson]) {
+        els.personCard.innerHTML = '<h3>Selected person</h3>Click a symbol in the pedigree to see details.';
+        return;
+      }
+
+      const person = family.people[selectedPerson];
+      const sexText = person.sex === 'M' ? 'Male' : 'Female';
+      const genotypeLine = showGenotypes ? '<br><strong>Genotype:</strong> ' + person.genotype : '<br><strong>Genotype:</strong> hidden';
+      els.personCard.innerHTML =
+        '<h3>' + selectedPerson + '</h3>' +
+        '<strong>Sex:</strong> ' + sexText + '<br>' +
+        '<strong>Phenotype:</strong> ' + phenotypeText(person) +
+        genotypeLine +
+        '<br><strong>Symbol:</strong> ' + (person.sex === 'M' ? 'Square' : 'Circle');
+    }
+
+    function checkPrediction() {
+      const prediction = els.studentPrediction.value;
+      if (!prediction) {
+        setStatus('Choose an inheritance pattern before checking your answer.', 'warn');
+        return;
+      }
+
+      if (prediction === getCurrentPatternKey()) {
+        setStatus('Correct. This pedigree is best explained by ' + getCurrentPattern().label.toLowerCase() + '.', 'good');
+      } else {
+        setStatus('Not quite. Look for whether the trait skips generations, appears in every generation, or affects mostly males.', 'bad');
+      }
+    }
+
+    function newFamily() {
+      const options = Array.from(els.challengeSelect.options).map(option => option.value);
+      const current = els.challengeSelect.value;
+      let next = current;
+      while (next === current && options.length > 1) {
+        next = options[Math.floor(Math.random() * options.length)];
+      }
+      els.challengeSelect.value = next;
+      selectedPerson = null;
+      els.studentPrediction.value = '';
+      setStatus('New family loaded. Inspect the pattern before making a prediction.', '');
+      drawPedigree();
+    }
+
+    function handleChallengeChange() {
+      selectedPerson = null;
+      els.studentPrediction.value = '';
+      setStatus('Challenge changed. Inspect the pedigree before making a prediction.', '');
+      drawPedigree();
+    }
+
+    document.getElementById('newFamilyBtn').addEventListener('click', newFamily);
+    document.getElementById('checkPredictionBtn').addEventListener('click', checkPrediction);
+    els.challengeSelect.addEventListener('change', handleChallengeChange);
+
+    els.toggleGenotypesBtn.addEventListener('click', () => {
+      showGenotypes = !showGenotypes;
+      els.toggleGenotypesBtn.textContent = showGenotypes ? 'Hide genotypes' : 'Show genotypes';
+      drawPedigree();
+    });
+
+    els.toggleCluesBtn.addEventListener('click', () => {
+      showClues = !showClues;
+      els.toggleCluesBtn.textContent = showClues ? 'Hide clues' : 'Show clues';
+      buildClues();
+    });
+
+    drawPedigree();
+  </script>
+</body>
+</html>
