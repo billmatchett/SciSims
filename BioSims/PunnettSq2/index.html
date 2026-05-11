@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Punnett Square Simulator</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --line: #d7e0ea;
+      --text: #1f2937;
+      --muted: #5f6b7a;
+      --accent: #2563eb;
+      --accent-dark: #1d4ed8;
+      --soft-accent: #dbeafe;
+      --good: #15803d;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --shadow: rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top left, #e0f2fe 0, #f4f7fb 35%, #f8fafc 100%);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 1250px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .home-link {
+      display: inline-block;
+      margin-bottom: 16px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: #ffffff;
+      color: var(--accent-dark);
+      text-decoration: none;
+      font-weight: 700;
+      border: 1px solid var(--line);
+      box-shadow: 0 6px 16px var(--shadow);
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb 55%, #38bdf8);
+      color: white;
+      padding: 28px;
+      border-radius: 24px;
+      box-shadow: 0 14px 35px rgba(37, 99, 235, 0.22);
+      margin-bottom: 22px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(30px, 4vw, 48px);
+      letter-spacing: -0.03em;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 850px;
+      font-size: 17px;
+      line-height: 1.5;
+      color: #eaf4ff;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 360px minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 10px 24px var(--shadow);
+    }
+
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 22px;
+    }
+
+    .panel h3 {
+      margin: 20px 0 10px;
+      font-size: 17px;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+
+    input, select {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      background: white;
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 13px;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(37, 99, 235, 0.18);
+    }
+
+    button:hover {
+      background: var(--accent-dark);
+    }
+
+    button.secondary {
+      background: #e2e8f0;
+      color: #1f2937;
+      box-shadow: none;
+    }
+
+    button.secondary:hover {
+      background: #cbd5e1;
+    }
+
+    button.green {
+      background: var(--good);
+    }
+
+    button.green:hover {
+      background: #166534;
+    }
+
+    .main-area {
+      display: grid;
+      grid-template-columns: minmax(380px, 1fr) minmax(310px, 0.75fr);
+      gap: 20px;
+    }
+
+    .punnett-wrap {
+      display: grid;
+      grid-template-columns: 70px repeat(2, minmax(120px, 1fr));
+      grid-template-rows: 70px repeat(2, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .cell {
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      background: white;
+      min-height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 12px;
+      position: relative;
+    }
+
+    .corner {
+      background: transparent;
+      border: 0;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: none;
+    }
+
+    .gamete {
+      background: #eef6ff;
+      border-color: #bfdbfe;
+      font-size: 30px;
+      font-weight: 800;
+      color: #1d4ed8;
+    }
+
+    .offspring {
+      background: linear-gradient(180deg, #ffffff, #f8fbff);
+    }
+
+    .genotype {
+      font-size: 40px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      margin-bottom: 8px;
+    }
+
+    .phenotype {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.35;
+      max-width: 180px;
+    }
+
+    .caption {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.45;
+      margin-top: 10px;
+    }
+
+    .stat-card {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .stat-card h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .ratio-line {
+      display: grid;
+      grid-template-columns: 82px 1fr 54px;
+      gap: 8px;
+      align-items: center;
+      margin: 8px 0;
+      font-size: 14px;
+    }
+
+    .bar {
+      height: 15px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 999px;
+      width: 0%;
+      transition: width 0.25s ease;
+    }
+
+    .outcome-box {
+      min-height: 90px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #fefce8;
+      border: 1px solid #fde68a;
+      border-radius: 16px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .outcome-box .big {
+      font-size: 34px;
+      font-weight: 900;
+      margin-bottom: 4px;
+      color: #854d0e;
+    }
+
+    .small-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    .small-table th, .small-table td {
+      border-bottom: 1px solid var(--line);
+      padding: 7px 4px;
+      text-align: left;
+    }
+
+    .small-table th {
+      color: #334155;
+      font-size: 13px;
+    }
+
+    .preset-summary {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 14px;
+      font-size: 14px;
+      line-height: 1.45;
+      color: #334155;
+    }
+
+    .preset-summary strong {
+      color: #111827;
+    }
+
+    .student-prompt {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 16px;
+      padding: 12px;
+      margin-top: 14px;
+      color: #14532d;
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    @media (max-width: 1050px) {
+      .layout, .main-area {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 14px;
+      }
+
+      .punnett-wrap {
+        grid-template-columns: 48px repeat(2, minmax(95px, 1fr));
+        grid-template-rows: 48px repeat(2, minmax(95px, 1fr));
+        gap: 6px;
+      }
+
+      .cell {
+        min-height: 88px;
+        border-radius: 14px;
+        padding: 8px;
+      }
+
+      .gamete {
+        font-size: 24px;
+      }
+
+      .genotype {
+        font-size: 30px;
+      }
+
+      .phenotype {
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+
+    <section class="hero">
+      <h1>Punnett Square Simulator</h1>
+      <p>Build a simple genetic cross, predict the possible offspring, then run a small simulation to compare theoretical ratios with observed results.</p>
+    </section>
+
+    <div class="layout">
+      <aside class="panel">
+        <h2>Set up the cross</h2>
+
+        <div class="field">
+          <label for="traitPreset">Trait being modelled</label>
+          <select id="traitPreset">
+            <option value="peaSeed">Pea seed colour: yellow or green</option>
+            <option value="peaFlower">Pea flower colour: purple or white</option>
+            <option value="peaHeight">Pea plant height: tall or short</option>
+            <option value="furColour">Animal fur colour: brown or white</option>
+            <option value="wingShape">Fruit fly wing shape: normal or vestigial</option>
+            <option value="incompleteFlower">Flower colour: red, pink or white</option>
+          </select>
+        </div>
+
+        <input id="traitName" type="hidden" value="Pea seed colour" />
+        <input id="dominantAllele" type="hidden" value="Y" />
+        <input id="recessiveAllele" type="hidden" value="y" />
+        <input id="dominantPhenotype" type="hidden" value="Yellow seeds" />
+        <input id="heterozygousPhenotype" type="hidden" value="Yellow seeds" />
+        <input id="recessivePhenotype" type="hidden" value="Green seeds" />
+
+        <div class="field">
+          <label for="inheritanceMode">Inheritance pattern</label>
+          <select id="inheritanceMode">
+            <option value="complete">Complete dominance</option>
+            <option value="incomplete">Incomplete dominance or codominance</option>
+          </select>
+        </div>
+
+        <div class="preset-summary" id="traitSummary"></div>
+
+        <h3>Parents</h3>
+        <div class="field">
+          <label for="parent1">Parent 1 genotype</label>
+          <select id="parent1"></select>
+        </div>
+
+        <div class="field">
+          <label for="parent2">Parent 2 genotype</label>
+          <select id="parent2"></select>
+        </div>
+
+        <div class="btn-row">
+          <button id="randomParentsBtn" class="secondary">Random parents</button>
+          <button id="classicCrossBtn" class="secondary">Heterozygous × heterozygous</button>
+        </div>
+
+        <div class="student-prompt">
+          <strong>Student focus:</strong> The Punnett square shows probability, not certainty. A larger number of simulated offspring should usually get closer to the predicted ratio.
+        </div>
+      </aside>
+
+      <main class="main-area">
+        <section class="panel">
+          <h2 id="squareTitle">Punnett square</h2>
+          <div class="caption" id="crossCaption"></div>
+
+          <div class="punnett-wrap" aria-label="Punnett square">
+            <div class="cell corner">Gametes</div>
+            <div class="cell gamete" id="p2g1"></div>
+            <div class="cell gamete" id="p2g2"></div>
+            <div class="cell gamete" id="p1g1"></div>
+            <div class="cell offspring" id="cell00"></div>
+            <div class="cell offspring" id="cell01"></div>
+            <div class="cell gamete" id="p1g2"></div>
+            <div class="cell offspring" id="cell10"></div>
+            <div class="cell offspring" id="cell11"></div>
+          </div>
+
+          <p class="caption">Each box represents one possible combination of gametes. The four boxes do not mean that exactly four offspring will be produced.</p>
+        </section>
+
+        <section class="panel">
+          <h2>Results</h2>
+
+          <div class="stat-card">
+            <h3>Theoretical genotype ratio</h3>
+            <div id="genotypeRatios"></div>
+          </div>
+
+          <div class="stat-card">
+            <h3>Theoretical phenotype ratio</h3>
+            <div id="phenotypeRatios"></div>
+          </div>
+
+          <div class="stat-card">
+            <h3>Offspring simulator</h3>
+            <div class="outcome-box" id="latestOutcome">
+              <div class="big">Ready</div>
+              <div class="muted">Run a simulated offspring to begin.</div>
+            </div>
+
+            <div class="btn-row">
+              <button id="runOneBtn" class="green">Run 1 offspring</button>
+              <button id="runTenBtn">Run 10</button>
+              <button id="runHundredBtn">Run 100</button>
+              <button id="resetSimBtn" class="secondary">Reset</button>
+              <button id="downloadBtn" class="secondary">Download CSV</button>
+            </div>
+
+            <table class="small-table">
+              <thead>
+                <tr>
+                  <th>Genotype</th>
+                  <th>Count</th>
+                  <th>Percentage</th>
+                </tr>
+              </thead>
+              <tbody id="simulationTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const PRESETS = {
+      peaSeed: {
+        trait: 'Pea seed colour',
+        dominant: 'Y',
+        recessive: 'y',
+        mode: 'complete',
+        dominantPhenotype: 'Yellow seeds',
+        heterozygousPhenotype: 'Yellow seeds',
+        recessivePhenotype: 'Green seeds'
+      },
+      peaFlower: {
+        trait: 'Pea flower colour',
+        dominant: 'P',
+        recessive: 'p',
+        mode: 'complete',
+        dominantPhenotype: 'Purple flowers',
+        heterozygousPhenotype: 'Purple flowers',
+        recessivePhenotype: 'White flowers'
+      },
+      peaHeight: {
+        trait: 'Pea plant height',
+        dominant: 'T',
+        recessive: 't',
+        mode: 'complete',
+        dominantPhenotype: 'Tall plants',
+        heterozygousPhenotype: 'Tall plants',
+        recessivePhenotype: 'Short plants'
+      },
+      furColour: {
+        trait: 'Animal fur colour',
+        dominant: 'B',
+        recessive: 'b',
+        mode: 'complete',
+        dominantPhenotype: 'Brown fur',
+        heterozygousPhenotype: 'Brown fur',
+        recessivePhenotype: 'White fur'
+      },
+      wingShape: {
+        trait: 'Fruit fly wing shape',
+        dominant: 'W',
+        recessive: 'w',
+        mode: 'complete',
+        dominantPhenotype: 'Normal wings',
+        heterozygousPhenotype: 'Normal wings',
+        recessivePhenotype: 'Vestigial wings'
+      },
+      incompleteFlower: {
+        trait: 'Flower colour',
+        dominant: 'R',
+        recessive: 'r',
+        mode: 'incomplete',
+        dominantPhenotype: 'Red flowers',
+        heterozygousPhenotype: 'Pink flowers',
+        recessivePhenotype: 'White flowers'
+      }
+    };
+
+    const els = {
+      traitPreset: document.getElementById('traitPreset'),
+      traitSummary: document.getElementById('traitSummary'),
+      traitName: document.getElementById('traitName'),
+      dominantAllele: document.getElementById('dominantAllele'),
+      recessiveAllele: document.getElementById('recessiveAllele'),
+      inheritanceMode: document.getElementById('inheritanceMode'),
+      dominantPhenotype: document.getElementById('dominantPhenotype'),
+      heterozygousPhenotype: document.getElementById('heterozygousPhenotype'),
+      recessivePhenotype: document.getElementById('recessivePhenotype'),
+      parent1: document.getElementById('parent1'),
+      parent2: document.getElementById('parent2'),
+      squareTitle: document.getElementById('squareTitle'),
+      crossCaption: document.getElementById('crossCaption'),
+      genotypeRatios: document.getElementById('genotypeRatios'),
+      phenotypeRatios: document.getElementById('phenotypeRatios'),
+      simulationTable: document.getElementById('simulationTable'),
+      latestOutcome: document.getElementById('latestOutcome'),
+      p1g1: document.getElementById('p1g1'),
+      p1g2: document.getElementById('p1g2'),
+      p2g1: document.getElementById('p2g1'),
+      p2g2: document.getElementById('p2g2'),
+      cells: [
+        [document.getElementById('cell00'), document.getElementById('cell01')],
+        [document.getElementById('cell10'), document.getElementById('cell11')]
+      ]
+    };
+
+    let currentOptions = [];
+    let simulation = [];
+
+    function cleanAllele(value, fallback) {
+      const trimmed = String(value || '').trim();
+      return trimmed.length ? trimmed[0] : fallback;
+    }
+
+    function getAlleles() {
+      let dominant = cleanAllele(els.dominantAllele.value, 'A');
+      let recessive = cleanAllele(els.recessiveAllele.value, 'a');
+
+      if (dominant === recessive) {
+        recessive = dominant.toLowerCase() === dominant ? dominant.toUpperCase() : dominant.toLowerCase();
+      }
+
+      els.dominantAllele.value = dominant;
+      els.recessiveAllele.value = recessive;
+      return { dominant, recessive };
+    }
+
+    function genotypeOptions() {
+      const { dominant, recessive } = getAlleles();
+      return [dominant + dominant, dominant + recessive, recessive + recessive];
+    }
+
+    function applyPreset() {
+      const preset = PRESETS[els.traitPreset.value] || PRESETS.peaSeed;
+      els.traitName.value = preset.trait;
+      els.dominantAllele.value = preset.dominant;
+      els.recessiveAllele.value = preset.recessive;
+      els.inheritanceMode.value = preset.mode;
+      els.dominantPhenotype.value = preset.dominantPhenotype;
+      els.heterozygousPhenotype.value = preset.heterozygousPhenotype;
+      els.recessivePhenotype.value = preset.recessivePhenotype;
+
+      els.traitSummary.innerHTML =
+        '<strong>Alleles:</strong> ' + preset.dominant + ' = ' + preset.dominantPhenotype + ', ' + preset.recessive + ' = ' + preset.recessivePhenotype + '<br>' +
+        '<strong>Heterozygous phenotype:</strong> ' + preset.heterozygousPhenotype;
+
+      rebuildParentOptions(false);
+      resetSimulation();
+      renderSquare();
+    }
+
+    function rebuildParentOptions(keepValues = true) {
+      const oldP1 = els.parent1.value;
+      const oldP2 = els.parent2.value;
+      const options = genotypeOptions();
+      currentOptions = options;
+
+      [els.parent1, els.parent2].forEach(select => {
+        select.innerHTML = '';
+        options.forEach(option => {
+          const opt = document.createElement('option');
+          opt.value = option;
+          opt.textContent = option;
+          select.appendChild(opt);
+        });
+      });
+
+      els.parent1.value = keepValues && options.includes(oldP1) ? oldP1 : options[1];
+      els.parent2.value = keepValues && options.includes(oldP2) ? oldP2 : options[1];
+    }
+
+    function sortGenotype(genotype) {
+      const { dominant, recessive } = getAlleles();
+      const chars = genotype.split('');
+      chars.sort((a, b) => {
+        if (a === dominant && b !== dominant) return -1;
+        if (b === dominant && a !== dominant) return 1;
+        if (a === recessive && b !== recessive) return 1;
+        if (b === recessive && a !== recessive) return -1;
+        return a.localeCompare(b);
+      });
+      return chars.join('');
+    }
+
+    function getGametes(genotype) {
+      return genotype.split('');
+    }
+
+    function phenotypeFor(genotype) {
+      const { dominant, recessive } = getAlleles();
+      const mode = els.inheritanceMode.value;
+      const domPhenotype = els.dominantPhenotype.value.trim() || 'Dominant phenotype';
+      const hetPhenotype = els.heterozygousPhenotype.value.trim() || domPhenotype;
+      const recPhenotype = els.recessivePhenotype.value.trim() || 'Recessive phenotype';
+
+      const hasDom = genotype.includes(dominant);
+      const hasRec = genotype.includes(recessive);
+
+      if (hasDom && hasRec) {
+        return mode === 'incomplete' ? hetPhenotype : domPhenotype;
+      }
+      if (hasDom) return domPhenotype;
+      return recPhenotype;
+    }
+
+    function getOffspringGrid() {
+      const p1Gametes = getGametes(els.parent1.value);
+      const p2Gametes = getGametes(els.parent2.value);
+      const grid = [];
+
+      for (let r = 0; r < 2; r++) {
+        const row = [];
+        for (let c = 0; c < 2; c++) {
+          row.push(sortGenotype(p1Gametes[r] + p2Gametes[c]));
+        }
+        grid.push(row);
+      }
+      return { p1Gametes, p2Gametes, grid };
+    }
+
+    function countItems(items) {
+      const counts = {};
+      items.forEach(item => {
+        counts[item] = (counts[item] || 0) + 1;
+      });
+      return counts;
+    }
+
+    function renderRatio(container, counts, total, order = null) {
+      container.innerHTML = '';
+      const keys = order || Object.keys(counts).sort();
+      keys.forEach(key => {
+        const count = counts[key] || 0;
+        if (count === 0) return;
+        const percent = Math.round((count / total) * 1000) / 10;
+
+        const row = document.createElement('div');
+        row.className = 'ratio-line';
+
+        const label = document.createElement('div');
+        label.textContent = key;
+        label.style.fontWeight = '700';
+
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        const fill = document.createElement('div');
+        fill.className = 'bar-fill';
+        fill.style.width = percent + '%';
+        bar.appendChild(fill);
+
+        const pct = document.createElement('div');
+        pct.textContent = percent + '%';
+        pct.style.textAlign = 'right';
+
+        row.appendChild(label);
+        row.appendChild(bar);
+        row.appendChild(pct);
+        container.appendChild(row);
+      });
+    }
+
+    function renderSquare() {
+      const { p1Gametes, p2Gametes, grid } = getOffspringGrid();
+      const allOffspring = grid.flat();
+      const genotypeCounts = countItems(allOffspring);
+      const phenotypeCounts = countItems(allOffspring.map(phenotypeFor));
+      const { dominant, recessive } = getAlleles();
+      const trait = els.traitName.value.trim() || 'Trait';
+
+      els.squareTitle.textContent = trait + ' Punnett square';
+      els.crossCaption.textContent = 'Cross: Parent 1 ' + els.parent1.value + ' × Parent 2 ' + els.parent2.value;
+      document.getElementById('classicCrossBtn').textContent = dominant + recessive + ' × ' + dominant + recessive;
+
+      els.p1g1.textContent = p1Gametes[0];
+      els.p1g2.textContent = p1Gametes[1];
+      els.p2g1.textContent = p2Gametes[0];
+      els.p2g2.textContent = p2Gametes[1];
+
+      for (let r = 0; r < 2; r++) {
+        for (let c = 0; c < 2; c++) {
+          const genotype = grid[r][c];
+          const phenotype = phenotypeFor(genotype);
+          els.cells[r][c].innerHTML = '<div><div class="genotype">' + genotype + '</div><div class="phenotype">' + phenotype + '</div></div>';
+        }
+      }
+
+      renderRatio(els.genotypeRatios, genotypeCounts, 4, [dominant + dominant, dominant + recessive, recessive + recessive]);
+      renderRatio(els.phenotypeRatios, phenotypeCounts, 4);
+      renderSimulationTable();
+    }
+
+    function renderSimulationTable() {
+      const options = genotypeOptions();
+      const counts = countItems(simulation.map(item => item.genotype));
+      const total = simulation.length;
+      els.simulationTable.innerHTML = '';
+
+      options.forEach(genotype => {
+        const count = counts[genotype] || 0;
+        const percent = total ? Math.round((count / total) * 1000) / 10 : 0;
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td><strong>' + genotype + '</strong><br><span class="muted">' + phenotypeFor(genotype) + '</span></td><td>' + count + '</td><td>' + percent + '%</td>';
+        els.simulationTable.appendChild(tr);
+      });
+
+      if (!total) {
+        els.latestOutcome.innerHTML = '<div class="big">Ready</div><div class="muted">Run a simulated offspring to begin.</div>';
+      }
+    }
+
+    function randomChoice(array) {
+      return array[Math.floor(Math.random() * array.length)];
+    }
+
+    function runOffspring(times) {
+      const { p1Gametes, p2Gametes } = getOffspringGrid();
+      let latest = null;
+
+      for (let i = 0; i < times; i++) {
+        const genotype = sortGenotype(randomChoice(p1Gametes) + randomChoice(p2Gametes));
+        const phenotype = phenotypeFor(genotype);
+        latest = {
+          trial: simulation.length + 1,
+          parent1: els.parent1.value,
+          parent2: els.parent2.value,
+          genotype,
+          phenotype
+        };
+        simulation.push(latest);
+      }
+
+      if (latest) {
+        els.latestOutcome.innerHTML = '<div class="big">' + latest.genotype + '</div><div>' + latest.phenotype + '</div><div class="muted">Trial ' + latest.trial + '</div>';
+      }
+      renderSimulationTable();
+    }
+
+    function resetSimulation() {
+      simulation = [];
+      renderSimulationTable();
+    }
+
+    function randomParents() {
+      const options = genotypeOptions();
+      els.parent1.value = randomChoice(options);
+      els.parent2.value = randomChoice(options);
+      resetSimulation();
+      renderSquare();
+    }
+
+    function classicCross() {
+      const options = genotypeOptions();
+      els.parent1.value = options[1];
+      els.parent2.value = options[1];
+      resetSimulation();
+      renderSquare();
+    }
+
+    function downloadCSV() {
+      const rows = [
+        ['Trial', 'Trait', 'Parent 1 genotype', 'Parent 2 genotype', 'Offspring genotype', 'Offspring phenotype']
+      ];
+
+      simulation.forEach(item => {
+        rows.push([
+          item.trial,
+          els.traitName.value.trim() || 'Trait',
+          item.parent1,
+          item.parent2,
+          item.genotype,
+          item.phenotype
+        ]);
+      });
+
+      if (simulation.length === 0) {
+        rows.push(['No trials run yet', '', '', '', '', '']);
+      }
+
+      const csv = rows.map(row => row.map(value => '"' + String(value).replaceAll('"', '""') + '"').join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'punnett_square_simulation_data.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    function updateInheritanceModeLabels() {
+      const isIncomplete = els.inheritanceMode.value === 'incomplete';
+      if (isIncomplete && els.heterozygousPhenotype.value === els.dominantPhenotype.value) {
+        els.heterozygousPhenotype.value = 'Blended or mixed phenotype';
+      }
+      if (!isIncomplete) {
+        els.heterozygousPhenotype.value = els.dominantPhenotype.value;
+      }
+    }
+
+    function handleAlleleChange() {
+      rebuildParentOptions(false);
+      resetSimulation();
+      renderSquare();
+    }
+
+    ['traitName', 'dominantPhenotype', 'heterozygousPhenotype', 'recessivePhenotype'].forEach(id => {
+      els[id].addEventListener('input', renderSquare);
+    });
+
+    els.traitPreset.addEventListener('change', applyPreset);
+
+    els.dominantAllele.addEventListener('input', handleAlleleChange);
+    els.recessiveAllele.addEventListener('input', handleAlleleChange);
+
+    els.inheritanceMode.addEventListener('change', () => {
+      updateInheritanceModeLabels();
+      resetSimulation();
+      renderSquare();
+    });
+
+    els.parent1.addEventListener('change', () => {
+      resetSimulation();
+      renderSquare();
+    });
+
+    els.parent2.addEventListener('change', () => {
+      resetSimulation();
+      renderSquare();
+    });
+
+    document.getElementById('randomParentsBtn').addEventListener('click', randomParents);
+    document.getElementById('classicCrossBtn').addEventListener('click', classicCross);
+    document.getElementById('runOneBtn').addEventListener('click', () => runOffspring(1));
+    document.getElementById('runTenBtn').addEventListener('click', () => runOffspring(10));
+    document.getElementById('runHundredBtn').addEventListener('click', () => runOffspring(100));
+    document.getElementById('resetSimBtn').addEventListener('click', resetSimulation);
+    document.getElementById('downloadBtn').addEventListener('click', downloadCSV);
+
+    applyPreset();
+  </script>
+</body>
+</html>
