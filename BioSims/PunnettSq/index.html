@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drag-and-Drop Punnett Square</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --line: #d8e2ee;
+      --text: #172033;
+      --muted: #607086;
+      --accent: #2563eb;
+      --accent-dark: #1d4ed8;
+      --soft-blue: #dbeafe;
+      --good: #15803d;
+      --good-bg: #dcfce7;
+      --bad: #b91c1c;
+      --bad-bg: #fee2e2;
+      --warn: #b45309;
+      --warn-bg: #fef3c7;
+      --shadow: rgba(15, 23, 42, 0.09);
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background: radial-gradient(circle at top left, #e0f2fe 0, #f4f7fb 38%, #f8fafc 100%);
+    }
+
+    .page {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .home-link {
+      display: inline-block;
+      margin-bottom: 16px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: #ffffff;
+      color: var(--accent-dark);
+      text-decoration: none;
+      font-weight: 700;
+      border: 1px solid var(--line);
+      box-shadow: 0 6px 16px var(--shadow);
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb 55%, #38bdf8);
+      color: white;
+      padding: 26px 28px;
+      border-radius: 24px;
+      box-shadow: 0 14px 34px rgba(37, 99, 235, 0.24);
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(30px, 4vw, 48px);
+      letter-spacing: -0.03em;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 900px;
+      color: #eaf4ff;
+      line-height: 1.5;
+      font-size: 17px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 340px minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: 0 10px 24px var(--shadow);
+      padding: 18px;
+    }
+
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 22px;
+    }
+
+    .panel h3 {
+      margin: 18px 0 9px;
+      font-size: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+
+    select {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      background: white;
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .summary {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      font-size: 14px;
+      line-height: 1.45;
+      color: #334155;
+    }
+
+    .summary strong {
+      color: #111827;
+    }
+
+    .instructions {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #14532d;
+      border-radius: 16px;
+      padding: 12px;
+      margin-top: 14px;
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .tile-tray {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 12px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 18px;
+      min-height: 72px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .allele-tile {
+      width: 54px;
+      height: 54px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      font-size: 30px;
+      font-weight: 900;
+      background: #ffffff;
+      color: #1d4ed8;
+      border: 2px solid #93c5fd;
+      box-shadow: 0 5px 12px rgba(37, 99, 235, 0.18);
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+    }
+
+    .allele-tile.recessive {
+      color: #7c3aed;
+      border-color: #c4b5fd;
+      box-shadow: 0 5px 12px rgba(124, 58, 237, 0.15);
+    }
+
+    .allele-tile:active {
+      cursor: grabbing;
+      transform: scale(0.98);
+    }
+
+    .allele-tile.selected {
+      outline: 4px solid #facc15;
+      outline-offset: 2px;
+    }
+
+    .square-panel {
+      min-height: 650px;
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
+    .status {
+      flex: 1;
+      min-height: 48px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      padding: 12px;
+      line-height: 1.35;
+      font-size: 14px;
+      color: #334155;
+    }
+
+    .status.good {
+      border-color: #86efac;
+      background: var(--good-bg);
+      color: #14532d;
+    }
+
+    .status.bad {
+      border-color: #fecaca;
+      background: var(--bad-bg);
+      color: #7f1d1d;
+    }
+
+    .status.warn {
+      border-color: #fde68a;
+      background: var(--warn-bg);
+      color: #78350f;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 10px 0 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 13px;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(37, 99, 235, 0.18);
+    }
+
+    button:hover {
+      background: var(--accent-dark);
+    }
+
+    button.secondary {
+      background: #e2e8f0;
+      color: #1f2937;
+      box-shadow: none;
+    }
+
+    button.secondary:hover {
+      background: #cbd5e1;
+    }
+
+    button.green {
+      background: var(--good);
+    }
+
+    button.green:hover {
+      background: #166534;
+    }
+
+    .punnett-grid {
+      display: grid;
+      grid-template-columns: 86px repeat(2, minmax(190px, 1fr));
+      grid-template-rows: 86px repeat(2, minmax(170px, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .grid-box {
+      border-radius: 20px;
+      border: 2px solid var(--line);
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      padding: 10px;
+    }
+
+    .corner {
+      background: transparent;
+      border: 0;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: none;
+    }
+
+    .gamete-box {
+      background: #eef6ff;
+      border-color: #bfdbfe;
+      color: #1d4ed8;
+      font-size: 34px;
+      font-weight: 900;
+    }
+
+    .offspring-box {
+      flex-direction: column;
+      gap: 8px;
+      background: linear-gradient(180deg, #ffffff, #f8fbff);
+    }
+
+    .offspring-box.correct {
+      border-color: #22c55e;
+      background: linear-gradient(180deg, #ffffff, #f0fdf4);
+    }
+
+    .offspring-box.incorrect {
+      border-color: #ef4444;
+      background: linear-gradient(180deg, #ffffff, #fef2f2);
+    }
+
+    .cell-title {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .slot-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .slot {
+      width: 62px;
+      height: 62px;
+      border-radius: 18px;
+      border: 2px dashed #b6c4d6;
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.15s ease;
+    }
+
+    .slot.drag-over {
+      background: #dbeafe;
+      border-color: var(--accent);
+      transform: scale(1.04);
+    }
+
+    .slot.correct-slot {
+      border-style: solid;
+      border-color: #22c55e;
+      background: #f0fdf4;
+    }
+
+    .slot.incorrect-slot {
+      border-style: solid;
+      border-color: #ef4444;
+      background: #fef2f2;
+    }
+
+    .slot .allele-tile {
+      width: 52px;
+      height: 52px;
+      font-size: 29px;
+      box-shadow: none;
+    }
+
+    .hint {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.35;
+      max-width: 260px;
+    }
+
+    .answer-key {
+      margin-top: 14px;
+      display: none;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .answer-key.visible {
+      display: block;
+    }
+
+    @media (max-width: 1050px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        padding: 14px;
+      }
+
+      .top-row {
+        flex-direction: column;
+      }
+
+      .punnett-grid {
+        grid-template-columns: 54px repeat(2, minmax(125px, 1fr));
+        grid-template-rows: 54px repeat(2, minmax(135px, 1fr));
+        gap: 6px;
+      }
+
+      .grid-box {
+        border-radius: 14px;
+        padding: 6px;
+      }
+
+      .gamete-box {
+        font-size: 26px;
+      }
+
+      .slot {
+        width: 46px;
+        height: 46px;
+        border-radius: 13px;
+      }
+
+      .slot .allele-tile,
+      .allele-tile {
+        width: 42px;
+        height: 42px;
+        font-size: 24px;
+        border-radius: 12px;
+      }
+
+      .slot-row {
+        gap: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+
+    <section class="hero">
+      <h1>Drag-and-Drop Punnett Square</h1>
+      <p>Use the gene tiles to build the offspring genotypes. Each offspring receives one allele from each parent.</p>
+    </section>
+
+    <div class="layout">
+      <aside class="panel">
+        <h2>Set up the challenge</h2>
+
+        <div class="field">
+          <label for="challengeSelect">Choose a cross</label>
+          <select id="challengeSelect">
+            <option value="peaSeed_yy">Pea seed colour: Yy × Yy</option>
+            <option value="peaSeed_yY">Pea seed colour: YY × yy</option>
+            <option value="peaHeight_tt">Pea height: Tt × Tt</option>
+            <option value="fur_bb">Fur colour: Bb × bb</option>
+            <option value="flower_rr">Incomplete dominance: Rr × Rr</option>
+          </select>
+        </div>
+
+        <div class="summary" id="challengeSummary"></div>
+
+        <h3>Gene tiles</h3>
+        <div class="tile-tray" id="tileTray"></div>
+
+        <div class="instructions">
+          <strong>How to use:</strong><br>
+          Drag gene tiles into the empty spaces in each offspring box. You can also click a tile, then click a space. Each offspring must have two alleles.
+        </div>
+
+        <div class="instructions" style="background:#fff7ed;border-color:#fed7aa;color:#7c2d12;">
+          <strong>Teaching point:</strong><br>
+          The letters in each box can be in either order, but the dominant allele is usually written first, such as <strong>Yy</strong> instead of <strong>yY</strong>.
+        </div>
+      </aside>
+
+      <main class="panel square-panel">
+        <div class="top-row">
+          <div>
+            <h2 id="squareTitle">Punnett square</h2>
+            <div class="hint" id="crossHint"></div>
+          </div>
+          <div class="status" id="statusBox">Drag alleles into the offspring boxes, then check your answer.</div>
+        </div>
+
+        <div class="button-row">
+          <button id="checkBtn" class="green">Check answer</button>
+          <button id="resetBtn" class="secondary">Reset square</button>
+          <button id="showBtn" class="secondary">Show answers</button>
+          <button id="nextBtn">Next challenge</button>
+        </div>
+
+        <div class="punnett-grid" id="punnettGrid">
+          <div class="grid-box corner">Parent gametes</div>
+          <div class="grid-box gamete-box" id="topGamete0"></div>
+          <div class="grid-box gamete-box" id="topGamete1"></div>
+          <div class="grid-box gamete-box" id="sideGamete0"></div>
+          <div class="grid-box offspring-box" data-cell="0">
+            <div class="cell-title">Offspring 1</div>
+            <div class="slot-row">
+              <div class="slot" data-cell="0" data-slot="0"></div>
+              <div class="slot" data-cell="0" data-slot="1"></div>
+            </div>
+            <div class="hint">Combine the side and top gametes.</div>
+          </div>
+          <div class="grid-box offspring-box" data-cell="1">
+            <div class="cell-title">Offspring 2</div>
+            <div class="slot-row">
+              <div class="slot" data-cell="1" data-slot="0"></div>
+              <div class="slot" data-cell="1" data-slot="1"></div>
+            </div>
+            <div class="hint">Combine the side and top gametes.</div>
+          </div>
+          <div class="grid-box gamete-box" id="sideGamete1"></div>
+          <div class="grid-box offspring-box" data-cell="2">
+            <div class="cell-title">Offspring 3</div>
+            <div class="slot-row">
+              <div class="slot" data-cell="2" data-slot="0"></div>
+              <div class="slot" data-cell="2" data-slot="1"></div>
+            </div>
+            <div class="hint">Combine the side and top gametes.</div>
+          </div>
+          <div class="grid-box offspring-box" data-cell="3">
+            <div class="cell-title">Offspring 4</div>
+            <div class="slot-row">
+              <div class="slot" data-cell="3" data-slot="0"></div>
+              <div class="slot" data-cell="3" data-slot="1"></div>
+            </div>
+            <div class="hint">Combine the side and top gametes.</div>
+          </div>
+        </div>
+
+        <div class="answer-key" id="answerKey"></div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const challenges = [
+      {
+        id: 'peaSeed_yy',
+        trait: 'Pea seed colour',
+        parent1: 'Yy',
+        parent2: 'Yy',
+        dominant: 'Y',
+        recessive: 'y',
+        dominantMeaning: 'yellow seeds',
+        recessiveMeaning: 'green seeds',
+        heterozygousMeaning: 'yellow seeds',
+        mode: 'complete dominance'
+      },
+      {
+        id: 'peaSeed_yY',
+        trait: 'Pea seed colour',
+        parent1: 'YY',
+        parent2: 'yy',
+        dominant: 'Y',
+        recessive: 'y',
+        dominantMeaning: 'yellow seeds',
+        recessiveMeaning: 'green seeds',
+        heterozygousMeaning: 'yellow seeds',
+        mode: 'complete dominance'
+      },
+      {
+        id: 'peaHeight_tt',
+        trait: 'Pea plant height',
+        parent1: 'Tt',
+        parent2: 'Tt',
+        dominant: 'T',
+        recessive: 't',
+        dominantMeaning: 'tall plants',
+        recessiveMeaning: 'short plants',
+        heterozygousMeaning: 'tall plants',
+        mode: 'complete dominance'
+      },
+      {
+        id: 'fur_bb',
+        trait: 'Animal fur colour',
+        parent1: 'Bb',
+        parent2: 'bb',
+        dominant: 'B',
+        recessive: 'b',
+        dominantMeaning: 'brown fur',
+        recessiveMeaning: 'white fur',
+        heterozygousMeaning: 'brown fur',
+        mode: 'complete dominance'
+      },
+      {
+        id: 'flower_rr',
+        trait: 'Flower colour',
+        parent1: 'Rr',
+        parent2: 'Rr',
+        dominant: 'R',
+        recessive: 'r',
+        dominantMeaning: 'red flowers',
+        recessiveMeaning: 'white flowers',
+        heterozygousMeaning: 'pink flowers',
+        mode: 'incomplete dominance'
+      }
+    ];
+
+    const els = {
+      challengeSelect: document.getElementById('challengeSelect'),
+      challengeSummary: document.getElementById('challengeSummary'),
+      tileTray: document.getElementById('tileTray'),
+      squareTitle: document.getElementById('squareTitle'),
+      crossHint: document.getElementById('crossHint'),
+      statusBox: document.getElementById('statusBox'),
+      topGametes: [document.getElementById('topGamete0'), document.getElementById('topGamete1')],
+      sideGametes: [document.getElementById('sideGamete0'), document.getElementById('sideGamete1')],
+      answerKey: document.getElementById('answerKey')
+    };
+
+    let activeChallenge = challenges[0];
+    let selectedAllele = null;
+    let draggedTile = null;
+    let draggedFromSlot = false;
+
+    function getChallenge() {
+      return challenges.find(challenge => challenge.id === els.challengeSelect.value) || challenges[0];
+    }
+
+    function gametes(parentGenotype) {
+      return parentGenotype.split('');
+    }
+
+    function normaliseGenotype(value) {
+      const alleles = String(value || '').split('');
+      const dominant = activeChallenge.dominant;
+      const recessive = activeChallenge.recessive;
+      alleles.sort((a, b) => {
+        if (a === dominant && b !== dominant) return -1;
+        if (b === dominant && a !== dominant) return 1;
+        if (a === recessive && b !== recessive) return 1;
+        if (b === recessive && a !== recessive) return -1;
+        return a.localeCompare(b);
+      });
+      return alleles.join('');
+    }
+
+    function expectedGenotypes() {
+      const p1 = gametes(activeChallenge.parent1);
+      const p2 = gametes(activeChallenge.parent2);
+      return [
+        normaliseGenotype(p1[0] + p2[0]),
+        normaliseGenotype(p1[0] + p2[1]),
+        normaliseGenotype(p1[1] + p2[0]),
+        normaliseGenotype(p1[1] + p2[1])
+      ];
+    }
+
+    function phenotypeFor(genotype) {
+      const dominant = activeChallenge.dominant;
+      const recessive = activeChallenge.recessive;
+      const hasDominant = genotype.includes(dominant);
+      const hasRecessive = genotype.includes(recessive);
+
+      if (hasDominant && hasRecessive) return activeChallenge.heterozygousMeaning;
+      if (hasDominant) return activeChallenge.dominantMeaning;
+      return activeChallenge.recessiveMeaning;
+    }
+
+    function createTile(allele, fromTray = false) {
+      const tile = document.createElement('div');
+      tile.className = 'allele-tile' + (allele === activeChallenge.recessive ? ' recessive' : '');
+      tile.textContent = allele;
+      tile.draggable = true;
+      tile.dataset.allele = allele;
+      tile.dataset.fromTray = fromTray ? 'true' : 'false';
+      tile.setAttribute('role', 'button');
+      tile.setAttribute('aria-label', 'Allele ' + allele);
+
+      tile.addEventListener('dragstart', event => {
+        draggedTile = tile;
+        draggedFromSlot = tile.dataset.fromTray !== 'true';
+        event.dataTransfer.setData('text/plain', allele);
+        event.dataTransfer.effectAllowed = 'copyMove';
+      });
+
+      tile.addEventListener('dragend', () => {
+        draggedTile = null;
+        draggedFromSlot = false;
+      });
+
+      tile.addEventListener('click', () => {
+        selectedAllele = allele;
+        document.querySelectorAll('.allele-tile').forEach(t => t.classList.remove('selected'));
+        tile.classList.add('selected');
+        setStatus('Selected allele ' + allele + '. Click an empty space in the Punnett square.', 'warn');
+      });
+
+      return tile;
+    }
+
+    function clearFeedback() {
+      document.querySelectorAll('.offspring-box').forEach(box => {
+        box.classList.remove('correct', 'incorrect');
+      });
+      document.querySelectorAll('.slot').forEach(slot => {
+        slot.classList.remove('correct-slot', 'incorrect-slot');
+      });
+    }
+
+    function setStatus(message, type = '') {
+      els.statusBox.textContent = message;
+      els.statusBox.className = 'status' + (type ? ' ' + type : '');
+    }
+
+    function buildTileTray() {
+      els.tileTray.innerHTML = '';
+      const alleles = [activeChallenge.dominant, activeChallenge.recessive];
+      alleles.forEach(allele => {
+        els.tileTray.appendChild(createTile(allele, true));
+      });
+    }
+
+    function fillSquareLabels() {
+      const p1 = gametes(activeChallenge.parent1);
+      const p2 = gametes(activeChallenge.parent2);
+
+      els.topGametes[0].textContent = p2[0];
+      els.topGametes[1].textContent = p2[1];
+      els.sideGametes[0].textContent = p1[0];
+      els.sideGametes[1].textContent = p1[1];
+
+      els.squareTitle.textContent = activeChallenge.trait + ' Punnett square';
+      els.crossHint.textContent = 'Parent 1: ' + activeChallenge.parent1 + '   ×   Parent 2: ' + activeChallenge.parent2;
+    }
+
+    function buildSummary() {
+      els.challengeSummary.innerHTML =
+        '<strong>Inheritance pattern:</strong> ' + activeChallenge.mode + '<br>' +
+        '<strong>Alleles:</strong> ' + activeChallenge.dominant + ' = ' + activeChallenge.dominantMeaning + ', ' + activeChallenge.recessive + ' = ' + activeChallenge.recessiveMeaning + '<br>' +
+        '<strong>Heterozygous phenotype:</strong> ' + activeChallenge.heterozygousMeaning;
+    }
+
+    function setupSlots() {
+      document.querySelectorAll('.slot').forEach(slot => {
+        slot.innerHTML = '';
+        slot.classList.remove('drag-over', 'correct-slot', 'incorrect-slot');
+
+        slot.addEventListener('dragover', event => {
+          event.preventDefault();
+          slot.classList.add('drag-over');
+        });
+
+        slot.addEventListener('dragleave', () => {
+          slot.classList.remove('drag-over');
+        });
+
+        slot.addEventListener('drop', event => {
+          event.preventDefault();
+          slot.classList.remove('drag-over');
+          const allele = event.dataTransfer.getData('text/plain');
+          if (!allele) return;
+
+          if (draggedFromSlot && draggedTile && draggedTile.parentElement) {
+            draggedTile.parentElement.innerHTML = '';
+          }
+          placeAllele(slot, allele);
+          clearFeedback();
+          setStatus('Allele placed. Keep building the offspring genotypes.', '');
+        });
+
+        slot.addEventListener('click', () => {
+          if (!selectedAllele) return;
+          placeAllele(slot, selectedAllele);
+          clearFeedback();
+          document.querySelectorAll('.allele-tile').forEach(t => t.classList.remove('selected'));
+          setStatus('Allele placed. Choose another allele if needed.', '');
+        });
+      });
+    }
+
+    function placeAllele(slot, allele) {
+      slot.innerHTML = '';
+      const tile = createTile(allele, false);
+      tile.dataset.fromTray = 'false';
+      slot.appendChild(tile);
+    }
+
+    function getStudentGenotype(cellIndex) {
+      const slots = document.querySelectorAll('.slot[data-cell="' + cellIndex + '"]');
+      let alleles = '';
+      slots.forEach(slot => {
+        const tile = slot.querySelector('.allele-tile');
+        if (tile) alleles += tile.dataset.allele;
+      });
+      return alleles.length === 2 ? normaliseGenotype(alleles) : '';
+    }
+
+    function checkAnswers() {
+      clearFeedback();
+      const expected = expectedGenotypes();
+      let completed = 0;
+      let correct = 0;
+
+      expected.forEach((answer, index) => {
+        const student = getStudentGenotype(index);
+        const box = document.querySelector('.offspring-box[data-cell="' + index + '"]');
+        const slots = document.querySelectorAll('.slot[data-cell="' + index + '"]');
+
+        if (student) completed++;
+        if (student && student === answer) {
+          correct++;
+          box.classList.add('correct');
+          slots.forEach(slot => slot.classList.add('correct-slot'));
+        } else {
+          box.classList.add('incorrect');
+          slots.forEach(slot => slot.classList.add('incorrect-slot'));
+        }
+      });
+
+      if (completed < 4) {
+        setStatus('Some boxes are incomplete. Fill every offspring box with two alleles.', 'warn');
+        return;
+      }
+
+      if (correct === 4) {
+        setStatus('Correct. Each offspring has one allele from each parent.', 'good');
+      } else {
+        setStatus(correct + ' out of 4 boxes are correct. Check each row and column gamete carefully.', 'bad');
+      }
+    }
+
+    function resetSquare() {
+      document.querySelectorAll('.slot').forEach(slot => {
+        slot.innerHTML = '';
+        slot.classList.remove('drag-over', 'correct-slot', 'incorrect-slot');
+      });
+      clearFeedback();
+      selectedAllele = null;
+      document.querySelectorAll('.allele-tile').forEach(t => t.classList.remove('selected'));
+      els.answerKey.classList.remove('visible');
+      setStatus('Drag alleles into the offspring boxes, then check your answer.', '');
+    }
+
+    function showAnswers() {
+      resetSquare();
+      const expected = expectedGenotypes();
+      expected.forEach((genotype, index) => {
+        const slots = document.querySelectorAll('.slot[data-cell="' + index + '"]');
+        slots[0].appendChild(createTile(genotype[0], false));
+        slots[1].appendChild(createTile(genotype[1], false));
+      });
+      checkAnswers();
+      buildAnswerKey(true);
+    }
+
+    function buildAnswerKey(makeVisible = false) {
+      const expected = expectedGenotypes();
+      const counts = {};
+      expected.forEach(genotype => {
+        counts[genotype] = (counts[genotype] || 0) + 1;
+      });
+
+      const parts = Object.keys(counts).sort().map(genotype => {
+        return '<strong>' + genotype + '</strong>: ' + counts[genotype] + ' out of 4, ' + phenotypeFor(genotype);
+      });
+
+      els.answerKey.innerHTML = '<strong>Answer key:</strong><br>' + parts.join('<br>');
+      if (makeVisible) els.answerKey.classList.add('visible');
+    }
+
+    function loadChallenge() {
+      activeChallenge = getChallenge();
+      buildSummary();
+      buildTileTray();
+      fillSquareLabels();
+      buildAnswerKey(false);
+      resetSquare();
+    }
+
+    function nextChallenge() {
+      const currentIndex = challenges.findIndex(challenge => challenge.id === activeChallenge.id);
+      const nextIndex = (currentIndex + 1) % challenges.length;
+      els.challengeSelect.value = challenges[nextIndex].id;
+      loadChallenge();
+    }
+
+    els.challengeSelect.addEventListener('change', loadChallenge);
+    document.getElementById('checkBtn').addEventListener('click', checkAnswers);
+    document.getElementById('resetBtn').addEventListener('click', resetSquare);
+    document.getElementById('showBtn').addEventListener('click', showAnswers);
+    document.getElementById('nextBtn').addEventListener('click', nextChallenge);
+
+    setupSlots();
+    loadChallenge();
+  </script>
+</body>
+</html>
