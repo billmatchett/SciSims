@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evolution Timeline Table Builder</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --line: #d8e2ee;
+      --text: #172033;
+      --muted: #607086;
+      --accent: #2563eb;
+      --accent-dark: #1d4ed8;
+      --good: #15803d;
+      --good-bg: #dcfce7;
+      --bad: #b91c1c;
+      --bad-bg: #fee2e2;
+      --warn: #b45309;
+      --warn-bg: #fef3c7;
+      --shadow: rgba(15, 23, 42, 0.09);
+      --time: #dbeafe;
+      --life: #dcfce7;
+      --evidence: #fef3c7;
+      --complexity: #ede9fe;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background: radial-gradient(circle at top left, #e0f2fe 0, #f4f7fb 38%, #f8fafc 100%);
+    }
+
+    .page {
+      max-width: 1420px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .home-link {
+      display: inline-block;
+      margin-bottom: 16px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: #ffffff;
+      color: var(--accent-dark);
+      text-decoration: none;
+      font-weight: 700;
+      border: 1px solid var(--line);
+      box-shadow: 0 6px 16px var(--shadow);
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb 55%, #38bdf8);
+      color: white;
+      padding: 26px 28px;
+      border-radius: 24px;
+      box-shadow: 0 14px 34px rgba(37, 99, 235, 0.24);
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(30px, 4vw, 48px);
+      letter-spacing: -0.03em;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 980px;
+      color: #eaf4ff;
+      line-height: 1.5;
+      font-size: 17px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 360px minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: 0 10px 24px var(--shadow);
+      padding: 18px;
+    }
+
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 22px;
+    }
+
+    .panel h3 {
+      margin: 18px 0 9px;
+      font-size: 16px;
+    }
+
+    .instructions, .status, .hint-box, .source-note {
+      border-radius: 16px;
+      padding: 12px;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .instructions {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #14532d;
+      margin-bottom: 14px;
+    }
+
+    .hint-box {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #7c2d12;
+      display: none;
+      margin-top: 14px;
+    }
+
+    .hint-box.visible {
+      display: block;
+    }
+
+    .source-note {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      color: #334155;
+      margin-top: 14px;
+    }
+
+    .status {
+      min-height: 50px;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: #334155;
+      margin-bottom: 14px;
+    }
+
+    .status.good {
+      border-color: #86efac;
+      background: var(--good-bg);
+      color: #14532d;
+    }
+
+    .status.bad {
+      border-color: #fecaca;
+      background: var(--bad-bg);
+      color: #7f1d1d;
+    }
+
+    .status.warn {
+      border-color: #fde68a;
+      background: var(--warn-bg);
+      color: #78350f;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 10px 0 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 13px;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(37, 99, 235, 0.18);
+    }
+
+    button:hover {
+      background: var(--accent-dark);
+    }
+
+    button.secondary {
+      background: #e2e8f0;
+      color: #1f2937;
+      box-shadow: none;
+    }
+
+    button.secondary:hover {
+      background: #cbd5e1;
+    }
+
+    button.green {
+      background: var(--good);
+    }
+
+    button.green:hover {
+      background: #166534;
+    }
+
+    .bank-group {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 10px;
+      margin-bottom: 12px;
+      background: #f8fafc;
+    }
+
+    .bank-group h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      color: #334155;
+    }
+
+    .card-bank {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 42px;
+    }
+
+    .card {
+      border-radius: 12px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      padding: 9px 10px;
+      font-size: 13px;
+      line-height: 1.3;
+      cursor: grab;
+      user-select: none;
+      box-shadow: 0 3px 8px rgba(15, 23, 42, 0.07);
+    }
+
+    .card:active {
+      cursor: grabbing;
+      transform: scale(0.99);
+    }
+
+    .card.selected {
+      outline: 4px solid #facc15;
+      outline-offset: 2px;
+    }
+
+    .card.time-card { background: var(--time); border-color: #93c5fd; }
+    .card.life-card { background: var(--life); border-color: #86efac; }
+    .card.evidence-card { background: var(--evidence); border-color: #fbbf24; }
+    .card.complexity-card { background: var(--complexity); border-color: #c4b5fd; }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: white;
+    }
+
+    table {
+      width: 100%;
+      min-width: 980px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    th:last-child, td:last-child {
+      border-right: 0;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #172033;
+      font-size: 15px;
+      padding: 12px;
+      text-align: center;
+      line-height: 1.25;
+    }
+
+    td {
+      padding: 10px;
+      min-height: 76px;
+    }
+
+    .period-cell {
+      width: 160px;
+      font-weight: 800;
+      background: #f8fafc;
+      color: #1e293b;
+      font-size: 15px;
+    }
+
+    .drop-cell {
+      width: 210px;
+      min-height: 82px;
+    }
+
+    .drop-zone {
+      min-height: 66px;
+      border: 2px dashed #b6c4d6;
+      border-radius: 14px;
+      background: #f8fafc;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      transition: 0.15s ease;
+    }
+
+    .drop-zone.empty::before {
+      content: 'Drop answer here';
+      color: #94a3b8;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .drop-zone.drag-over {
+      background: #dbeafe;
+      border-color: var(--accent);
+      transform: scale(1.02);
+    }
+
+    .drop-zone.correct {
+      border-style: solid;
+      border-color: #22c55e;
+      background: #f0fdf4;
+    }
+
+    .drop-zone.incorrect {
+      border-style: solid;
+      border-color: #ef4444;
+      background: #fef2f2;
+    }
+
+    .drop-zone .card {
+      width: 100%;
+      cursor: grab;
+      box-shadow: none;
+    }
+
+    .progress {
+      font-weight: 800;
+      color: #1d4ed8;
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 1080px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .card-bank {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        padding: 14px;
+      }
+
+      .hero {
+        padding: 20px;
+      }
+
+      .panel {
+        padding: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+
+    <section class="hero">
+      <h1>Evolution Timeline Table Builder</h1>
+      <p>Complete the timeline by matching each event with its approximate age, example of life, fossil evidence and what it shows about complexity or diversity.</p>
+    </section>
+
+    <div class="layout">
+      <aside class="panel">
+        <h2>Answer cards</h2>
+
+        <div class="instructions">
+          <strong>How to use:</strong><br>
+          Drag each card into the correct space in the table. You can also click a card, then click a table space.
+        </div>
+
+        <div class="progress" id="progressText">0 of 24 cells completed</div>
+
+        <div class="button-row">
+          <button id="checkBtn" class="green">Check table</button>
+          <button id="resetBtn" class="secondary">Reset</button>
+          <button id="hintBtn" class="secondary">Show hints</button>
+          <button id="answerBtn" class="secondary">Show answers</button>
+          <button id="csvBtn">Download CSV</button>
+        </div>
+
+        <div class="status" id="statusBox">Start by placing the time cards, then match the life, evidence and complexity cards.</div>
+
+        <div class="hint-box" id="hintBox">
+          <strong>Hints:</strong><br>
+          • The oldest event is early life.<br>
+          • The Cambrian explosion involved many marine animals with hard parts.<br>
+          • Land plants appeared before dinosaurs.<br>
+          • Mammals became much more diverse after the extinction of non-bird dinosaurs.
+        </div>
+
+        <div class="bank-group">
+          <h3>Approximate time ago</h3>
+          <div class="card-bank" id="timeBank"></div>
+        </div>
+
+        <div class="bank-group">
+          <h3>Example of life</h3>
+          <div class="card-bank" id="lifeBank"></div>
+        </div>
+
+        <div class="bank-group">
+          <h3>Evidence scientists use</h3>
+          <div class="card-bank" id="evidenceBank"></div>
+        </div>
+
+        <div class="bank-group">
+          <h3>What this shows</h3>
+          <div class="card-bank" id="complexityBank"></div>
+        </div>
+
+        <div class="source-note">
+          <strong>Note:</strong> Dates are rounded for classroom use. The fossil record changes as new evidence is discovered.
+        </div>
+      </aside>
+
+      <main class="panel">
+        <h2>Student table</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Time period or event</th>
+                <th>Approximate time ago</th>
+                <th>Example of life at this time</th>
+                <th>Evidence scientists use</th>
+                <th>What this shows about complexity or diversity</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const ROWS = [
+      {
+        key: 'earlyLife',
+        period: 'Early life',
+        time: 'About 3.5 billion years ago',
+        life: 'Simple single-celled microbes',
+        evidence: 'Stromatolites and microfossils',
+        complexity: 'Life began as simple cells, with low visible diversity'
+      },
+      {
+        key: 'multicellular',
+        period: 'First multicellular life',
+        time: 'About 1.6 billion years ago',
+        life: 'Simple multicellular algae-like organisms',
+        evidence: 'Fossils of ancient multicellular algae and other early eukaryotes',
+        complexity: 'Cells began working together, increasing body complexity'
+      },
+      {
+        key: 'cambrian',
+        period: 'Cambrian explosion',
+        time: 'About 541 million years ago',
+        life: 'Trilobites and many other marine animals',
+        evidence: 'Fossils with shells, skeletons, spines and burrows',
+        complexity: 'Animal diversity and body plans increased rapidly'
+      },
+      {
+        key: 'landPlants',
+        period: 'First land plants',
+        time: 'About 470 million years ago',
+        life: 'Simple moss-like land plants',
+        evidence: 'Fossil spores and early plant fossils',
+        complexity: 'Life began moving onto land and new ecosystems formed'
+      },
+      {
+        key: 'dinosaurs',
+        period: 'Dinosaurs',
+        time: 'About 245 to 66 million years ago',
+        life: 'Dinosaurs and other large reptiles',
+        evidence: 'Bones, footprints, teeth and eggs',
+        complexity: 'Large, specialised animals dominated many land ecosystems'
+      },
+      {
+        key: 'mammals',
+        period: 'Mammals become more diverse',
+        time: 'After 66 million years ago',
+        life: 'Mammals such as primates, whales and grazing animals',
+        evidence: 'Mammal bones, teeth and skull fossils',
+        complexity: 'Mammals diversified into many forms after the dinosaur extinction'
+      }
+    ];
+
+    const TYPES = [
+      { key: 'time', label: 'Approximate time ago', bankId: 'timeBank', className: 'time-card' },
+      { key: 'life', label: 'Example of life', bankId: 'lifeBank', className: 'life-card' },
+      { key: 'evidence', label: 'Evidence', bankId: 'evidenceBank', className: 'evidence-card' },
+      { key: 'complexity', label: 'Complexity or diversity', bankId: 'complexityBank', className: 'complexity-card' }
+    ];
+
+    const els = {
+      tableBody: document.getElementById('tableBody'),
+      statusBox: document.getElementById('statusBox'),
+      progressText: document.getElementById('progressText'),
+      hintBox: document.getElementById('hintBox')
+    };
+
+    let selectedCard = null;
+    let draggedCard = null;
+    let hintsVisible = false;
+
+    function shuffle(array) {
+      const copy = array.slice();
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function setStatus(message, type = '') {
+      els.statusBox.textContent = message;
+      els.statusBox.className = 'status' + (type ? ' ' + type : '');
+    }
+
+    function createCard(row, type) {
+      const card = document.createElement('div');
+      const typeInfo = TYPES.find(item => item.key === type);
+      card.className = 'card ' + typeInfo.className;
+      card.textContent = row[type];
+      card.draggable = true;
+      card.dataset.row = row.key;
+      card.dataset.type = type;
+      card.dataset.answerId = row.key + '-' + type;
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', typeInfo.label + ': ' + row[type]);
+
+      card.addEventListener('dragstart', event => {
+        draggedCard = card;
+        event.dataTransfer.setData('text/plain', card.dataset.answerId);
+        event.dataTransfer.effectAllowed = 'move';
+      });
+
+      card.addEventListener('dragend', () => {
+        draggedCard = null;
+      });
+
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.card').forEach(item => item.classList.remove('selected'));
+        selectedCard = card;
+        card.classList.add('selected');
+        setStatus('Selected card. Click a matching table space to place it.', 'warn');
+      });
+
+      return card;
+    }
+
+    function buildBanks() {
+      TYPES.forEach(type => {
+        document.getElementById(type.bankId).innerHTML = '';
+      });
+
+      TYPES.forEach(type => {
+        const bank = document.getElementById(type.bankId);
+        shuffle(ROWS).forEach(row => {
+          bank.appendChild(createCard(row, type.key));
+        });
+      });
+    }
+
+    function buildTable() {
+      els.tableBody.innerHTML = '';
+
+      ROWS.forEach(row => {
+        const tr = document.createElement('tr');
+        const periodCell = document.createElement('td');
+        periodCell.className = 'period-cell';
+        periodCell.textContent = row.period;
+        tr.appendChild(periodCell);
+
+        TYPES.forEach(type => {
+          const td = document.createElement('td');
+          td.className = 'drop-cell';
+          const zone = document.createElement('div');
+          zone.className = 'drop-zone empty';
+          zone.dataset.row = row.key;
+          zone.dataset.type = type.key;
+          zone.dataset.expected = row.key + '-' + type.key;
+
+          zone.addEventListener('dragover', event => {
+            event.preventDefault();
+            zone.classList.add('drag-over');
+          });
+
+          zone.addEventListener('dragleave', () => {
+            zone.classList.remove('drag-over');
+          });
+
+          zone.addEventListener('drop', event => {
+            event.preventDefault();
+            zone.classList.remove('drag-over');
+            if (!draggedCard) return;
+            placeCard(zone, draggedCard);
+          });
+
+          zone.addEventListener('click', () => {
+            if (!selectedCard) return;
+            placeCard(zone, selectedCard);
+            selectedCard.classList.remove('selected');
+            selectedCard = null;
+          });
+
+          td.appendChild(zone);
+          tr.appendChild(td);
+        });
+
+        els.tableBody.appendChild(tr);
+      });
+    }
+
+    function placeCard(zone, card) {
+      if (card.dataset.type !== zone.dataset.type) {
+        setStatus('That card belongs in a different column. Try matching the card colour to the column type.', 'warn');
+        return;
+      }
+
+      const existing = zone.querySelector('.card');
+      if (existing && existing !== card) {
+        returnCardToBank(existing);
+      }
+
+      zone.innerHTML = '';
+      zone.classList.remove('empty', 'correct', 'incorrect');
+      zone.appendChild(card);
+      setStatus('Card placed. Continue until the table is complete.', '');
+      updateProgress();
+    }
+
+    function returnCardToBank(card) {
+      const type = TYPES.find(item => item.key === card.dataset.type);
+      const bank = document.getElementById(type.bankId);
+      bank.appendChild(card);
+    }
+
+    function updateProgress() {
+      const filled = document.querySelectorAll('.drop-zone .card').length;
+      els.progressText.textContent = filled + ' of 24 cells completed';
+    }
+
+    function clearFeedback() {
+      document.querySelectorAll('.drop-zone').forEach(zone => {
+        zone.classList.remove('correct', 'incorrect');
+      });
+    }
+
+    function checkTable() {
+      clearFeedback();
+      let correct = 0;
+      let filled = 0;
+
+      document.querySelectorAll('.drop-zone').forEach(zone => {
+        const card = zone.querySelector('.card');
+        if (!card) return;
+        filled++;
+        if (card.dataset.answerId === zone.dataset.expected) {
+          correct++;
+          zone.classList.add('correct');
+        } else {
+          zone.classList.add('incorrect');
+        }
+      });
+
+      if (filled < 24) {
+        setStatus('You have completed ' + filled + ' of 24 cells. Fill the whole table before your final check.', 'warn');
+        return;
+      }
+
+      if (correct === 24) {
+        setStatus('Correct. The table accurately shows major changes in life over geological time.', 'good');
+      } else {
+        setStatus(correct + ' of 24 cells are correct. Check the red cells and think about the order of events.', 'bad');
+      }
+    }
+
+    function resetTable() {
+      selectedCard = null;
+      draggedCard = null;
+      document.querySelectorAll('.card').forEach(card => card.remove());
+      document.querySelectorAll('.drop-zone').forEach(zone => {
+        zone.innerHTML = '';
+        zone.className = 'drop-zone empty';
+      });
+      buildBanks();
+      updateProgress();
+      setStatus('Table reset. Start by placing the time cards.', '');
+    }
+
+    function showAnswers() {
+      resetTable();
+      document.querySelectorAll('.drop-zone').forEach(zone => {
+        const answerId = zone.dataset.expected;
+        const card = document.querySelector('.card[data-answer-id="' + answerId + '"]');
+        if (card) placeCard(zone, card);
+      });
+      checkTable();
+    }
+
+    function toggleHints() {
+      hintsVisible = !hintsVisible;
+      els.hintBox.classList.toggle('visible', hintsVisible);
+      document.getElementById('hintBtn').textContent = hintsVisible ? 'Hide hints' : 'Show hints';
+    }
+
+    function downloadCSV() {
+      const header = ['Time period or event', 'Approximate time ago', 'Example of life at this time', 'Evidence scientists use', 'What this shows about complexity or diversity'];
+      const lines = [header];
+
+      ROWS.forEach(row => {
+        const line = [row.period];
+        TYPES.forEach(type => {
+          const zone = document.querySelector('.drop-zone[data-row="' + row.key + '"][data-type="' + type.key + '"]');
+          const card = zone ? zone.querySelector('.card') : null;
+          line.push(card ? card.textContent : '');
+        });
+        lines.push(line);
+      });
+
+      const csv = lines.map(row => row.map(value => '"' + String(value).replace(/"/g, '""') + '"').join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'evolution_timeline_table.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkTable);
+    document.getElementById('resetBtn').addEventListener('click', resetTable);
+    document.getElementById('hintBtn').addEventListener('click', toggleHints);
+    document.getElementById('answerBtn').addEventListener('click', showAnswers);
+    document.getElementById('csvBtn').addEventListener('click', downloadCSV);
+
+    buildTable();
+    buildBanks();
+    updateProgress();
+  </script>
+</body>
+</html>
