@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photoelectric Effect Simulator</title>
+
+<style>
+  :root{
+    --bg:#eef3f8;
+    --panel:#ffffff;
+    --text:#1f2937;
+    --muted:#5f6b7a;
+    --line:#d7dee8;
+    --accent:#2563eb;
+    --good:#1e8e3e;
+    --warn:#d97706;
+    --bad:#c62828;
+    --shadow:0 4px 14px rgba(0,0,0,0.12);
+    --radius:14px;
+  }
+
+  *{ box-sizing:border-box; font-family:Arial,sans-serif; }
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+  }
+
+  header{
+    background:#182f4d;
+    color:white;
+    padding:18px 24px;
+  }
+
+  header h1{
+    margin:0;
+    font-size:30px;
+  }
+
+  header p{
+    margin:6px 0 0;
+  }
+
+  .home-link{
+    display:inline-block;
+    margin:18px 24px 0;
+    padding:10px 14px;
+    background:white;
+    border:1px solid #182f4d;
+    border-radius:10px;
+    color:#182f4d;
+    text-decoration:none;
+    font-weight:bold;
+  }
+
+  main{
+    max-width:1480px;
+    margin:20px auto;
+    padding:0 18px 30px;
+  }
+
+  .layout{
+    display:grid;
+    grid-template-columns:320px 1fr 340px;
+    gap:18px;
+  }
+
+  .panel{
+    background:var(--panel);
+    border-radius:var(--radius);
+    padding:16px;
+    box-shadow:var(--shadow);
+  }
+
+  h2{ margin-top:0; }
+
+  label{
+    display:block;
+    margin-top:14px;
+    font-weight:bold;
+  }
+
+  select,
+  input[type=range]{
+    width:100%;
+    margin-top:6px;
+  }
+
+  button{
+    width:100%;
+    margin-top:10px;
+    padding:10px;
+    border:none;
+    border-radius:10px;
+    background:var(--accent);
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+  }
+
+  button:hover{ opacity:0.92; }
+
+  button.secondary{ background:#607d8b; }
+  button.good{ background:var(--good); }
+  button.warn{ background:var(--warn); }
+
+  canvas{
+    width:100%;
+    background:#081018;
+    border-radius:14px;
+    border:2px solid var(--line);
+  }
+
+  .stat-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:14px;
+  }
+
+  .stat{
+    background:#f5f8fc;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:10px;
+    text-align:center;
+  }
+
+  .big{
+    font-size:22px;
+    font-weight:bold;
+  }
+
+  .status{
+    margin-top:14px;
+    padding:12px;
+    border-radius:10px;
+    background:#f5f8fc;
+    border:1px solid var(--line);
+  }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:14px;
+    font-size:14px;
+  }
+
+  th, td{
+    border:1px solid var(--line);
+    padding:7px;
+    text-align:center;
+  }
+
+  th{ background:#eef4fb; }
+
+  .note{
+    margin-top:12px;
+    padding:12px;
+    background:#fff7e6;
+    border-left:5px solid var(--warn);
+    border-radius:8px;
+    font-size:14px;
+  }
+
+  .formula{
+    margin-top:14px;
+    padding:12px;
+    background:#eef4fb;
+    border-radius:10px;
+    text-align:center;
+    line-height:1.5;
+  }
+
+  .normal{ color:var(--good); font-weight:bold; }
+  .danger{ color:var(--bad); font-weight:bold; }
+  .warning{ color:var(--warn); font-weight:bold; }
+
+  .small{
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  @media(max-width:1100px){
+    .layout{ grid-template-columns:1fr; }
+    .stat-grid{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Photoelectric Effect Simulator</h1>
+  <p>Investigate threshold frequency, stopping potential and photoelectron emission.</p>
+</header>
+
+<a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+
+<main>
+<div class="layout">
+
+<section class="panel">
+  <h2>Controls</h2>
+
+  <label>Metal Surface</label>
+  <select id="metalSelect">
+    <option value="sodium">Sodium</option>
+    <option value="zinc">Zinc</option>
+    <option value="copper">Copper</option>
+    <option value="platinum">Platinum</option>
+  </select>
+
+  <label>Light Frequency (×10¹⁴ Hz)</label>
+  <input type="range" id="frequencySlider" min="3" max="20" value="8" step="0.1">
+  <div id="frequencyLabel">8.0 ×10¹⁴ Hz</div>
+
+  <label>Light Intensity</label>
+  <input type="range" id="intensitySlider" min="1" max="100" value="60">
+  <div id="intensityLabel">60%</div>
+
+  <label>Stopping Potential (V)</label>
+  <input type="range" id="voltageSlider" min="-5" max="2" value="0" step="0.1">
+  <div id="voltageLabel">0.0 V</div>
+
+  <button onclick="recordReading()" class="good">Record Reading</button>
+  <button onclick="resetSim()">Reset</button>
+  <button class="secondary" onclick="downloadCSV()">Download Data CSV</button>
+
+  <div class="formula">
+    <strong>Einstein’s Photoelectric Equation</strong><br>
+    E<sub>k</sub> = hf − φ<br>
+    <span class="small">Stopping potential: V<sub>s</sub> = E<sub>k</sub> / e</span>
+  </div>
+
+  <div class="note">
+    Frequency controls electron kinetic energy. Intensity controls the number of emitted electrons.
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Photoelectric Apparatus</h2>
+
+  <canvas id="simCanvas" width="760" height="520"></canvas>
+
+  <div class="stat-grid">
+    <div class="stat">
+      <div>Threshold Frequency</div>
+      <div class="big" id="thresholdDisplay">5.5 ×10¹⁴ Hz</div>
+    </div>
+
+    <div class="stat">
+      <div>Electron Kinetic Energy</div>
+      <div class="big" id="energyDisplay">0.00 eV</div>
+    </div>
+
+    <div class="stat">
+      <div>Photoelectric Current</div>
+      <div class="big" id="currentDisplay">0.00 mA</div>
+    </div>
+
+    <div class="stat">
+      <div>Stopping Potential Needed</div>
+      <div class="big" id="stopDisplay">0.00 V</div>
+    </div>
+  </div>
+
+  <div class="status" id="statusBox">
+    Adjust the light frequency to investigate electron emission.
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Metal Properties</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Metal</th>
+        <th>Threshold Frequency</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Sodium</td><td>5.5 ×10¹⁴ Hz</td></tr>
+      <tr><td>Zinc</td><td>8.8 ×10¹⁴ Hz</td></tr>
+      <tr><td>Copper</td><td>11.0 ×10¹⁴ Hz</td></tr>
+      <tr><td>Platinum</td><td>15.0 ×10¹⁴ Hz</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    Use <strong>Record Reading</strong> after changing variables. This avoids repeated identical rows.
+  </div>
+
+  <h2 style="margin-top:18px;">Recorded Data</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Metal</th>
+        <th>Frequency</th>
+        <th>Intensity</th>
+        <th>Applied V</th>
+        <th>Current</th>
+        <th>E<sub>k</sub></th>
+      </tr>
+    </thead>
+    <tbody id="dataTable"></tbody>
+  </table>
+</section>
+
+</div>
+</main>
+
+<script>
+const canvas = document.getElementById("simCanvas");
+const ctx = canvas.getContext("2d");
+
+const metals = {
+  sodium: { name:"Sodium", threshold:5.5, colour:"#d4af37" },
+  zinc: { name:"Zinc", threshold:8.8, colour:"#90a4ae" },
+  copper: { name:"Copper", threshold:11.0, colour:"#b87333" },
+  platinum: { name:"Platinum", threshold:15.0, colour:"#cfd8dc" }
+};
+
+const frequencySlider = document.getElementById("frequencySlider");
+const intensitySlider = document.getElementById("intensitySlider");
+const voltageSlider = document.getElementById("voltageSlider");
+
+let electrons = [];
+let photons = [];
+let history = [];
+let frameCount = 0;
+
+function getFrequency(){
+  return Number(frequencySlider.value);
+}
+
+function getIntensity(){
+  return Number(intensitySlider.value);
+}
+
+function getVoltage(){
+  return Number(voltageSlider.value);
+}
+
+function getMetalKey(){
+  return document.getElementById("metalSelect").value;
+}
+
+function getMetal(){
+  return metals[getMetalKey()];
+}
+
+function updateLabels(){
+  document.getElementById("frequencyLabel").textContent =
+    `${getFrequency().toFixed(1)} ×10¹⁴ Hz`;
+
+  document.getElementById("intensityLabel").textContent =
+    `${getIntensity()}%`;
+
+  document.getElementById("voltageLabel").textContent =
+    `${getVoltage().toFixed(1)} V`;
+}
+
+function calculatePhysics(){
+  const metal = getMetal();
+  const f = getFrequency();
+  const intensity = getIntensity();
+  const voltage = getVoltage();
+  const threshold = metal.threshold;
+
+  let kineticEnergy = 0;
+  let stoppingPotential = 0;
+  let current = 0;
+  let emitted = false;
+  let stopped = false;
+
+  if(f > threshold){
+    emitted = true;
+
+    kineticEnergy = (f - threshold) * 0.8;
+    stoppingPotential = kineticEnergy;
+
+    current = intensity * 0.02;
+
+    if(voltage < 0){
+      current *= Math.max(0, 1 - Math.abs(voltage) / stoppingPotential);
+    }
+
+    if(voltage <= -stoppingPotential){
+      current = 0;
+      stopped = true;
+    }
+  }
+
+  document.getElementById("thresholdDisplay").textContent =
+    `${threshold.toFixed(1)} ×10¹⁴ Hz`;
+
+  document.getElementById("energyDisplay").textContent =
+    `${kineticEnergy.toFixed(2)} eV`;
+
+  document.getElementById("currentDisplay").textContent =
+    `${current.toFixed(2)} mA`;
+
+  document.getElementById("stopDisplay").textContent =
+    `${stoppingPotential.toFixed(2)} V`;
+
+  const statusBox = document.getElementById("statusBox");
+
+  if(!emitted){
+    statusBox.innerHTML =
+      `<span class="danger">Below threshold: photons hit the metal but no photoelectrons are emitted.</span>`;
+  } else if(stopped){
+    statusBox.innerHTML =
+      `<span class="warning">Stopping potential is large enough to stop the photoelectrons reaching the collector.</span>`;
+  } else {
+    statusBox.innerHTML =
+      `<span class="normal">Photoelectrons emitted.</span> Higher frequency gives higher kinetic energy. Higher intensity gives more electrons.`;
+  }
+
+  return { threshold, kineticEnergy, stoppingPotential, current, emitted, stopped };
+}
+
+function lightColour(){
+  const f = getFrequency();
+
+  if(f < 4.5) return "#ff3b30";
+  if(f < 5.5) return "#ff9500";
+  if(f < 6.5) return "#ffd60a";
+  if(f < 7.5) return "#34c759";
+  if(f < 9.5) return "#0a84ff";
+  if(f < 12) return "#5e5ce6";
+  return "#bf5af2";
+}
+
+function spawnPhotons(){
+  const intensity = getIntensity();
+  const count = Math.max(1, Math.floor(intensity / 18));
+
+  for(let i = 0; i < count; i++){
+    photons.push({
+      x: -20 - Math.random() * 100,
+      y: 190 + Math.random() * 130,
+      speed: 5 + getFrequency() * 0.15,
+      colour: lightColour()
+    });
+  }
+
+  if(photons.length > 100){
+    photons.splice(0, photons.length - 100);
+  }
+}
+
+function updatePhotons(){
+  photons.forEach(p => p.x += p.speed);
+  photons = photons.filter(p => p.x < 185);
+}
+
+function spawnElectrons(data){
+  if(!data.emitted) return;
+
+  const intensity = getIntensity();
+  const spawnChance = intensity / 100;
+
+  if(Math.random() > spawnChance) return;
+
+  const count = Math.max(1, Math.floor(intensity / 35));
+
+  for(let i = 0; i < count; i++){
+    const speed = 1 + data.kineticEnergy * 2.2;
+
+    electrons.push({
+      x: 205,
+      y: 145 + Math.random() * 250,
+      vx: data.stopped ? -0.6 - Math.random() * 0.8 : speed,
+      baseVx: speed,
+      size: 2 + Math.random() * 2,
+      stopped: data.stopped
+    });
+  }
+
+  if(electrons.length > 180){
+    electrons.splice(0, electrons.length - 180);
+  }
+}
+
+function updateElectrons(data){
+  electrons.forEach(e => {
+    if(data.stopped){
+      e.vx -= 0.04;
+      e.x += e.vx;
+
+      if(e.x < 205){
+        e.x = 205 + Math.random() * 15;
+        e.vx = -0.5 - Math.random();
+      }
+    } else {
+      e.x += e.baseVx;
+    }
+  });
+
+  electrons = electrons.filter(e => e.x > 180 && e.x < 625);
+}
+
+function drawPhoton(p){
+  ctx.beginPath();
+  ctx.fillStyle = p.colour;
+  ctx.shadowBlur = 14;
+  ctx.shadowColor = p.colour;
+  ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+}
+
+function drawSim(data){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  ctx.fillStyle = "#081018";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  const metal = getMetal();
+
+  ctx.fillStyle = "rgba(255,255,255,0.05)";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  photons.forEach(drawPhoton);
+
+  const beam = ctx.createLinearGradient(0,0,210,0);
+  beam.addColorStop(0, lightColour() + "88");
+  beam.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = beam;
+  ctx.fillRect(0,180,220,160);
+
+  ctx.fillStyle = metal.colour;
+  ctx.fillRect(170,100,42,320);
+
+  ctx.fillStyle = "#9fb3c8";
+  ctx.fillRect(620,100,42,320);
+
+  ctx.fillStyle = "white";
+  ctx.font = "18px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("Metal Surface",190,76);
+  ctx.fillText("Collector",641,76);
+
+  if(!data.emitted){
+    ctx.fillStyle = "#ff6b6b";
+    ctx.font = "20px Arial";
+    ctx.fillText("No electron emission",385,260);
+  }
+
+  electrons.forEach(e => {
+    ctx.beginPath();
+    ctx.fillStyle = "#ffee58";
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = "#ffee58";
+    ctx.arc(e.x,e.y,e.size,0,Math.PI*2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  });
+
+  if(data.stopped){
+    ctx.fillStyle = "#ff6b6b";
+    ctx.font = "18px Arial";
+    ctx.fillText("Stopping potential prevents current",390,470);
+  }
+
+  ctx.textAlign = "left";
+  ctx.fillStyle = "white";
+  ctx.font = "15px Arial";
+  ctx.fillText(`Frequency: ${getFrequency().toFixed(1)} ×10¹⁴ Hz`,24,35);
+  ctx.fillText(`Intensity: ${getIntensity()}%`,24,58);
+
+  ctx.fillStyle = lightColour();
+  ctx.fillRect(24,72,100,10);
+}
+
+function recordReading(){
+  const data = calculatePhysics();
+  const metal = getMetal();
+
+  history.unshift({
+    metal: metal.name,
+    frequency: getFrequency().toFixed(1),
+    intensity: getIntensity(),
+    voltage: getVoltage().toFixed(1),
+    current: data.current.toFixed(2),
+    energy: data.kineticEnergy.toFixed(2)
+  });
+
+  if(history.length > 18){
+    history.pop();
+  }
+
+  updateTable();
+}
+
+function updateTable(){
+  const tbody = document.getElementById("dataTable");
+  tbody.innerHTML = "";
+
+  history.forEach(row => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${row.metal}</td>
+      <td>${row.frequency}</td>
+      <td>${row.intensity}</td>
+      <td>${row.voltage}</td>
+      <td>${row.current}</td>
+      <td>${row.energy}</td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+
+function resetSim(){
+  frequencySlider.value = 8;
+  intensitySlider.value = 60;
+  voltageSlider.value = 0;
+  electrons = [];
+  photons = [];
+  history = [];
+  updateLabels();
+  updateTable();
+}
+
+function downloadCSV(){
+  let csv = "Metal,Frequency x10^14 Hz,Intensity %,Applied Voltage V,Current mA,Kinetic Energy eV\n";
+
+  history.forEach(row => {
+    csv += `${row.metal},${row.frequency},${row.intensity},${row.voltage},${row.current},${row.energy}\n`;
+  });
+
+  const blob = new Blob([csv], {type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "photoelectric_effect_data.csv";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+function animate(){
+  frameCount++;
+
+  updateLabels();
+
+  const data = calculatePhysics();
+
+  if(frameCount % 3 === 0){
+    spawnPhotons();
+  }
+
+  if(frameCount % 5 === 0){
+    spawnElectrons(data);
+  }
+
+  updatePhotons();
+  updateElectrons(data);
+  drawSim(data);
+
+  requestAnimationFrame(animate);
+}
+
+frequencySlider.addEventListener("input", () => {
+  electrons = [];
+  updateLabels();
+});
+
+intensitySlider.addEventListener("input", updateLabels);
+
+voltageSlider.addEventListener("input", () => {
+  electrons = [];
+  updateLabels();
+});
+
+document.getElementById("metalSelect").addEventListener("change", () => {
+  electrons = [];
+  photons = [];
+  updateLabels();
+});
+
+updateLabels();
+animate();
+</script>
+
+</body>
+</html>
