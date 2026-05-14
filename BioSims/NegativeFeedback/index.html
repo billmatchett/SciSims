@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Negative Feedback System Challenge Simulator</title>
+
+<style>
+  :root{
+    --bg:#eef4f8;
+    --panel:#ffffff;
+    --text:#1f2937;
+    --muted:#5f6b7a;
+    --line:#d6dde7;
+    --accent:#2563eb;
+    --good:#1e8e3e;
+    --warn:#d97706;
+    --bad:#c62828;
+    --shadow:0 4px 14px rgba(0,0,0,0.12);
+    --radius:14px;
+  }
+
+  *{
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+  }
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+  }
+
+  header{
+    background:#1e3a5f;
+    color:white;
+    padding:18px 24px;
+  }
+
+  header h1{
+    margin:0;
+    font-size:30px;
+  }
+
+  header p{
+    margin:6px 0 0;
+  }
+
+  .home-link{
+    display:inline-block;
+    margin:18px 24px 0;
+    padding:10px 14px;
+    background:white;
+    border:1px solid #1e3a5f;
+    border-radius:10px;
+    color:#1e3a5f;
+    text-decoration:none;
+    font-weight:bold;
+  }
+
+  main{
+    max-width:1450px;
+    margin:20px auto;
+    padding:0 18px 30px;
+  }
+
+  .layout{
+    display:grid;
+    grid-template-columns:320px 1fr 320px;
+    gap:18px;
+  }
+
+  .panel{
+    background:var(--panel);
+    border-radius:var(--radius);
+    padding:16px;
+    box-shadow:var(--shadow);
+  }
+
+  h2{
+    margin-top:0;
+  }
+
+  label{
+    display:block;
+    margin-top:14px;
+    font-weight:bold;
+  }
+
+  select,
+  input[type=range]{
+    width:100%;
+    margin-top:6px;
+  }
+
+  button{
+    width:100%;
+    margin-top:10px;
+    padding:10px;
+    border:none;
+    border-radius:10px;
+    background:var(--accent);
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+  }
+
+  button:hover{
+    opacity:0.92;
+  }
+
+  button.secondary{
+    background:#607d8b;
+  }
+
+  button.good{
+    background:var(--good);
+  }
+
+  button.warn{
+    background:var(--warn);
+  }
+
+  canvas{
+    width:100%;
+    background:white;
+    border-radius:14px;
+    border:2px solid var(--line);
+  }
+
+  .stat-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:10px;
+    margin-top:14px;
+  }
+
+  .stat{
+    background:#f5f8fc;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:10px;
+    text-align:center;
+  }
+
+  .big{
+    font-size:22px;
+    font-weight:bold;
+  }
+
+  .status{
+    margin-top:14px;
+    padding:12px;
+    border-radius:10px;
+    background:#f5f8fc;
+    border:1px solid var(--line);
+  }
+
+  .normal{
+    color:var(--good);
+    font-weight:bold;
+  }
+
+  .warning{
+    color:var(--warn);
+    font-weight:bold;
+  }
+
+  .danger{
+    color:var(--bad);
+    font-weight:bold;
+  }
+
+  .event-box{
+    margin-bottom:14px;
+    padding:14px;
+    background:#fff7e6;
+    border-left:5px solid var(--warn);
+    border-radius:10px;
+  }
+
+  .event-box h3{
+    margin:0 0 6px;
+  }
+
+  .feedback-box{
+    margin-top:12px;
+    padding:12px;
+    background:#f5f8fc;
+    border:1px solid var(--line);
+    border-radius:10px;
+    min-height:52px;
+  }
+
+  .flow{
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    gap:6px;
+    margin-top:14px;
+  }
+
+  .flow div{
+    padding:8px;
+    border-radius:8px;
+    background:#eef4fb;
+    border:1px solid var(--line);
+    text-align:center;
+    font-size:12px;
+    font-weight:bold;
+  }
+
+  .flow .active{
+    background:#dbeafe;
+    border-color:#2563eb;
+    color:#1d4ed8;
+  }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:14px;
+    font-size:14px;
+  }
+
+  th, td{
+    border:1px solid var(--line);
+    padding:7px;
+    text-align:center;
+  }
+
+  th{
+    background:#eef4fb;
+  }
+
+  .note{
+    margin-top:12px;
+    padding:12px;
+    background:#fff7e6;
+    border-left:5px solid var(--warn);
+    border-radius:8px;
+    font-size:14px;
+  }
+
+  .small{
+    font-size:13px;
+    color:var(--muted);
+  }
+
+  @media(max-width:1100px){
+    .layout{
+      grid-template-columns:1fr;
+    }
+
+    .stat-grid{
+      grid-template-columns:1fr;
+    }
+
+    .flow{
+      grid-template-columns:1fr;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Negative Feedback System Challenge Simulator</h1>
+  <p>Respond to random events and maintain homeostasis.</p>
+</header>
+
+<a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+
+<main>
+
+<div class="layout">
+
+  <section class="panel">
+    <h2>Controls</h2>
+
+    <label>System</label>
+    <select id="systemSelect">
+      <option value="temperature">Body Temperature</option>
+      <option value="glucose">Blood Glucose</option>
+      <option value="water">Water Balance</option>
+    </select>
+
+    <label>Automatic Feedback Strength</label>
+    <input type="range" id="responseStrength" min="0" max="2" value="0.7" step="0.1">
+
+    <button onclick="startSimulation()">Start Challenge</button>
+    <button onclick="pauseSimulation()">Pause</button>
+    <button class="secondary" onclick="resetSimulation()">Reset</button>
+    <button class="warn" onclick="triggerRandomEvent()">Trigger Random Event</button>
+    <button onclick="downloadCSV()">Download Data CSV</button>
+
+    <div class="note">
+      Random events push the system away from its set point. Choose the correct response to return the value toward normal.
+    </div>
+
+    <h2 style="margin-top:18px;">Student Responses</h2>
+    <div id="responseButtons"></div>
+
+    <div class="feedback-box" id="studentFeedback">
+      Choose a response when an event occurs.
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="event-box" id="eventBox">
+      <h3>Current Event</h3>
+      <p>No event yet. Press <strong>Start Challenge</strong> or <strong>Trigger Random Event</strong>.</p>
+    </div>
+
+    <h2>Homeostasis Graph</h2>
+    <canvas id="graphCanvas" width="760" height="500"></canvas>
+
+    <div class="stat-grid">
+      <div class="stat">
+        <div>Current Value</div>
+        <div class="big" id="currentValue">37.0 °C</div>
+      </div>
+
+      <div class="stat">
+        <div>Set Point</div>
+        <div class="big" id="setPointDisplay">37.0 °C</div>
+      </div>
+
+      <div class="stat">
+        <div>Stability</div>
+        <div class="big" id="stabilityDisplay">100%</div>
+      </div>
+    </div>
+
+    <div class="status" id="statusBox">
+      System stable.
+    </div>
+
+    <div class="flow">
+      <div id="flowStimulus">Stimulus</div>
+      <div id="flowReceptor">Receptor</div>
+      <div id="flowControl">Control Centre</div>
+      <div id="flowEffector">Effector</div>
+      <div id="flowResponse">Response</div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>System Information</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Component</th>
+          <th>Role</th>
+        </tr>
+      </thead>
+      <tbody id="infoTable"></tbody>
+    </table>
+
+    <div class="note">
+      Negative feedback detects change, compares it to a set point and activates a response that opposes the change.
+    </div>
+
+    <h2 style="margin-top:18px;">Recent Data</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Value</th>
+          <th>Event</th>
+        </tr>
+      </thead>
+      <tbody id="dataTable"></tbody>
+    </table>
+  </section>
+
+</div>
+
+</main>
+
+<script>
+const canvas = document.getElementById("graphCanvas");
+const ctx = canvas.getContext("2d");
+
+let simulationRunning = false;
+let currentValue = 37;
+let setPoint = 37;
+let time = 0;
+let history = [];
+let stability = 100;
+let activeEvent = null;
+let nextEventTime = 8;
+let eventTimer = 0;
+let lastEventName = "None";
+
+const systemData = {
+  temperature: {
+    label: "Body Temperature",
+    setPoint: 37,
+    unit: "°C",
+    normalRange: 0.7,
+    dangerRange: 2.5,
+    receptor: "Thermoreceptors",
+    control: "Hypothalamus",
+    effector: "Sweat glands, blood vessels and skeletal muscles",
+    responses: [
+      { id:"sweat", label:"Sweat", effect:-0.8, correctFor:"high", explanation:"Sweating increases heat loss and helps lower body temperature." },
+      { id:"shiver", label:"Shiver", effect:0.8, correctFor:"low", explanation:"Shivering uses muscle activity to produce heat and raise body temperature." },
+      { id:"vasodilation", label:"Increase skin blood flow", effect:-0.6, correctFor:"high", explanation:"More blood flow near the skin increases heat loss." },
+      { id:"vasoconstriction", label:"Reduce skin blood flow", effect:0.6, correctFor:"low", explanation:"Less blood flow near the skin reduces heat loss." },
+      { id:"drink", label:"Drink water", effect:-0.2, correctFor:"high", explanation:"Drinking water can support cooling, especially if sweating is occurring." }
+    ],
+    events: [
+      { name:"Hot Environment", description:"You enter a hot environment. Body temperature begins to rise.", change:1.7, direction:"high" },
+      { name:"Cold Environment", description:"You sit in a very cold room. Body temperature begins to fall.", change:-1.5, direction:"low" },
+      { name:"Exercise", description:"You begin exercising intensely. Body temperature rises.", change:1.3, direction:"high" },
+      { name:"Fever", description:"A fever response pushes body temperature above normal.", change:2.0, direction:"high" }
+    ]
+  },
+
+  glucose: {
+    label: "Blood Glucose",
+    setPoint: 5,
+    unit: "mmol/L",
+    normalRange: 0.8,
+    dangerRange: 2.5,
+    receptor: "Pancreatic cells",
+    control: "Pancreas",
+    effector: "Insulin and glucagon release",
+    responses: [
+      { id:"insulin", label:"Release insulin", effect:-1.0, correctFor:"high", explanation:"Insulin helps cells take up glucose and lowers blood glucose concentration." },
+      { id:"glucagon", label:"Release glucagon", effect:1.0, correctFor:"low", explanation:"Glucagon stimulates glycogen breakdown and raises blood glucose concentration." },
+      { id:"store", label:"Store glucose as glycogen", effect:-0.7, correctFor:"high", explanation:"Converting glucose into glycogen lowers blood glucose." },
+      { id:"breakdown", label:"Break down glycogen", effect:0.7, correctFor:"low", explanation:"Breaking down glycogen releases glucose into the blood." }
+    ],
+    events: [
+      { name:"Large Meal", description:"You eat a large meal. Blood glucose rises.", change:2.0, direction:"high" },
+      { name:"Skipped Breakfast", description:"You skip breakfast. Blood glucose falls.", change:-1.5, direction:"low" },
+      { name:"Heavy Exercise", description:"Muscles use more glucose during exercise. Blood glucose falls.", change:-1.2, direction:"low" },
+      { name:"Sugary Drink", description:"You drink a sugary drink. Blood glucose rises quickly.", change:1.6, direction:"high" }
+    ]
+  },
+
+  water: {
+    label: "Water Balance",
+    setPoint: 100,
+    unit: "%",
+    normalRange: 3,
+    dangerRange: 10,
+    receptor: "Osmoreceptors",
+    control: "Hypothalamus and pituitary gland",
+    effector: "Kidneys",
+    responses: [
+      { id:"adh", label:"Release ADH", effect:4, correctFor:"low", explanation:"ADH causes the kidneys to conserve water, helping water balance rise toward normal." },
+      { id:"reduceadh", label:"Reduce ADH", effect:-4, correctFor:"high", explanation:"Reducing ADH allows more water to be lost in urine." },
+      { id:"concentrated", label:"Produce concentrated urine", effect:3, correctFor:"low", explanation:"Concentrated urine means less water is lost." },
+      { id:"dilute", label:"Produce dilute urine", effect:-3, correctFor:"high", explanation:"Dilute urine removes excess water from the body." },
+      { id:"drinkwater", label:"Drink water", effect:5, correctFor:"low", explanation:"Drinking water helps restore water balance." }
+    ],
+    events: [
+      { name:"Dehydration", description:"You have not had enough water. Water balance falls.", change:-9, direction:"low" },
+      { name:"Heavy Sweating", description:"You sweat heavily. Water balance falls.", change:-7, direction:"low" },
+      { name:"Drank Too Much Water", description:"You drink a lot of water quickly. Water balance rises above normal.", change:7, direction:"high" },
+      { name:"Salty Food", description:"You eat salty food. The body needs to conserve water.", change:-5, direction:"low" }
+    ]
+  }
+};
+
+function getSystem(){
+  return systemData[document.getElementById("systemSelect").value];
+}
+
+function updateInfoTable(){
+  const data = getSystem();
+
+  document.getElementById("infoTable").innerHTML = `
+    <tr><td>Receptor</td><td>${data.receptor}</td></tr>
+    <tr><td>Control Centre</td><td>${data.control}</td></tr>
+    <tr><td>Effector</td><td>${data.effector}</td></tr>
+  `;
+}
+
+function updateResponseButtons(){
+  const data = getSystem();
+  const box = document.getElementById("responseButtons");
+
+  box.innerHTML = "";
+
+  data.responses.forEach(response => {
+    const btn = document.createElement("button");
+    btn.textContent = response.label;
+    btn.onclick = () => studentAction(response.id);
+    box.appendChild(btn);
+  });
+}
+
+function resetSimulation(){
+  const data = getSystem();
+
+  setPoint = data.setPoint;
+  currentValue = setPoint;
+  time = 0;
+  history = [];
+  stability = 100;
+  activeEvent = null;
+  eventTimer = 0;
+  nextEventTime = 8;
+  lastEventName = "None";
+  simulationRunning = false;
+
+  document.getElementById("setPointDisplay").textContent = `${setPoint.toFixed(1)} ${data.unit}`;
+  document.getElementById("eventBox").innerHTML = `
+    <h3>Current Event</h3>
+    <p>No event yet. Press <strong>Start Challenge</strong> or <strong>Trigger Random Event</strong>.</p>
+  `;
+  document.getElementById("studentFeedback").textContent = "Choose a response when an event occurs.";
+
+  updateInfoTable();
+  updateResponseButtons();
+  updateDisplay();
+  updateTable();
+  drawGraph();
+  clearFlow();
+}
+
+function startSimulation(){
+  simulationRunning = true;
+}
+
+function pauseSimulation(){
+  simulationRunning = false;
+}
+
+function triggerRandomEvent(){
+  const data = getSystem();
+  const event = data.events[Math.floor(Math.random() * data.events.length)];
+
+  activeEvent = event;
+  eventTimer = 9;
+  lastEventName = event.name;
+
+  currentValue += event.change;
+
+  document.getElementById("eventBox").innerHTML = `
+    <h3>Random Event: ${event.name}</h3>
+    <p>${event.description}</p>
+    <p class="small">Decide which response will oppose the change.</p>
+  `;
+
+  highlightFlow("stimulus");
+}
+
+function applyAutomaticNegativeFeedback(){
+  const data = getSystem();
+  const strength = Number(document.getElementById("responseStrength").value);
+  const difference = setPoint - currentValue;
+
+  currentValue += difference * 0.025 * strength;
+
+  if(Math.abs(difference) > data.normalRange){
+    highlightFlow("receptor");
+    setTimeout(() => highlightFlow("control"), 150);
+    setTimeout(() => highlightFlow("effector"), 300);
+    setTimeout(() => highlightFlow("response"), 450);
+  }
+}
+
+function studentAction(actionId){
+  const data = getSystem();
+  const response = data.responses.find(r => r.id === actionId);
+
+  if(!response) return;
+
+  const directionNow = currentValue > setPoint ? "high" : "low";
+  const diff = Math.abs(currentValue - setPoint);
+
+  if(diff <= data.normalRange){
+    document.getElementById("studentFeedback").innerHTML =
+      `<span class="warning">The system is already close to normal. A strong response may overshoot the set point.</span>`;
+    currentValue += response.effect * 0.25;
+    stability -= 2;
+    return;
+  }
+
+  currentValue += response.effect;
+
+  if(response.correctFor === directionNow){
+    stability = Math.min(100, stability + 8);
+    document.getElementById("studentFeedback").innerHTML =
+      `<span class="normal">Correct response.</span><br>${response.explanation}`;
+  } else {
+    stability = Math.max(0, stability - 10);
+    document.getElementById("studentFeedback").innerHTML =
+      `<span class="danger">Incorrect response.</span><br>${response.explanation} This response made the change worse.`;
+  }
+
+  highlightFlow("response");
+  updateDisplay();
+  drawGraph();
+}
+
+function updateSimulation(){
+  if(simulationRunning){
+    time += 1;
+
+    if(activeEvent){
+      eventTimer -= 1;
+      if(eventTimer <= 0){
+        activeEvent = null;
+      }
+    }
+
+    if(time >= nextEventTime){
+      triggerRandomEvent();
+      nextEventTime = time + Math.floor(12 + Math.random() * 16);
+    }
+
+    applyAutomaticNegativeFeedback();
+
+    const data = getSystem();
+    const diff = Math.abs(currentValue - setPoint);
+
+    if(diff > data.normalRange){
+      stability -= 0.4;
+    }
+
+    if(diff > data.dangerRange){
+      stability -= 1.2;
+    }
+
+    stability = Math.max(0, Math.min(100, stability));
+
+    history.push({
+      time,
+      value: currentValue,
+      event: lastEventName
+    });
+
+    if(history.length > 160){
+      history.shift();
+    }
+
+    updateDisplay();
+    updateTable();
+    drawGraph();
+  }
+}
+
+function updateDisplay(){
+  const data = getSystem();
+  const diff = Math.abs(currentValue - setPoint);
+
+  document.getElementById("currentValue").textContent =
+    `${currentValue.toFixed(1)} ${data.unit}`;
+
+  document.getElementById("setPointDisplay").textContent =
+    `${setPoint.toFixed(1)} ${data.unit}`;
+
+  document.getElementById("stabilityDisplay").textContent =
+    `${Math.round(stability)}%`;
+
+  const statusBox = document.getElementById("statusBox");
+
+  if(diff <= data.normalRange){
+    statusBox.innerHTML =
+      `<span class="normal">System stable. Homeostasis maintained.</span>`;
+  } else if(diff <= data.dangerRange){
+    statusBox.innerHTML =
+      `<span class="warning">System responding to disturbance.</span>`;
+  } else {
+    statusBox.innerHTML =
+      `<span class="danger">Homeostasis disrupted. Choose a corrective response.</span>`;
+  }
+}
+
+function drawGraph(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  ctx.fillStyle = "white";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  const data = getSystem();
+  const scale = getScale();
+
+  const normalTop = mapValue(setPoint + data.normalRange, scale);
+  const normalBottom = mapValue(setPoint - data.normalRange, scale);
+
+  ctx.fillStyle = "rgba(30, 142, 62, 0.12)";
+  ctx.fillRect(0, normalTop, canvas.width, normalBottom - normalTop);
+
+  ctx.strokeStyle = "#d0d7e2";
+  ctx.lineWidth = 1;
+
+  for(let i=0; i<=10; i++){
+    const y = i * canvas.height / 10;
+    ctx.beginPath();
+    ctx.moveTo(0,y);
+    ctx.lineTo(canvas.width,y);
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle = "#d32f2f";
+  ctx.lineWidth = 2;
+  const setY = mapValue(setPoint, scale);
+
+  ctx.beginPath();
+  ctx.moveTo(0,setY);
+  ctx.lineTo(canvas.width,setY);
+  ctx.stroke();
+
+  ctx.fillStyle = "#d32f2f";
+  ctx.font = "12px Arial";
+  ctx.fillText("Set Point", 10, setY - 8);
+
+  ctx.fillStyle = "#1f2937";
+  ctx.font = "12px Arial";
+  ctx.fillText(`${scale.max.toFixed(1)} ${data.unit}`, canvas.width - 70, 18);
+  ctx.fillText(`${scale.min.toFixed(1)} ${data.unit}`, canvas.width - 70, canvas.height - 8);
+
+  ctx.strokeStyle = "#2563eb";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+
+  history.forEach((point,index)=>{
+    const x = index * (canvas.width / Math.max(160, history.length));
+    const y = mapValue(point.value, scale);
+
+    if(index === 0){
+      ctx.moveTo(x,y);
+    } else {
+      ctx.lineTo(x,y);
+    }
+  });
+
+  ctx.stroke();
+
+  if(history.length > 0){
+    const last = history[history.length - 1];
+    const x = (history.length - 1) * (canvas.width / Math.max(160, history.length));
+    const y = mapValue(last.value, scale);
+
+    ctx.fillStyle = "#2563eb";
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function getScale(){
+  const data = getSystem();
+
+  if(history.length === 0){
+    return {
+      min: setPoint - data.dangerRange - data.normalRange,
+      max: setPoint + data.dangerRange + data.normalRange
+    };
+  }
+
+  const values = history.map(h => h.value);
+  values.push(currentValue, setPoint);
+
+  let min = Math.min(...values);
+  let max = Math.max(...values);
+
+  const padding = Math.max(data.normalRange * 2, (max - min) * 0.2, 1);
+
+  min -= padding;
+  max += padding;
+
+  if(max - min < data.normalRange * 4){
+    min = setPoint - data.normalRange * 3;
+    max = setPoint + data.normalRange * 3;
+  }
+
+  return { min, max };
+}
+
+function mapValue(value, scale){
+  return canvas.height - ((value - scale.min) / (scale.max - scale.min)) * canvas.height;
+}
+
+function updateTable(){
+  const tbody = document.getElementById("dataTable");
+  const data = getSystem();
+
+  tbody.innerHTML = "";
+
+  const recent = history.slice(-10).reverse();
+
+  recent.forEach(point=>{
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td>${point.time}</td>
+      <td>${point.value.toFixed(2)} ${data.unit}</td>
+      <td>${point.event}</td>
+    `;
+
+    tbody.appendChild(row);
+  });
+}
+
+function downloadCSV(){
+  const data = getSystem();
+
+  let csv = "Time,Value,Unit,Event,Stability\n";
+
+  history.forEach(point=>{
+    csv += `${point.time},${point.value.toFixed(2)},${data.unit},${point.event},${Math.round(stability)}\n`;
+  });
+
+  const blob = new Blob([csv], {type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "negative_feedback_challenge_data.csv";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+function clearFlow(){
+  ["flowStimulus","flowReceptor","flowControl","flowEffector","flowResponse"].forEach(id=>{
+    document.getElementById(id).classList.remove("active");
+  });
+}
+
+function highlightFlow(stage){
+  clearFlow();
+
+  const map = {
+    stimulus:"flowStimulus",
+    receptor:"flowReceptor",
+    control:"flowControl",
+    effector:"flowEffector",
+    response:"flowResponse"
+  };
+
+  if(map[stage]){
+    document.getElementById(map[stage]).classList.add("active");
+  }
+}
+
+document.getElementById("systemSelect").addEventListener("change", resetSimulation);
+
+resetSimulation();
+
+setInterval(updateSimulation, 500);
+</script>
+
+</body>
+</html>
