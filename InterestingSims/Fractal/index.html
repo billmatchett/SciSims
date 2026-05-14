@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SciSims | Fractal Infinite Zoom</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --panel: #102238;
+      --panel-2: #132b45;
+      --text: #eef6ff;
+      --muted: #a9c2da;
+      --line: rgba(255, 255, 255, 0.14);
+      --accent: #64d2ff;
+      --accent-2: #9dffb0;
+      --warning: #ffd166;
+      --danger: #ff6b6b;
+      --shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at top left, rgba(100, 210, 255, 0.18), transparent 38%),
+        radial-gradient(circle at bottom right, rgba(157, 255, 176, 0.12), transparent 32%),
+        var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      padding: 18px;
+    }
+
+    .page {
+      max-width: 1700px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 700;
+      box-shadow: var(--shadow);
+    }
+
+    .home-link:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    header {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, rgba(16, 34, 56, 0.95), rgba(19, 43, 69, 0.82));
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: clamp(28px, 4vw, 48px);
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      max-width: 960px;
+      line-height: 1.5;
+      font-size: 16px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) clamp(330px, 24vw, 390px);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .viewer-card {
+      grid-column: 1;
+    }
+
+    .side {
+      grid-column: 2;
+      position: sticky;
+      top: 14px;
+      max-height: calc(100vh - 28px);
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .viewer-card, .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(16, 34, 56, 0.82);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .viewer-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.05);
+      flex-wrap: wrap;
+    }
+
+    .viewer-title {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .viewer-title strong {
+      font-size: 18px;
+    }
+
+    .viewer-title span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      overflow: hidden;
+      cursor: crosshair;
+      touch-action: none;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      image-rendering: auto;
+    }
+
+    .hud {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      display: grid;
+      gap: 6px;
+      pointer-events: none;
+    }
+
+    .hud-row {
+      width: max-content;
+      max-width: calc(100vw - 80px);
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.58);
+      color: #eaf7ff;
+      font-size: 13px;
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .render-status {
+      min-width: 150px;
+      text-align: right;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .panel {
+      padding: 14px;
+    }
+
+    .panel + .panel {
+      margin-top: 16px;
+    }
+
+    h2 {
+      margin: 0 0 10px 0;
+      font-size: 20px;
+      letter-spacing: -0.02em;
+    }
+
+    h3 {
+      margin: 16px 0 8px 0;
+      font-size: 15px;
+      color: #d9efff;
+    }
+
+    .control-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      font-weight: 700;
+      color: #e9f6ff;
+      font-size: 14px;
+    }
+
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: baseline;
+    }
+
+    .value-pill {
+      font-size: 12px;
+      color: var(--text);
+      padding: 3px 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    input[type="number"], select {
+      width: 100%;
+      padding: 10px 11px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(0, 0, 0, 0.22);
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    select option {
+      color: #101820;
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .button-row.three {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      border-radius: 13px;
+      padding: 10px 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.28);
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, rgba(100, 210, 255, 0.30), rgba(157, 255, 176, 0.22));
+      border-color: rgba(100, 210, 255, 0.45);
+    }
+
+    button.warning {
+      background: rgba(255, 209, 102, 0.16);
+      border-color: rgba(255, 209, 102, 0.35);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .stat {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.06);
+      min-width: 0;
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 14px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .note {
+      margin-top: 12px;
+      padding: 11px 12px;
+      border-radius: 14px;
+      background: rgba(255, 209, 102, 0.12);
+      border: 1px solid rgba(255, 209, 102, 0.32);
+      color: #fff2c2;
+      line-height: 1.42;
+      font-size: 13px;
+    }
+
+    .mini-note {
+      margin: 8px 0 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .challenge-list {
+      margin: 8px 0 0 0;
+      padding-left: 20px;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .kbd {
+      display: inline-block;
+      padding: 2px 6px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .footer {
+      margin: 16px 0 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    @media (max-width: 850px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .viewer-card,
+      .side {
+        grid-column: 1;
+      }
+
+      .side {
+        position: static;
+        max-height: none;
+        overflow: visible;
+        padding-right: 0;
+      }
+
+      .panel + .panel {
+        margin-top: 16px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 10px;
+      }
+
+      .side {
+        grid-template-columns: 1fr;
+      }
+
+      .button-row.three, .button-row {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+    </div>
+
+    <header>
+      <h1>Fractal Infinite Zoom</h1>
+      <p class="subtitle">
+        Explore the Mandelbrot set by zooming into repeating patterns. Click the image to centre and zoom, use the mouse wheel for smoother zooming, or run the automatic zoom to dive into one of the famous regions.
+      </p>
+    </header>
+
+    <main class="layout">
+      <section class="viewer-card">
+        <div class="viewer-head">
+          <div class="viewer-title">
+            <strong>Mandelbrot Explorer</strong>
+            <span>Click to zoom in. Shift-click to zoom out. Drag to pan.</span>
+          </div>
+          <div class="render-status" id="renderStatus">Ready</div>
+        </div>
+
+        <div class="canvas-wrap" id="canvasWrap" title="Click to zoom. Drag to pan. Mouse wheel also zooms.">
+          <canvas id="fractalCanvas"></canvas>
+          <div class="hud">
+            <div class="hud-row" id="hudZoom">Zoom: 1×</div>
+            <div class="hud-row" id="hudPoint">Pointer: real 0, imaginary 0</div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side">
+        <section class="panel">
+          <h2>Controls</h2>
+          <div class="control-grid">
+            <label>
+              <div class="label-row">
+                <span>Zoom depth</span>
+                <span class="value-pill" id="zoomDepthValue">0.00</span>
+              </div>
+              <input id="zoomDepth" type="range" min="0" max="15" step="0.01" value="0" />
+            </label>
+
+            <label>
+              <div class="label-row">
+                <span>Detail level</span>
+                <span class="value-pill" id="iterationValue">240 iterations</span>
+              </div>
+              <input id="iterations" type="range" min="80" max="1200" step="20" value="240" />
+            </label>
+
+            <label>
+              <span>Colour palette</span>
+              <select id="palette">
+                <option value="aurora">Aurora</option>
+                <option value="thermal">Thermal</option>
+                <option value="ocean">Ocean</option>
+                <option value="neon">Neon</option>
+                <option value="greyscale">Greyscale</option>
+              </select>
+            </label>
+
+            <label>
+              <span>Auto zoom quality</span>
+              <select id="autoQuality">
+                <option value="smooth">Smoothest, lower detail</option>
+                <option value="balanced" selected>Balanced</option>
+                <option value="sharp">Sharper, slower</option>
+              </select>
+            </label>
+
+            <label>
+              <span>Preset region</span>
+              <select id="preset">
+                <option value="home">Full Mandelbrot set</option>
+                <option value="seahorse">Seahorse valley</option>
+                <option value="elephant">Elephant valley</option>
+                <option value="spiral">Spiral arms</option>
+                <option value="mini">Mini Mandelbrot island</option>
+                <option value="needle">Needle point</option>
+              </select>
+            </label>
+
+            <div class="button-row">
+              <button class="primary" id="presetZoomBtn">Zoom to Preset Region</button>
+            </div>
+
+            <div class="button-row three">
+              <button class="primary" id="zoomInBtn">Zoom In</button>
+              <button id="zoomOutBtn">Zoom Out</button>
+              <button class="warning" id="resetBtn">Reset</button>
+            </div>
+
+            <div class="button-row">
+              <button id="autoZoomBtn">Start Guided Zoom</button>
+              <button id="infiniteZoomBtn">Start Infinite Zoom</button>
+            </div>
+
+            <div class="button-row">
+              <button id="downloadBtn">Download Image</button>
+            </div>
+          </div>
+
+          <p class="note">
+            This is an “infinite zoom” style simulator. In a normal browser, very deep zooms eventually reach decimal precision limits, so the image may become blocky or stop changing at extreme depth.
+          </p>
+        </section>
+
+        <section class="panel">
+          <h2>Live Data</h2>
+          <div class="stats">
+            <div class="stat">
+              <span>Real centre</span>
+              <strong id="centreReal">-0.500000</strong>
+            </div>
+            <div class="stat">
+              <span>Imaginary centre</span>
+              <strong id="centreImaginary">0.000000</strong>
+            </div>
+            <div class="stat">
+              <span>View width</span>
+              <strong id="viewWidth">3.500000</strong>
+            </div>
+            <div class="stat">
+              <span>Zoom factor</span>
+              <strong id="zoomFactor">1×</strong>
+            </div>
+            <div class="stat">
+              <span>Auto target</span>
+              <strong id="autoTargetReadout">None</strong>
+            </div>
+          </div>
+
+          <h3>Keyboard shortcuts</h3>
+          <p class="mini-note">
+            <span class="kbd">+</span> zoom in,
+            <span class="kbd">-</span> zoom out,
+            <span class="kbd">R</span> reset,
+            <span class="kbd">Space</span> start or pause guided zoom.
+          </p>
+        </section>
+
+        <section class="panel">
+          <h2>Student Challenges</h2>
+          <ol class="challenge-list">
+            <li>Find a region where smaller shapes look similar to the larger shape.</li>
+            <li>Increase the detail level. Describe what changes and what stays the same.</li>
+            <li>Zoom into the boundary between black and colour. Explain why this region has the most structure.</li>
+            <li>Compare two preset regions. Which one shows the strongest self-similarity?</li>
+          </ol>
+        </section>
+      </aside>
+    </main>
+
+    <p class="footer">SciSims fractal zoom simulator. Built for classroom exploration of scale, iteration, patterns and mathematical modelling.</p>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('fractalCanvas');
+    const wrap = document.getElementById('canvasWrap');
+
+    const zoomDepth = document.getElementById('zoomDepth');
+    const zoomDepthValue = document.getElementById('zoomDepthValue');
+    const iterations = document.getElementById('iterations');
+    const iterationValue = document.getElementById('iterationValue');
+    const paletteSelect = document.getElementById('palette');
+    const autoQualitySelect = document.getElementById('autoQuality');
+    const presetSelect = document.getElementById('preset');
+
+    const zoomInBtn = document.getElementById('zoomInBtn');
+    const zoomOutBtn = document.getElementById('zoomOutBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const presetZoomBtn = document.getElementById('presetZoomBtn');
+    const autoZoomBtn = document.getElementById('autoZoomBtn');
+    const infiniteZoomBtn = document.getElementById('infiniteZoomBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    const renderStatus = document.getElementById('renderStatus');
+    const hudZoom = document.getElementById('hudZoom');
+    const hudPoint = document.getElementById('hudPoint');
+    const centreReal = document.getElementById('centreReal');
+    const centreImaginary = document.getElementById('centreImaginary');
+    const viewWidthEl = document.getElementById('viewWidth');
+    const zoomFactorEl = document.getElementById('zoomFactor');
+    const autoTargetReadout = document.getElementById('autoTargetReadout');
+
+    const BASE_WIDTH = 3.5;
+    const BASE_CENTRE_X = -0.5;
+    const BASE_CENTRE_Y = 0;
+
+    const presets = {
+      home: { x: -0.5, y: 0, depth: 0, iter: 240 },
+      seahorse: { x: -0.743643887037151, y: 0.13182590420533, depth: 5.2, iter: 480 },
+      elephant: { x: 0.285, y: 0.01, depth: 3.4, iter: 360 },
+      spiral: { x: -0.761574, y: -0.0847596, depth: 5.0, iter: 520 },
+      mini: { x: -1.25066, y: 0.02012, depth: 4.1, iter: 420 },
+      needle: { x: -1.9994, y: 0, depth: 3.1, iter: 440 }
+    };
+
+    const autoTargets = [
+      // These centres are deliberately placed just outside the black interior.
+      // That makes the auto tour land on colourful detail rather than a black void.
+      { key: 'seahorse', name: 'Seahorse Filaments', x: -0.739643887037, y: 0.132492570872, depth: 5.20, iter: 620 },
+      { key: 'spiral', name: 'Spiral Filaments', x: -0.763574, y: -0.0837596, depth: 5.00, iter: 640 },
+      { key: 'mini', name: 'Mini Mandelbrot Filaments', x: -1.25306, y: 0.02252, depth: 4.30, iter: 580 },
+      { key: 'elephant', name: 'Elephant Valley Filaments', x: 0.291, y: 0.016, depth: 3.40, iter: 500 }
+    ];
+
+    let state = {
+      centreX: BASE_CENTRE_X,
+      centreY: BASE_CENTRE_Y,
+      depth: 0,
+      maxIter: 240,
+      palette: 'aurora',
+      autoQuality: 'balanced',
+      autoZoom: false,
+      infiniteZoom: false,
+      autoTarget: presets.seahorse,
+      autoTargetName: 'Seahorse Valley',
+      autoStartX: BASE_CENTRE_X,
+      autoStartY: BASE_CENTRE_Y,
+      autoStartDepth: 0,
+      autoStartIter: 240,
+      autoProgress: 0,
+      tourIndex: -1,
+      holdUntil: 0,
+      autoDurationMs: 14000,
+      tourPauseMs: 1200,
+      statusText: '',
+      isDragging: false,
+      dragStartX: 0,
+      dragStartY: 0,
+      dragCentreX: BASE_CENTRE_X,
+      dragCentreY: BASE_CENTRE_Y,
+      lastPointerX: 0,
+      lastPointerY: 0,
+      animationFrame: null,
+      needsRender: true,
+      lastAutoTime: 0,
+      glReady: false,
+      fallback2D: false
+    };
+
+    const gl = canvas.getContext('webgl2', {
+      alpha: false,
+      antialias: false,
+      preserveDrawingBuffer: true,
+      powerPreference: 'high-performance'
+    }) || canvas.getContext('webgl', {
+      alpha: false,
+      antialias: false,
+      preserveDrawingBuffer: true,
+      powerPreference: 'high-performance'
+    });
+
+    let program = null;
+    let uniforms = {};
+    let positionBuffer = null;
+    let fallbackCtx = null;
+
+    const vertexShaderSource = `
+      attribute vec2 a_position;
+      varying vec2 v_uv;
+      void main() {
+        v_uv = a_position * 0.5 + 0.5;
+        gl_Position = vec4(a_position, 0.0, 1.0);
+      }
+    `;
+
+    const fragmentShaderSource = `
+      precision highp float;
+      varying vec2 v_uv;
+
+      uniform vec2 u_centre;
+      uniform vec2 u_viewSize;
+      uniform vec2 u_resolution;
+      uniform int u_maxIter;
+      uniform int u_palette;
+      uniform float u_time;
+
+      vec3 colourFromPalette(float t, float smoothIter) {
+        t = clamp(t, 0.0, 1.0);
+
+        if (u_palette == 4) {
+          float v = pow(t, 0.55);
+          return vec3(v);
+        }
+
+        if (u_palette == 1) {
+          float r = min(1.0, 1.7 * t);
+          float g = 0.86 * max(0.0, sin(3.14159 * t));
+          float b = 0.28 * pow(1.0 - t, 2.0);
+          return vec3(r, g, b);
+        }
+
+        if (u_palette == 2) {
+          float r = 0.08 + 0.27 * pow(sin(5.0 * t + 0.5), 2.0);
+          float g = 0.31 + 0.59 * pow(t, 0.65);
+          float b = 0.55 + 0.45 * pow(sin(4.5 * t + 1.4), 2.0);
+          return vec3(r, g, b);
+        }
+
+        if (u_palette == 3) {
+          float r = 0.51 + 0.49 * pow(sin(0.16 * smoothIter + 0.0), 2.0);
+          float g = 0.31 + 0.69 * pow(sin(0.13 * smoothIter + 2.1), 2.0);
+          float b = 0.59 + 0.41 * pow(sin(0.11 * smoothIter + 4.2), 2.0);
+          return vec3(r, g, b);
+        }
+
+        float r = 0.16 + 0.84 * pow(sin(0.10 * smoothIter + 0.2), 2.0);
+        float g = 0.25 + 0.75 * pow(sin(0.12 * smoothIter + 1.6), 2.0);
+        float b = 0.37 + 0.63 * pow(sin(0.14 * smoothIter + 3.0), 2.0);
+        return vec3(r, g, b);
+      }
+
+      void main() {
+        vec2 c = u_centre + (v_uv - 0.5) * u_viewSize;
+        vec2 z = vec2(0.0);
+        float iter = 0.0;
+        float escaped = 0.0;
+
+        for (int i = 0; i < 1600; i++) {
+          if (i >= u_maxIter) break;
+          float x2 = z.x * z.x;
+          float y2 = z.y * z.y;
+          if (x2 + y2 > 4.0) {
+            escaped = 1.0;
+            break;
+          }
+          z = vec2(x2 - y2 + c.x, 2.0 * z.x * z.y + c.y);
+          iter += 1.0;
+        }
+
+        if (escaped < 0.5) {
+          gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        } else {
+          float mag = max(length(z), 1.000001);
+          float smoothIter = iter + 1.0 - log(log(mag)) / log(2.0);
+          float t = smoothIter / float(u_maxIter);
+          vec3 col = colourFromPalette(t, smoothIter);
+          gl_FragColor = vec4(col, 1.0);
+        }
+      }
+    `;
+
+    function compileShader(type, source) {
+      const shader = gl.createShader(type);
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        console.warn(gl.getShaderInfoLog(shader));
+        gl.deleteShader(shader);
+        return null;
+      }
+      return shader;
+    }
+
+    function initWebGL() {
+      if (!gl) {
+        state.fallback2D = true;
+        fallbackCtx = canvas.getContext('2d', { alpha: false });
+        renderStatus.textContent = 'WebGL unavailable: using slower 2D mode';
+        return;
+      }
+
+      const vs = compileShader(gl.VERTEX_SHADER, vertexShaderSource);
+      const fs = compileShader(gl.FRAGMENT_SHADER, fragmentShaderSource);
+      if (!vs || !fs) {
+        state.fallback2D = true;
+        fallbackCtx = canvas.getContext('2d', { alpha: false });
+        renderStatus.textContent = 'WebGL shader failed: using slower 2D mode';
+        return;
+      }
+
+      program = gl.createProgram();
+      gl.attachShader(program, vs);
+      gl.attachShader(program, fs);
+      gl.linkProgram(program);
+
+      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        console.warn(gl.getProgramInfoLog(program));
+        state.fallback2D = true;
+        fallbackCtx = canvas.getContext('2d', { alpha: false });
+        renderStatus.textContent = 'WebGL link failed: using slower 2D mode';
+        return;
+      }
+
+      gl.useProgram(program);
+      positionBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+        -1, -1,
+         1, -1,
+        -1,  1,
+        -1,  1,
+         1, -1,
+         1,  1
+      ]), gl.STATIC_DRAW);
+
+      const positionLocation = gl.getAttribLocation(program, 'a_position');
+      gl.enableVertexAttribArray(positionLocation);
+      gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+      uniforms = {
+        centre: gl.getUniformLocation(program, 'u_centre'),
+        viewSize: gl.getUniformLocation(program, 'u_viewSize'),
+        resolution: gl.getUniformLocation(program, 'u_resolution'),
+        maxIter: gl.getUniformLocation(program, 'u_maxIter'),
+        palette: gl.getUniformLocation(program, 'u_palette'),
+        time: gl.getUniformLocation(program, 'u_time')
+      };
+
+      state.glReady = true;
+      renderStatus.textContent = 'WebGL ready';
+    }
+
+    function qualitySettings() {
+      if (state.autoQuality === 'smooth') return { dpr: 1.15, iterCap: 420, autoStep: 0.010, centreEase: 0.030 };
+      if (state.autoQuality === 'sharp') return { dpr: 2.0, iterCap: 900, autoStep: 0.006, centreEase: 0.020 };
+      return { dpr: 1.5, iterCap: 650, autoStep: 0.008, centreEase: 0.025 };
+    }
+
+    function fitCanvas() {
+      const rect = wrap.getBoundingClientRect();
+      const quality = qualitySettings();
+      const deviceRatio = Math.min(window.devicePixelRatio || 1, quality.dpr);
+      const newWidth = Math.max(480, Math.floor(rect.width * deviceRatio));
+      const newHeight = Math.max(270, Math.floor(rect.height * deviceRatio));
+
+      if (canvas.width !== newWidth || canvas.height !== newHeight) {
+        canvas.width = newWidth;
+        canvas.height = newHeight;
+        markNeedsRender();
+      }
+    }
+
+    function zoomFactor() {
+      return Math.pow(10, state.depth);
+    }
+
+    function viewWidth() {
+      return BASE_WIDTH / zoomFactor();
+    }
+
+    function viewHeight() {
+      return viewWidth() * canvas.height / canvas.width;
+    }
+
+    function pixelToComplex(px, py) {
+      const width = viewWidth();
+      const height = viewHeight();
+      const real = state.centreX + (px / canvas.width - 0.5) * width;
+      const imaginary = state.centreY + (py / canvas.height - 0.5) * height;
+      return { real, imaginary };
+    }
+
+    function formatNumber(value) {
+      if (!Number.isFinite(value)) return 'precision limit';
+      const abs = Math.abs(value);
+      if (abs !== 0 && (abs < 0.000001 || abs > 999999)) return value.toExponential(6);
+      return value.toFixed(6);
+    }
+
+    function formatZoom(value) {
+      if (value < 1000) return value.toFixed(1) + '×';
+      return value.toExponential(2) + '×';
+    }
+
+    function paletteIndex() {
+      const map = { aurora: 0, thermal: 1, ocean: 2, neon: 3, greyscale: 4 };
+      return map[state.palette] ?? 0;
+    }
+
+    function updateReadouts() {
+      const zf = zoomFactor();
+      const vw = viewWidth();
+      zoomDepth.value = String(state.depth);
+      iterations.value = String(state.maxIter);
+      paletteSelect.value = state.palette;
+      autoQualitySelect.value = state.autoQuality;
+      zoomDepthValue.textContent = Number(state.depth).toFixed(2);
+      iterationValue.textContent = state.maxIter + ' iterations';
+      centreReal.textContent = formatNumber(state.centreX);
+      centreImaginary.textContent = formatNumber(state.centreY);
+      viewWidthEl.textContent = formatNumber(vw);
+      zoomFactorEl.textContent = formatZoom(zf);
+      autoTargetReadout.textContent = state.autoZoom ? state.autoTargetName : 'None';
+      hudZoom.textContent = 'Zoom: ' + formatZoom(zf);
+    }
+
+    function clampDepth(depth) {
+      return Math.max(0, Math.min(15, depth));
+    }
+
+    function markNeedsRender() {
+      state.needsRender = true;
+      updateReadouts();
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    function smoothStep(t) {
+      const clamped = Math.max(0, Math.min(1, t));
+      return clamped * clamped * (3 - 2 * clamped);
+    }
+
+    function mandelbrotEscapeInfo(cx, cy, maxIter) {
+      let zx = 0;
+      let zy = 0;
+      let zx2 = 0;
+      let zy2 = 0;
+      let iter = 0;
+
+      while (zx2 + zy2 <= 4 && iter < maxIter) {
+        zy = 2 * zx * zy + cy;
+        zx = zx2 - zy2 + cx;
+        zx2 = zx * zx;
+        zy2 = zy * zy;
+        iter++;
+      }
+
+      return {
+        escaped: iter < maxIter,
+        iter
+      };
+    }
+
+    function findInterestingBoundaryTarget(target) {
+      const finalWidth = BASE_WIDTH / Math.pow(10, target.depth);
+      const searchRadius = target.searchRadius || finalWidth * 4;
+      const samples = 17;
+      const maxIter = Math.min(900, Math.max(360, target.iter));
+      let best = { x: target.x, y: target.y, score: -Infinity, iter: 0 };
+
+      for (let row = 0; row < samples; row++) {
+        for (let col = 0; col < samples; col++) {
+          const nx = col / (samples - 1) - 0.5;
+          const ny = row / (samples - 1) - 0.5;
+          const cx = target.x + nx * searchRadius;
+          const cy = target.y + ny * searchRadius;
+          const centre = mandelbrotEscapeInfo(cx, cy, maxIter);
+          const right = mandelbrotEscapeInfo(cx + finalWidth * 0.45, cy, maxIter);
+          const up = mandelbrotEscapeInfo(cx, cy + finalWidth * 0.45, maxIter);
+
+          const escapes = [centre, right, up].filter(p => p.escaped).length;
+          const inside = 3 - escapes;
+          const variation = Math.abs(centre.iter - right.iter) + Math.abs(centre.iter - up.iter);
+          const boundaryBonus = escapes > 0 && inside > 0 ? 260 : 0;
+          const notBlackPenalty = centre.escaped ? 0 : -380;
+          const iterationScore = centre.escaped ? centre.iter : maxIter * 0.25;
+          const distancePenalty = 35 * Math.hypot(nx, ny);
+          const score = boundaryBonus + iterationScore + variation * 0.8 + notBlackPenalty - distancePenalty;
+
+          if (score > best.score) {
+            best = { x: cx, y: cy, score, iter: centre.iter };
+          }
+        }
+      }
+
+      return {
+        ...target,
+        x: best.x,
+        y: best.y,
+        name: target.name + ' boundary'
+      };
+    }
+
+    function chooseAutoTarget(forceNext = false) {
+      let target;
+
+      if (state.infiniteZoom) {
+        const selectedKey = presetSelect.value;
+        target = autoTargets.find(item => item.key === selectedKey);
+
+        if (!target) {
+          state.tourIndex = (state.tourIndex + 1) % autoTargets.length;
+          target = autoTargets[state.tourIndex];
+        }
+      } else {
+        if (state.depth > 1.5) {
+          state.centreX = BASE_CENTRE_X;
+          state.centreY = BASE_CENTRE_Y;
+          state.depth = 0;
+          state.maxIter = 240;
+          presetSelect.value = 'home';
+        }
+
+        const selectedKey = presetSelect.value;
+        target = autoTargets.find(item => item.key === selectedKey);
+        if (!target) {
+          target = autoTargets[0];
+        }
+      }
+
+      state.autoTarget = { ...target };
+      state.autoTargetName = target.name;
+    }
+
+    function prepareAutoPath(forceNext = false) {
+      chooseAutoTarget(forceNext);
+      state.autoStartX = state.centreX;
+      state.autoStartY = state.centreY;
+      state.autoStartDepth = state.depth;
+      state.autoStartIter = state.maxIter;
+      state.autoProgress = 0;
+      state.holdUntil = 0;
+      state.lastAutoTime = performance.now();
+    }
+
+    function startGuidedAutoZoom() {
+      state.infiniteZoom = false;
+      prepareAutoPath(false);
+      state.autoZoom = true;
+      state.statusText = 'Starting guided zoom to ' + state.autoTargetName;
+      autoZoomBtn.textContent = 'Pause Guided Zoom';
+      infiniteZoomBtn.textContent = 'Start Infinite Zoom';
+      markNeedsRender();
+    }
+
+    function startPresetZoom() {
+      const key = presetSelect.value;
+
+      if (key === 'home') {
+        reset();
+        state.statusText = 'Returned to full Mandelbrot set';
+        markNeedsRender();
+        return;
+      }
+
+      if (key === 'custom') {
+        state.statusText = 'Choose a preset region first';
+        markNeedsRender();
+        return;
+      }
+
+      const target = autoTargets.find(item => item.key === key) || presets[key];
+      if (!target) {
+        state.statusText = 'Preset region not found';
+        markNeedsRender();
+        return;
+      }
+
+      state.autoZoom = true;
+      state.infiniteZoom = false;
+      state.autoTarget = { ...target };
+      state.autoTargetName = target.name || key;
+      state.autoStartX = state.centreX;
+      state.autoStartY = state.centreY;
+      state.autoStartDepth = state.depth;
+      state.autoStartIter = state.maxIter;
+      state.autoProgress = 0;
+      state.holdUntil = 0;
+      state.lastAutoTime = performance.now();
+      state.statusText = 'Zooming to preset: ' + state.autoTargetName;
+      autoZoomBtn.textContent = 'Start Guided Zoom';
+      infiniteZoomBtn.textContent = 'Start Infinite Zoom';
+      markNeedsRender();
+    }
+
+    function startInfiniteZoom() {
+      state.infiniteZoom = true;
+      prepareAutoPath(false);
+      state.autoZoom = true;
+      state.statusText = 'Starting infinite zoom into ' + state.autoTargetName;
+      autoZoomBtn.textContent = 'Start Guided Zoom';
+      infiniteZoomBtn.textContent = 'Pause Infinite Zoom';
+      markNeedsRender();
+    }
+
+    function setDepthAroundPoint(newDepth, px, py) {
+      const before = pixelToComplex(px, py);
+      state.depth = clampDepth(newDepth);
+      const after = pixelToComplex(px, py);
+      state.centreX += before.real - after.real;
+      state.centreY += before.imaginary - after.imaginary;
+      presetSelect.value = 'custom';
+      markNeedsRender();
+    }
+
+    function renderWebGL(now) {
+      if (!state.glReady) return;
+
+      const quality = qualitySettings();
+      const maxIter = state.autoZoom ? Math.min(state.maxIter, quality.iterCap) : state.maxIter;
+
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.useProgram(program);
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      gl.uniform2f(uniforms.centre, state.centreX, state.centreY);
+      gl.uniform2f(uniforms.viewSize, viewWidth(), viewHeight());
+      gl.uniform2f(uniforms.resolution, canvas.width, canvas.height);
+      gl.uniform1i(uniforms.maxIter, maxIter);
+      gl.uniform1i(uniforms.palette, paletteIndex());
+      gl.uniform1f(uniforms.time, now * 0.001);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+      renderStatus.textContent = state.statusText || (state.autoZoom
+        ? 'Auto zooming to ' + state.autoTargetName
+        : 'WebGL rendered');
+    }
+
+    function fallbackColour(t, escaped, smoothIter) {
+      if (!escaped) return [0, 0, 0];
+      const p = state.palette;
+      if (p === 'greyscale') {
+        const v = Math.floor(255 * Math.pow(t, 0.55));
+        return [v, v, v];
+      }
+      if (p === 'thermal') {
+        return [
+          Math.floor(255 * Math.min(1, 1.7 * t)),
+          Math.floor(220 * Math.max(0, Math.sin(Math.PI * t))),
+          Math.floor(70 * Math.pow(1 - t, 2))
+        ];
+      }
+      if (p === 'ocean') {
+        return [
+          Math.floor(20 + 70 * Math.sin(5 * t + 0.5) ** 2),
+          Math.floor(80 + 150 * Math.pow(t, 0.65)),
+          Math.floor(140 + 115 * Math.sin(4.5 * t + 1.4) ** 2)
+        ];
+      }
+      if (p === 'neon') {
+        return [
+          Math.floor(130 + 125 * Math.sin(0.16 * smoothIter) ** 2),
+          Math.floor(80 + 175 * Math.sin(0.13 * smoothIter + 2.1) ** 2),
+          Math.floor(150 + 105 * Math.sin(0.11 * smoothIter + 4.2) ** 2)
+        ];
+      }
+      return [
+        Math.floor(40 + 215 * Math.sin(0.10 * smoothIter + 0.2) ** 2),
+        Math.floor(65 + 190 * Math.sin(0.12 * smoothIter + 1.6) ** 2),
+        Math.floor(95 + 160 * Math.sin(0.14 * smoothIter + 3.0) ** 2)
+      ];
+    }
+
+    function renderFallback2D() {
+      if (!fallbackCtx) return;
+      const quality = qualitySettings();
+      const scale = state.autoZoom ? 0.55 : 1;
+      const width = Math.max(360, Math.floor(canvas.width * scale));
+      const height = Math.max(202, Math.floor(canvas.height * scale));
+      const img = fallbackCtx.createImageData(width, height);
+      const data = img.data;
+      const maxIter = state.autoZoom ? Math.min(state.maxIter, quality.iterCap) : state.maxIter;
+      const minX = state.centreX - viewWidth() / 2;
+      const minY = state.centreY - viewHeight() / 2;
+      const dx = viewWidth() / width;
+      const dy = viewHeight() / height;
+
+      for (let y = 0; y < height; y++) {
+        const cy = minY + y * dy;
+        for (let x = 0; x < width; x++) {
+          const cx = minX + x * dx;
+          let zx = 0, zy = 0, zx2 = 0, zy2 = 0, iter = 0;
+          while (zx2 + zy2 <= 4 && iter < maxIter) {
+            zy = 2 * zx * zy + cy;
+            zx = zx2 - zy2 + cx;
+            zx2 = zx * zx;
+            zy2 = zy * zy;
+            iter++;
+          }
+          const offset = (y * width + x) * 4;
+          let r, g, b;
+          if (iter >= maxIter) {
+            r = g = b = 0;
+          } else {
+            const modulus = Math.sqrt(zx2 + zy2);
+            const smoothIter = iter + 1 - Math.log(Math.log(modulus)) / Math.log(2);
+            const t = Math.max(0, Math.min(1, smoothIter / maxIter));
+            [r, g, b] = fallbackColour(t, true, smoothIter);
+          }
+          data[offset] = r;
+          data[offset + 1] = g;
+          data[offset + 2] = b;
+          data[offset + 3] = 255;
+        }
+      }
+
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = width;
+      tempCanvas.height = height;
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCtx.putImageData(img, 0, 0);
+      fallbackCtx.imageSmoothingEnabled = true;
+      fallbackCtx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
+      renderStatus.textContent = state.statusText || (state.autoZoom ? 'Auto zooming to ' + state.autoTargetName : '2D rendered');
+    }
+
+    function animationLoop(now) {
+      if (state.autoZoom) {
+        const delta = Math.min(50, now - state.lastAutoTime);
+        state.lastAutoTime = now;
+        const target = state.autoTarget;
+
+        if (state.infiniteZoom) {
+          const speed = delta / 1000;
+          const targetLock = Math.min(1, state.autoProgress + speed * 0.45);
+          state.autoProgress = targetLock;
+
+          state.centreX = lerp(state.autoStartX, target.x, smoothStep(targetLock));
+          state.centreY = lerp(state.autoStartY, target.y, smoothStep(targetLock));
+          state.depth = clampDepth(state.depth + speed * 0.30);
+          state.maxIter = Math.min(1200, Math.round(state.maxIter + speed * 34));
+          state.statusText = 'Infinite zoom: diving into ' + state.autoTargetName;
+
+          if (state.depth >= 14.5) {
+            state.statusText = 'Infinite zoom paused at browser precision limit';
+            state.autoZoom = false;
+            state.infiniteZoom = false;
+            infiniteZoomBtn.textContent = 'Start Infinite Zoom';
+            autoZoomBtn.textContent = 'Start Guided Zoom';
+          }
+
+          state.needsRender = true;
+        } else {
+          if (state.holdUntil > now) {
+            state.statusText = 'Exploring ' + state.autoTargetName;
+            state.needsRender = true;
+          } else {
+            const target = state.autoTarget;
+            state.autoProgress += delta / state.autoDurationMs;
+            const eased = smoothStep(Math.min(1, state.autoProgress));
+
+            const panPortion = 0.20;
+            const lowZoomDepth = Math.min(0.35, target.depth * 0.10);
+
+            if (eased < panPortion) {
+              const panT = smoothStep(eased / panPortion);
+              state.centreX = lerp(state.autoStartX, target.x, panT);
+              state.centreY = lerp(state.autoStartY, target.y, panT);
+              state.depth = lerp(state.autoStartDepth, lowZoomDepth, panT);
+              state.maxIter = Math.round(lerp(state.autoStartIter, 300, panT));
+              state.statusText = 'Moving to ' + state.autoTargetName;
+            } else {
+              const zoomT = smoothStep((eased - panPortion) / (1 - panPortion));
+              state.centreX = target.x;
+              state.centreY = target.y;
+              state.depth = clampDepth(lerp(lowZoomDepth, target.depth, zoomT));
+              state.maxIter = Math.round(lerp(300, target.iter, zoomT));
+              state.statusText = 'Zooming into ' + state.autoTargetName;
+            }
+
+            state.needsRender = true;
+
+            if (state.autoProgress >= 1) {
+              state.centreX = target.x;
+              state.centreY = target.y;
+              state.depth = target.depth;
+              state.maxIter = target.iter;
+              state.autoZoom = false;
+              state.autoProgress = 0;
+              state.statusText = 'Arrived at ' + state.autoTargetName;
+              autoZoomBtn.textContent = 'Start Guided Zoom';
+              infiniteZoomBtn.textContent = 'Start Infinite Zoom';
+            }
+          }
+        }
+      }
+
+      if (state.needsRender) {
+        fitCanvas();
+        if (state.fallback2D) {
+          renderFallback2D();
+        } else {
+          renderWebGL(now);
+        }
+        state.needsRender = false;
+        updateReadouts();
+      }
+
+      state.animationFrame = requestAnimationFrame(animationLoop);
+    }
+
+    function zoomBy(multiplier, px = canvas.width / 2, py = canvas.height / 2) {
+      const depthChange = Math.log10(multiplier);
+      setDepthAroundPoint(state.depth + depthChange, px, py);
+    }
+
+    function reset() {
+      state.centreX = BASE_CENTRE_X;
+      state.centreY = BASE_CENTRE_Y;
+      state.depth = 0;
+      state.maxIter = 240;
+      state.autoZoom = false;
+      state.infiniteZoom = false;
+      state.autoProgress = 0;
+      state.holdUntil = 0;
+      state.statusText = 'Reset to full Mandelbrot set';
+      presetSelect.value = 'home';
+      autoZoomBtn.textContent = 'Start Guided Zoom';
+      infiniteZoomBtn.textContent = 'Start Infinite Zoom';
+      markNeedsRender();
+    }
+
+    function applyPreset(key) {
+      const p = presets[key] || presets.home;
+      state.centreX = p.x;
+      state.centreY = p.y;
+      state.depth = p.depth;
+      state.maxIter = p.iter;
+      state.autoTarget = autoTargets.find(item => item.key === key) || autoTargets[0];
+      state.autoTargetName = state.autoTarget.name;
+      state.autoZoom = false;
+      state.infiniteZoom = false;
+      state.autoProgress = 0;
+      state.holdUntil = 0;
+      state.statusText = key === 'home' ? 'Full Mandelbrot set' : 'Preset loaded';
+      autoZoomBtn.textContent = 'Start Guided Zoom';
+      infiniteZoomBtn.textContent = 'Start Infinite Zoom';
+      markNeedsRender();
+    }
+
+    zoomDepth.addEventListener('input', () => {
+      state.depth = clampDepth(Number(zoomDepth.value));
+      presetSelect.value = 'custom';
+      markNeedsRender();
+    });
+
+    iterations.addEventListener('input', () => {
+      state.maxIter = Number(iterations.value);
+      markNeedsRender();
+    });
+
+    paletteSelect.addEventListener('change', () => {
+      state.palette = paletteSelect.value;
+      markNeedsRender();
+    });
+
+    autoQualitySelect.addEventListener('change', () => {
+      state.autoQuality = autoQualitySelect.value;
+      fitCanvas();
+      markNeedsRender();
+    });
+
+    presetSelect.addEventListener('change', () => {
+      applyPreset(presetSelect.value);
+    });
+
+    zoomInBtn.addEventListener('click', () => zoomBy(2.5));
+    zoomOutBtn.addEventListener('click', () => zoomBy(1 / 2.5));
+    resetBtn.addEventListener('click', reset);
+    presetZoomBtn.addEventListener('click', startPresetZoom);
+
+    autoZoomBtn.addEventListener('click', () => {
+      if (!state.autoZoom || state.infiniteZoom) {
+        startGuidedAutoZoom();
+      } else {
+        state.autoZoom = false;
+        state.infiniteZoom = false;
+        state.holdUntil = 0;
+        state.statusText = 'Guided zoom paused at ' + state.autoTargetName;
+        autoZoomBtn.textContent = 'Start Guided Zoom';
+        infiniteZoomBtn.textContent = 'Start Infinite Zoom';
+        markNeedsRender();
+      }
+    });
+
+    infiniteZoomBtn.addEventListener('click', () => {
+      if (!state.autoZoom || !state.infiniteZoom) {
+        startInfiniteZoom();
+      } else {
+        state.autoZoom = false;
+        state.infiniteZoom = false;
+        state.holdUntil = 0;
+        state.statusText = 'Infinite zoom paused at ' + state.autoTargetName;
+        autoZoomBtn.textContent = 'Start Guided Zoom';
+        infiniteZoomBtn.textContent = 'Start Infinite Zoom';
+        markNeedsRender();
+      }
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'fractal-zoom.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+
+    wrap.addEventListener('pointerdown', (event) => {
+      wrap.setPointerCapture(event.pointerId);
+      state.isDragging = true;
+      state.dragStartX = event.offsetX * canvas.width / wrap.clientWidth;
+      state.dragStartY = event.offsetY * canvas.height / wrap.clientHeight;
+      state.dragCentreX = state.centreX;
+      state.dragCentreY = state.centreY;
+      state.lastPointerX = state.dragStartX;
+      state.lastPointerY = state.dragStartY;
+    });
+
+    wrap.addEventListener('pointermove', (event) => {
+      const px = event.offsetX * canvas.width / wrap.clientWidth;
+      const py = event.offsetY * canvas.height / wrap.clientHeight;
+      state.lastPointerX = px;
+      state.lastPointerY = py;
+      const point = pixelToComplex(px, py);
+      hudPoint.textContent = 'Pointer: real ' + formatNumber(point.real) + ', imaginary ' + formatNumber(point.imaginary);
+
+      if (state.isDragging) {
+        const scaleX = viewWidth() / canvas.width;
+        const scaleY = viewHeight() / canvas.height;
+        const dx = px - state.dragStartX;
+        const dy = py - state.dragStartY;
+        state.centreX = state.dragCentreX - dx * scaleX;
+        state.centreY = state.dragCentreY - dy * scaleY;
+        presetSelect.value = 'custom';
+        markNeedsRender();
+      }
+    });
+
+    wrap.addEventListener('pointerup', (event) => {
+      const px = event.offsetX * canvas.width / wrap.clientWidth;
+      const py = event.offsetY * canvas.height / wrap.clientHeight;
+      const moved = Math.hypot(px - state.dragStartX, py - state.dragStartY);
+      state.isDragging = false;
+
+      if (moved < 6) {
+        const point = pixelToComplex(px, py);
+        state.centreX = point.real;
+        state.centreY = point.imaginary;
+        zoomBy(event.shiftKey ? 1 / 2.2 : 2.2, canvas.width / 2, canvas.height / 2);
+      }
+    });
+
+    wrap.addEventListener('pointercancel', () => {
+      state.isDragging = false;
+    });
+
+    wrap.addEventListener('wheel', (event) => {
+      event.preventDefault();
+      const px = event.offsetX * canvas.width / wrap.clientWidth;
+      const py = event.offsetY * canvas.height / wrap.clientHeight;
+      const multiplier = event.deltaY < 0 ? 1.35 : 1 / 1.35;
+      zoomBy(multiplier, px, py);
+    }, { passive: false });
+
+    window.addEventListener('keydown', (event) => {
+      if (event.target && ['INPUT', 'SELECT'].includes(event.target.tagName)) return;
+      if (event.key === '+' || event.key === '=') zoomBy(2);
+      if (event.key === '-' || event.key === '_') zoomBy(1 / 2);
+      if (event.key.toLowerCase() === 'r') reset();
+      if (event.code === 'Space') {
+        event.preventDefault();
+        autoZoomBtn.click();
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      fitCanvas();
+      markNeedsRender();
+    });
+
+    const customOption = document.createElement('option');
+    customOption.value = 'custom';
+    customOption.textContent = 'Custom location';
+    customOption.disabled = true;
+    presetSelect.appendChild(customOption);
+
+    initWebGL();
+    fitCanvas();
+    reset();
+    state.animationFrame = requestAnimationFrame(animationLoop);
+  </script>
+</body>
+</html>
