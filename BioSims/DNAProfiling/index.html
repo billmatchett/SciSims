@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DNA Profiling Gel Electrophoresis Simulator</title>
+
+<style>
+  :root{
+    --bg:#eef3f8;
+    --panel:#ffffff;
+    --text:#1f2937;
+    --muted:#5b6575;
+    --line:#d7dee8;
+    --accent:#2f6fed;
+    --good:#1e8e3e;
+    --warn:#d97706;
+    --bad:#c62828;
+    --shadow:0 4px 14px rgba(0,0,0,0.12);
+    --radius:14px;
+  }
+
+  *{
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+  }
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+  }
+
+  header{
+    background:#172b4d;
+    color:white;
+    padding:18px 24px;
+  }
+
+  header h1{
+    margin:0;
+    font-size:30px;
+  }
+
+  header p{
+    margin:6px 0 0;
+  }
+
+  .home-link{
+    display:inline-block;
+    margin:18px 24px 0;
+    padding:10px 14px;
+    background:white;
+    border:1px solid #172b4d;
+    color:#172b4d;
+    text-decoration:none;
+    border-radius:10px;
+    font-weight:bold;
+  }
+
+  main{
+    max-width:1400px;
+    margin:20px auto;
+    padding:0 18px 30px;
+  }
+
+  .layout{
+    display:grid;
+    grid-template-columns:320px 1fr 320px;
+    gap:18px;
+  }
+
+  .panel{
+    background:var(--panel);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:16px;
+  }
+
+  h2{
+    margin-top:0;
+  }
+
+  label{
+    display:block;
+    margin-top:12px;
+    font-weight:bold;
+  }
+
+  select{
+    width:100%;
+    padding:8px;
+    margin-top:4px;
+    border-radius:8px;
+    border:1px solid #bcc7d6;
+  }
+
+  button{
+    width:100%;
+    margin-top:12px;
+    padding:10px;
+    border:none;
+    border-radius:10px;
+    background:var(--accent);
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+  }
+
+  button:hover{
+    opacity:0.92;
+  }
+
+  button.secondary{
+    background:#607d8b;
+  }
+
+  button.good{
+    background:var(--good);
+  }
+
+  canvas{
+    width:100%;
+    background:#101820;
+    border-radius:14px;
+    border:3px solid #2a3444;
+  }
+
+  .note{
+    margin-top:12px;
+    padding:10px;
+    border-left:5px solid var(--warn);
+    background:#fff7e6;
+    border-radius:8px;
+    font-size:14px;
+  }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:14px;
+    font-size:14px;
+  }
+
+  th, td{
+    border:1px solid var(--line);
+    padding:7px;
+    text-align:center;
+  }
+
+  th{
+    background:#eef4fb;
+  }
+
+  .result-box{
+    margin-top:14px;
+    padding:14px;
+    border-radius:12px;
+    background:#f5f8fc;
+    border:1px solid var(--line);
+  }
+
+  .correct{
+    color:var(--good);
+    font-weight:bold;
+  }
+
+  .incorrect{
+    color:var(--bad);
+    font-weight:bold;
+  }
+
+  .legend{
+    margin-top:14px;
+    display:grid;
+    gap:8px;
+    font-size:14px;
+  }
+
+  .legend-item{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+
+  .colour{
+    width:18px;
+    height:18px;
+    border-radius:4px;
+  }
+
+  @media(max-width:1100px){
+    .layout{
+      grid-template-columns:1fr;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>DNA Profiling Gel Electrophoresis Simulator</h1>
+  <p>Use DNA banding patterns to determine biological relationships.</p>
+</header>
+
+<a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+
+<main>
+
+<div class="layout">
+
+  <section class="panel">
+    <h2>Controls</h2>
+
+    <label>Difficulty</label>
+    <select id="difficulty">
+      <option value="easy">Easy</option>
+      <option value="medium" selected>Medium</option>
+      <option value="hard">Hard</option>
+    </select>
+
+    <button onclick="generateCase()">Generate New Case</button>
+    <button onclick="runGel()">Run Gel</button>
+
+    <label>Select the Father</label>
+    <select id="fatherChoice">
+      <option value="">Choose...</option>
+      <option value="0">Father A</option>
+      <option value="1">Father B</option>
+      <option value="2">Father C</option>
+      <option value="3">Father D</option>
+    </select>
+
+    <button class="good" onclick="checkAnswer()">Check Answer</button>
+    <button class="secondary" onclick="downloadCSV()">Download Results CSV</button>
+
+    <div class="note">
+      Every DNA band in the child must come from either the mother or the biological father.
+    </div>
+
+    <div class="legend">
+      <div class="legend-item">
+        <div class="colour" style="background:#4fc3f7;"></div>
+        Maternal band
+      </div>
+
+      <div class="legend-item">
+        <div class="colour" style="background:#ff5252;"></div>
+        Paternal band
+      </div>
+
+      <div class="legend-item">
+        <div class="colour" style="background:#ffee58;"></div>
+        Child comparison band
+      </div>
+    </div>
+
+  </section>
+
+  <section class="panel">
+    <h2>Electrophoresis Gel</h2>
+
+    <canvas id="gelCanvas" width="760" height="720"></canvas>
+
+    <div class="result-box" id="resultBox">
+      Generate a case and run the gel.
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Evidence Table</h2>
+
+    <table id="evidenceTable">
+      <thead>
+        <tr>
+          <th>Band</th>
+          <th>Mother</th>
+          <th>Child</th>
+          <th>A</th>
+          <th>B</th>
+          <th>C</th>
+          <th>D</th>
+        </tr>
+      </thead>
+
+      <tbody></tbody>
+    </table>
+  </section>
+
+</div>
+
+</main>
+
+<script>
+
+const canvas = document.getElementById("gelCanvas");
+const ctx = canvas.getContext("2d");
+
+const lanes = ["Mother", "Child", "Father A", "Father B", "Father C", "Father D"];
+
+let mother = [];
+let child = [];
+let fathers = [];
+let correctFather = 0;
+
+let animationProgress = 0;
+let animating = false;
+let gelHasRun = false;
+
+function rand(min,max){
+  return Math.floor(Math.random()*(max-min+1))+min;
+}
+
+function shuffle(arr){
+  return arr.sort(()=>Math.random()-0.5);
+}
+
+function generateBands(count){
+  const bands = [];
+
+  while(bands.length < count){
+    const value = rand(80,650);
+
+    if(!bands.some(v=>Math.abs(v-value)<22)){
+      bands.push(value);
+    }
+  }
+
+  return bands.sort((a,b)=>a-b);
+}
+
+function generateCase(){
+
+  const difficulty = document.getElementById("difficulty").value;
+
+  let motherCount = 6;
+  let childCount = 8;
+
+  if(difficulty==="easy"){
+    motherCount = 5;
+    childCount = 6;
+  }
+
+  if(difficulty==="hard"){
+    motherCount = 8;
+    childCount = 10;
+  }
+
+  mother = generateBands(motherCount);
+
+  correctFather = rand(0,3);
+
+  fathers = [];
+
+  for(let i=0;i<4;i++){
+    fathers.push(generateBands(motherCount));
+  }
+
+  const maternalBands = shuffle([...mother]).slice(0,Math.floor(childCount/2));
+  const paternalBands = shuffle([...fathers[correctFather]]).slice(0,Math.ceil(childCount/2));
+
+  child = [...new Set([...maternalBands, ...paternalBands])];
+
+  if(difficulty==="hard"){
+    child.push(rand(100,640));
+  }
+
+  child.sort((a,b)=>a-b);
+
+  animationProgress = 0;
+  gelHasRun = false;
+
+  document.getElementById("fatherChoice").value = "";
+  document.getElementById("resultBox").innerHTML = "Case generated. Run the gel and analyse the bands.";
+
+  clearTable();
+  drawGel();
+}
+
+function runGel(){
+
+  animationProgress = 0;
+  animating = true;
+  gelHasRun = false;
+
+  clearTable();
+
+  document.getElementById("resultBox").innerHTML = "Gel running... wait for the bands to separate.";
+
+  function animate(){
+
+    animationProgress += 0.015;
+
+    if(animationProgress >= 1){
+      animationProgress = 1;
+      animating = false;
+      gelHasRun = true;
+      updateTable();
+      document.getElementById("resultBox").innerHTML = "Gel complete. Use the banding patterns to identify the father.";
+    }
+
+    drawGel();
+
+    if(animating){
+      requestAnimationFrame(animate);
+    }
+  }
+
+  animate();
+}
+
+function drawGel(){
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  ctx.fillStyle = "#111827";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  const laneWidth = canvas.width / lanes.length;
+
+  for(let i=0;i<lanes.length;i++){
+
+    const x = i * laneWidth;
+
+    ctx.fillStyle = "#1e293b";
+    ctx.fillRect(x+8,20,laneWidth-16,660);
+
+    ctx.fillStyle = "white";
+    ctx.font = "16px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(lanes[i], x + laneWidth/2, 700);
+
+    ctx.fillStyle = "#9ca3af";
+    ctx.fillRect(x+20,30,laneWidth-40,10);
+  }
+
+  drawLaneBands(mother,0,"#4fc3f7");
+  drawLaneBands(child,1,"#ffee58");
+
+  if(fathers.length === 4){
+    drawLaneBands(fathers[0],2,"#ff5252");
+    drawLaneBands(fathers[1],3,"#ff5252");
+    drawLaneBands(fathers[2],4,"#ff5252");
+    drawLaneBands(fathers[3],5,"#ff5252");
+  }
+}
+
+function drawLaneBands(bands,lane,colour){
+
+  const laneWidth = canvas.width / lanes.length;
+
+  bands.forEach(b=>{
+
+    const y = 50 + (b * animationProgress);
+
+    ctx.fillStyle = colour;
+
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = colour;
+
+    ctx.fillRect(
+      lane*laneWidth + 25,
+      y,
+      laneWidth - 50,
+      7
+    );
+
+    ctx.shadowBlur = 0;
+  });
+}
+
+function updateTable(){
+
+  const tbody = document.querySelector("#evidenceTable tbody");
+
+  tbody.innerHTML = "";
+
+  const allBands = [...new Set([
+    ...mother,
+    ...child,
+    ...fathers.flat()
+  ])].sort((a,b)=>a-b);
+
+  allBands.forEach(b=>{
+
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td>${b}</td>
+      <td>${mother.includes(b) ? "✓" : ""}</td>
+      <td>${child.includes(b) ? "✓" : ""}</td>
+      <td>${fathers[0].includes(b) ? "✓" : ""}</td>
+      <td>${fathers[1].includes(b) ? "✓" : ""}</td>
+      <td>${fathers[2].includes(b) ? "✓" : ""}</td>
+      <td>${fathers[3].includes(b) ? "✓" : ""}</td>
+    `;
+
+    tbody.appendChild(row);
+  });
+}
+
+function clearTable(){
+  document.querySelector("#evidenceTable tbody").innerHTML = "";
+}
+
+function checkAnswer(){
+
+  const resultBox = document.getElementById("resultBox");
+
+  if(!gelHasRun){
+    resultBox.innerHTML = "Run the gel before selecting the father.";
+    return;
+  }
+
+  const choice = document.getElementById("fatherChoice").value;
+
+  if(choice===""){
+    resultBox.innerHTML = "Choose Father A, B, C or D before checking your answer.";
+    return;
+  }
+
+  if(Number(choice) === correctFather){
+
+    resultBox.innerHTML = `
+      <div class="correct">
+        Correct! Father ${String.fromCharCode(65 + correctFather)} is the biological father.
+      </div>
+      <br>
+      The child’s unmatched DNA bands can all be explained by this father’s DNA profile.
+    `;
+
+  } else {
+
+    resultBox.innerHTML = `
+      <div class="incorrect">
+        Incorrect.
+      </div>
+      <br>
+      Compare the child bands that are NOT found in the mother. Those bands must come from the biological father.
+    `;
+  }
+}
+
+function downloadCSV(){
+
+  let csv = "Band,Mother,Child,Father A,Father B,Father C,Father D\n";
+
+  const allBands = [...new Set([
+    ...mother,
+    ...child,
+    ...fathers.flat()
+  ])].sort((a,b)=>a-b);
+
+  allBands.forEach(b=>{
+
+    csv += `${b},`;
+    csv += `${mother.includes(b) ? 1 : 0},`;
+    csv += `${child.includes(b) ? 1 : 0},`;
+    csv += `${fathers[0].includes(b) ? 1 : 0},`;
+    csv += `${fathers[1].includes(b) ? 1 : 0},`;
+    csv += `${fathers[2].includes(b) ? 1 : 0},`;
+    csv += `${fathers[3].includes(b) ? 1 : 0}\n`;
+
+  });
+
+  const blob = new Blob([csv], {type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "dna_profiling_results.csv";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+generateCase();
+
+</script>
+
+</body>
+</html>
