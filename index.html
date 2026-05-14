@@ -1,3 +1,9 @@
+Yes, that makes sense. You want each row to hold two sims side-by-side, with each sim keeping the same three parts:
+
+Simulation | Description | Open + Simulation | Description | Open
+
+Use this version:
+
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -18,38 +24,25 @@
       --shadow: 0 4px 14px rgba(0,0,0,0.08);
       --radius: 14px;
     }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
       font-family: Arial, sans-serif;
-      max-width: 1000px;
+      max-width: 1300px;
       margin: 40px auto;
       padding: 20px;
       background: var(--bg);
       color: var(--text);
     }
-
     h1 {
       font-size: 42px;
       margin-bottom: 5px;
     }
-
     h2 {
       margin-top: 34px;
       font-size: 28px;
     }
-
-    p {
-      line-height: 1.5;
-    }
-
+    p { line-height: 1.5; }
     .hero-image {
       width: 100%;
       max-height: 260px;
@@ -59,7 +52,6 @@
       margin: 20px 0 30px;
       box-shadow: var(--shadow);
     }
-
     .contents {
       background: var(--panel);
       border-radius: var(--radius);
@@ -67,24 +59,20 @@
       margin: 20px 0 30px;
       box-shadow: var(--shadow);
     }
-
     .contents h2 {
       margin-top: 0;
       font-size: 24px;
     }
-
     .contents-links {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
     }
-
     .section-intro {
       color: var(--muted);
       margin-top: -8px;
       margin-bottom: 14px;
     }
-
     .section-banner {
       width: 100%;
       height: 120px;
@@ -95,7 +83,6 @@
       box-shadow: var(--shadow);
       background: #dbe4f0;
     }
-
     table {
       width: 100%;
       border-collapse: collapse;
@@ -105,35 +92,29 @@
       box-shadow: var(--shadow);
       margin: 16px 0 30px;
     }
-
     th {
       background: var(--header);
       text-align: left;
       padding: 14px 16px;
       font-size: 15px;
     }
-
     td {
       padding: 16px;
       border-top: 1px solid var(--line);
       vertical-align: top;
     }
-
     .sim-name {
       font-weight: bold;
-      font-size: 18px;
-      width: 30%;
+      font-size: 17px;
+      width: 16%;
     }
-
     .sim-description {
-      width: 50%;
+      width: 24%;
     }
-
     .sim-link {
-      width: 20%;
+      width: 10%;
       text-align: right;
     }
-
     a {
       display: inline-block;
       padding: 10px 16px;
@@ -144,26 +125,11 @@
       font-weight: bold;
       white-space: nowrap;
     }
-
-    a:hover {
-      background: var(--button-hover);
-    }
-
-    .coming-soon {
-      display: inline-block;
-      padding: 10px 16px;
-      background: var(--inactive);
-      color: white;
-      border-radius: 8px;
-      font-weight: bold;
-      white-space: nowrap;
-    }
-
-    .placeholder-row td {
-      color: var(--muted);
+    a:hover { background: var(--button-hover); }
+    .empty-cell {
       background: #f8fafc;
+      color: var(--muted);
     }
-
     .footer-note {
       color: var(--muted);
       font-size: 0.95rem;
@@ -171,245 +137,215 @@
       padding-top: 16px;
       border-top: 1px solid var(--line);
     }
-
-    @media (max-width: 700px) {
+    @media (max-width: 900px) {
       body {
         margin: 20px auto;
         padding: 14px;
       }
-
-      h1 {
-        font-size: 34px;
-      }
-
+      h1 { font-size: 34px; }
       table, thead, tbody, tr, th, td {
         display: block;
       }
-
-      thead {
-        display: none;
-      }
-
+      thead { display: none; }
       tr {
         border-top: 1px solid var(--line);
         padding: 12px 0;
       }
-
       td {
         border-top: none;
         padding: 8px 16px;
       }
-
       .sim-name,
       .sim-description,
       .sim-link {
         width: auto;
         text-align: left;
       }
-
       .sim-link {
         padding-top: 12px;
+        margin-bottom: 14px;
+      }
+      .empty-cell {
+        display: none;
       }
     }
   </style>
 </head>
-
 <body>
-
-  <h1>SciSims</h1>
-  <p>A collection of classroom science simulations.</p>
-
-  <img src="mainbanner.png" alt="Science simulations banner" class="hero-image">
-
-  <nav class="contents" aria-label="SciSims contents">
-    <h2>Contents</h2>
-    <div class="contents-links">
-      <a href="#biosims">BioSims</a>
-      <a href="#chemsims">ChemSims</a>
-      <a href="#earthsims">Earth Science</a>
-      <a href="#physicssims">Physics</a>
-      <a href="#interestingsims">Interesting Sims</a>
-    </div>
-  </nav>
-
-  <section class="sim-section" id="biosims">
-    <h2>BioSims</h2>
-    <p class="section-intro">Biology simulations for modelling living systems, disease, growth and change.</p>
-
-    <img src="biosims.png" alt="BioSims biology simulations banner" class="section-banner">
-
-    <table>
-      <thead>
-        <tr>
-          <th>Simulation</th>
-          <th>Description</th>
-          <th>Open</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="sim-name">Pandemic Simulation</td>
-          <td class="sim-description">Model how an infectious disease can spread through a population.</td>
-          <td class="sim-link"><a href="BioSims/Pandemic/">Open sim</a></td>
-        </tr>
-
-        <tr>
-          <td class="sim-name">Petri Dish Bacterial Growth Simulator</td>
-          <td class="sim-description">Explore how bacteria grow in a petri dish under different conditions.</td>
-          <td class="sim-link"><a href="BioSims/PetriBacteria/">Open sim</a></td>
-        </tr>
-
-<tr>
-  <td class="sim-name">Drag-and-Drop Punnett Square</td>
-  <td class="sim-description">Build simple genetic crosses and compare predicted genotype and phenotype ratios with simulated offspring data.</td>
-  <td class="sim-link"><a href="BioSims/PunnettSq/">Open sim</a></td>
-</tr>
-
-<tr>
-  <td class="sim-name">Punnett Square Simulator</td>
-  <td class="sim-description">Practise completing Punnett squares by dragging allele tiles into the correct offspring boxes.</td>
-  <td class="sim-link"><a href="BioSims/PunnettSq2/">Open sim</a></td>
-</tr>
-
-<tr>
-  <td class="sim-name">Pedigree Simulator</td>
-  <td class="sim-description">Explore family pedigrees to identify affected individuals, carriers and likely inheritance patterns.</td>
-  <td class="sim-link"><a href="BioSims/Pedigree/">Open sim</a></td>
-</tr>
-  <tr>
-  <td class="sim-name">Evolution Timeline Table</td>
-  <td class="sim-description">Complete a table showing how life on Earth has changed in complexity and diversity over geological time.</td>
-  <td class="sim-link"><a href="BioSims/EvolutionTimeline/">Open sim</a></td>
-</tr>      
-        <tr>
-  <td class="sim-name">Peppered Moth Evolution Simulator</td>
-  <td class="sim-description">Model natural selection as the environment changes from clean to polluted, and back again.</td>
-  <td class="sim-link"><a href="BioSims/Moths/">Open sim</a></td>
-</tr>
-
-            </tr>
-
-        <tr>
-  <td class="sim-name">Evolution Timeline Table Builder</td>
-  <td class="sim-description">Complete a table showing how life on Earth has changed in complexity and diversity over geological time. This sim is also useful for Earth Science.</td>
-  <td class="sim-link"><a href="BioSims/EvolutionTimeline/">Open sim</a></td>
-</tr>
-      </tbody>
-    </table>
-  </section>
-
-  <section class="sim-section" id="chemsims">
-    <h2>ChemSims</h2>
-    <p class="section-intro">Chemistry simulations and games for atoms, elements, ions and bonding.</p>
-
-    <img src="chemsims.png" alt="ChemSims chemistry simulations banner" class="section-banner">
-
-    <table>
-      <thead>
-        <tr>
-          <th>Simulation</th>
-          <th>Description</th>
-          <th>Open</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="sim-name">Element Symbol and Name Matching Game</td>
-          <td class="sim-description">Match chemical symbols to their correct element names.</td>
-          <td class="sim-link"><a href="ChemSims/Element_Game/">Open sim</a></td>
-        </tr>
-
-        <tr>
-          <td class="sim-name">Cations and Anions Simulator</td>
-          <td class="sim-description">Model how atoms gain or lose electrons to form positive and negative ions.</td>
-          <td class="sim-link"><a href="ChemSims/CationsAnions/">Open sim</a></td>
-        </tr>
-
-        <tr>
-          <td class="sim-name">Bonding Simulator</td>
-          <td class="sim-description">Explore how atoms interact through ionic and covalent bonding.</td>
-          <td class="sim-link"><a href="ChemSims/Bonding/">Open sim</a></td>
-        </tr>
-      </tbody>
-    </table>
-  </section>
-
-  <section class="sim-section" id="earthsims">
-    <h2>Earth Science</h2>
-    <p class="section-intro">Earth and space simulations for geology, weather, climate, resources and planetary systems.</p>
-
-    <img src="earthsims.png" alt="Earth Science simulations banner" class="section-banner">
-
-    <table>
-      <thead>
-        <tr>
-          <th>Simulation</th>
-          <th>Description</th>
-          <th>Open</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-  <td class="sim-name">Greenhouse Effect Energy Balance Simulator</td>
-  <td class="sim-description">Model how incoming sunlight, reflected energy, outgoing infrared radiation and greenhouse gases affect Earth’s surface temperature.</td>
-  <td class="sim-link"><a href="EarthSims/GreenHouse/">Open sim</a></td>
-</tr>
-      </tbody>
-    </table>
-  </section>
-
-  <section class="sim-section" id="physicssims">
-    <h2>Physics</h2>
-    <p class="section-intro">Physics simulations for forces, motion, energy, waves, electricity and light.</p>
-
-    <img src="physicssims.png" alt="Physics simulations banner" class="section-banner">
-
-    <table>
-      <thead>
-       <tr>
-  <td class="sim-name">Parachute Drop Parameter Simulator</td>
-  <td class="sim-description">Change mass, drop height, parachute size, air density and gravity to investigate drag force, terminal velocity and impact speed.</td>
-  <td class="sim-link"><a href="PhySims/Parachute/">Open sim</a></td>
-</tr>
-            <tr>
-      <td class="sim-name">Spectrometer Simulator</td>
-      <td class="sim-description">Explore continuous, emission and absorption spectra by measuring wavelengths, comparing spectral lines and identifying unknown elements.</td>
-      <td class="sim-link"><a href="PhySims/Spectrometer/">Open sim</a></td>
-    </tr>
-      </thead>
-      <tbody>
-     
-      </tbody>
-    </table>
-  </section>
-
-  <section class="sim-section" id="interestingsims">
-    <h2>Interesting Sims</h2>
-    <p class="section-intro">Cross-topic, unusual or experimental simulations that do not fit neatly into one science area.</p>
-
-    <img src="interestingsims.png" alt="Interesting simulations banner" class="section-banner">
-
-    <table>
-      <thead>
-        <tr>
-          <th>Simulation</th>
-          <th>Description</th>
-          <th>Open</th>
-    
-        
-      </thead>
-      <tbody>
-  
-        <tr>
-  <td class="sim-name">Fractal Infinite Zoom Simulator</td>
-  <td class="sim-description">Explore the Mandelbrot set using guided zoom, infinite zoom, preset fractal regions, colour palettes and live coordinate data.</td>
-  <td class="sim-link"><a href="InterestingSims/Fractal/">Open sim</a></td>
-</tr>
-      </tbody>
-    </table>
-  </section>
-
-  <p class="footer-note">To add a new sim, copy one table row, update the simulation name, description and folder link, then place the new HTML file in the matching GitHub Pages folder.</p>
-
+<h1>SciSims</h1>
+<p>A collection of classroom science simulations.</p>
+<img src="mainbanner.png" alt="Science simulations banner" class="hero-image">
+<nav class="contents" aria-label="SciSims contents">
+  <h2>Contents</h2>
+  <div class="contents-links">
+    <a href="#biosims">BioSims</a>
+    <a href="#chemsims">ChemSims</a>
+    <a href="#earthsims">Earth Science</a>
+    <a href="#physicssims">Physics</a>
+    <a href="#interestingsims">Interesting Sims</a>
+  </div>
+</nav>
+<section class="sim-section" id="biosims">
+  <h2>BioSims</h2>
+  <p class="section-intro">Biology simulations for modelling living systems, disease, growth and change.</p>
+  <img src="biosims.png" alt="BioSims biology simulations banner" class="section-banner">
+  <table>
+    <thead>
+      <tr>
+        <th>Simulation</th>
+        <th>Description</th>
+        <th>Open</th>
+        <th>Simulation</th>
+        <th>Description</th>
+        <th>Open</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="sim-name">Pandemic Simulation</td>
+        <td class="sim-description">Model how an infectious disease can spread through a population.</td>
+        <td class="sim-link"><a href="BioSims/Pandemic/">Open sim</a></td>
+        <td class="sim-name">Petri Dish Bacterial Growth Simulator</td>
+        <td class="sim-description">Explore how bacteria grow in a petri dish under different conditions.</td>
+        <td class="sim-link"><a href="BioSims/PetriBacteria/">Open sim</a></td>
+      </tr>
+      <tr>
+        <td class="sim-name">Drag-and-Drop Punnett Square</td>
+        <td class="sim-description">Build simple genetic crosses and compare predicted genotype and phenotype ratios with simulated offspring data.</td>
+        <td class="sim-link"><a href="BioSims/PunnettSq/">Open sim</a></td>
+        <td class="sim-name">Punnett Square Simulator</td>
+        <td class="sim-description">Practise completing Punnett squares by dragging allele tiles into the correct offspring boxes.</td>
+        <td class="sim-link"><a href="BioSims/PunnettSq2/">Open sim</a></td>
+      </tr>
+      <tr>
+        <td class="sim-name">Pedigree Simulator</td>
+        <td class="sim-description">Explore family pedigrees to identify affected individuals, carriers and likely inheritance patterns.</td>
+        <td class="sim-link"><a href="BioSims/Pedigree/">Open sim</a></td>
+        <td class="sim-name">Evolution Timeline Table</td>
+        <td class="sim-description">Complete a table showing how life on Earth has changed in complexity and diversity over geological time.</td>
+        <td class="sim-link"><a href="BioSims/EvolutionTimeline/">Open sim</a></td>
+      </tr>
+      <tr>
+        <td class="sim-name">Peppered Moth Evolution Simulator</td>
+        <td class="sim-description">Model natural selection as the environment changes from clean to polluted, and back again.</td>
+        <td class="sim-link"><a href="BioSims/Moths/">Open sim</a></td>
+        <td class="sim-name">Measuring Abundance Simulator</td>
+        <td class="sim-description">Compare quadrat sampling and capture-mark-recapture methods for estimating population size.</td>
+        <td class="sim-link"><a href="BioSims/Abundance/">Open sim</a></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+<section class="sim-section" id="chemsims">
+  <h2>ChemSims</h2>
+  <p class="section-intro">Chemistry simulations and games for atoms, elements, ions and bonding.</p>
+  <img src="chemsims.png" alt="ChemSims chemistry simulations banner" class="section-banner">
+  <table>
+    <thead>
+      <tr>
+        <th>Simulation</th>
+        <th>Description</th>
+        <th>Open</th>
+        <th>Simulation</th>
+        <th>Description</th>
+        <th>Open</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="sim-name">Element Symbol and Name Matching Game</td>
+        <td class="sim-description">Match chemical symbols to their correct element names.</td>
+        <td class="sim-link"><a href="ChemSims/Element_Game/">Open sim</a></td>
+        <td class="sim-name">Cations and Anions Simulator</td>
+        <td class="sim-description">Model how atoms gain or lose electrons to form positive and negative ions.</td>
+        <td class="sim-link"><a href="ChemSims/CationsAnions/">Open sim</a></td>
+      </tr>
+      <tr>
+        <td class="sim-name">Bonding Simulator</td>
+        <td class="sim-description">Explore how atoms interact through ionic and covalent bonding.</td>
+        <td class="sim-link"><a href="ChemSims/Bonding/">Open sim</a></td>
+        <td class="empty-cell" colspan="3"></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+<section class="sim-section" id="earthsims">
+  <h2>Earth Science</h2>
+  <p class="section-intro">Earth and space simulations for geology, weather, climate, resources and planetary systems.</p>
+  <img src="earthsims.png" alt="Earth Science simulations banner" class="section-banner">
+  <table>
+    <thead>
+      <tr>
+        <th>Simulation</th>
+        <th>Description</th>
+        <th>Open</th>
+        <th>Simulation</th>
+        <th>Description</th>
+        <th>Open</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="sim-name">Greenhouse Effect Energy Balance Simulator</td>
+        <td class="sim-description">Model how incoming sunlight, reflected energy, outgoing infrared radiation and greenhouse gases affect Earth’s surface temperature.</td>
+        <td class="sim-link"><a href="EarthSims/GreenHouse/">Open sim</a></td>
+        <td class="empty-cell" colspan="3"></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+<section class="sim-section" id="physicssims">
+  <h2>Physics</h2>
+  <p class="section-intro">Physics simulations for forces, motion, energy, waves, electricity and light.</p>
+  <img src="physicssims.png" alt="Physics simulations banner" class="section-banner">
+  <table>
+    <thead>
+      <tr>
+        <th>Simulation</th>
+        <th>Description</th>
+        <th>Open</th>
+        <th>Simulation</th>
+        <th>Description</th>
+        <th>Open</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="sim-name">Parachute Drop Parameter Simulator</td>
+        <td class="sim-description">Change mass, drop height, parachute size, air density and gravity to investigate drag force, terminal velocity and impact speed.</td>
+        <td class="sim-link"><a href="PhySims/Parachute/">Open sim</a></td>
+        <td class="sim-name">Spectrometer Simulator</td>
+        <td class="sim-description">Explore continuous, emission and absorption spectra by measuring wavelengths, comparing spectral lines and identifying unknown elements.</td>
+        <td class="sim-link"><a href="PhySims/Spectrometer/">Open sim</a></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+<section class="sim-section" id="interestingsims">
+  <h2>Interesting Sims</h2>
+  <p class="section-intro">Cross-topic, unusual or experimental simulations that do not fit neatly into one science area.</p>
+  <img src="interestingsims.png" alt="Interesting simulations banner" class="section-banner">
+  <table>
+    <thead>
+      <tr>
+        <th>Simulation</th>
+        <th>Description</th>
+        <th>Open</th>
+        <th>Simulation</th>
+        <th>Description</th>
+        <th>Open</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="sim-name">Fractal Infinite Zoom Simulator</td>
+        <td class="sim-description">Explore the Mandelbrot set using guided zoom, infinite zoom, preset fractal regions, colour palettes and live coordinate data.</td>
+        <td class="sim-link"><a href="InterestingSims/Fractal/">Open sim</a></td>
+        <td class="empty-cell" colspan="3"></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+<p class="footer-note">To add a new sim, copy one set of three cells, update the simulation name, description and folder link, then place the new HTML file in the matching GitHub Pages folder.</p>
 </body>
 </html>
