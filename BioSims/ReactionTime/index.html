@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reaction Time Challenge</title>
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#64748b;
+      --border:#dbe3ef;
+      --blue:#2563eb;
+      --blue-dark:#1d4ed8;
+      --blue-soft:#e0ecff;
+      --green:#16a34a;
+      --green-soft:#dcfce7;
+      --yellow:#f59e0b;
+      --yellow-soft:#fef3c7;
+      --red:#dc2626;
+      --red-soft:#fee2e2;
+      --shadow:0 4px 14px rgba(0,0,0,0.08);
+    }
+
+    *{box-sizing:border-box;}
+
+    html,body{
+      margin:0;
+      min-height:100%;
+      background:var(--bg);
+      color:var(--text);
+      font-family:Arial, Helvetica, sans-serif;
+    }
+
+    body{
+      max-width:1280px;
+      margin:0 auto;
+      padding:24px;
+    }
+
+    .top-nav{margin-bottom:16px;}
+
+    .home-link{
+      display:inline-block;
+      padding:10px 14px;
+      background:#e0ecff;
+      color:#1d4ed8;
+      text-decoration:none;
+      font-weight:800;
+      border-radius:10px;
+      border:1px solid #bfdbfe;
+    }
+
+    .home-link:hover{background:#c7ddff;}
+
+    .hero{
+      background:linear-gradient(135deg,#ffffff 0%,#eef5ff 100%);
+      border:1px solid var(--border);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      padding:22px;
+      margin-bottom:18px;
+    }
+
+    h1{
+      margin:0 0 8px;
+      font-size:32px;
+      line-height:1.1;
+      color:#0f172a;
+    }
+
+    h2{
+      margin:0 0 12px;
+      font-size:20px;
+      color:#0f172a;
+    }
+
+    p{line-height:1.5;}
+
+    .sub{
+      max-width:920px;
+      color:var(--muted);
+      font-size:15px;
+      margin:0;
+    }
+
+    .app-grid{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 380px;
+      gap:18px;
+      align-items:start;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:16px;
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+
+    .main-stack,.side-stack{
+      display:grid;
+      gap:18px;
+    }
+
+    .name-entry{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+      margin-top:14px;
+    }
+
+    label{
+      font-weight:700;
+      font-size:14px;
+    }
+
+    input,button{font:inherit;}
+
+    input[type="text"],input[type="number"]{
+      width:100%;
+      padding:10px 12px;
+      border:1px solid #cbd5e1;
+      border-radius:10px;
+      background:#ffffff;
+      color:var(--text);
+    }
+
+    input:disabled{
+      background:#f1f5f9;
+      color:#64748b;
+    }
+
+    .control-row{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:6px;
+      margin-bottom:12px;
+    }
+
+    .range-row{
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      gap:8px;
+      align-items:center;
+    }
+
+    .check-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#f8fafc;
+      margin-bottom:12px;
+    }
+
+    .button-row{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    button{
+      border:1px solid transparent;
+      border-radius:10px;
+      padding:10px 13px;
+      font-weight:800;
+      cursor:pointer;
+      background:#e2e8f0;
+      color:#0f172a;
+    }
+
+    button:hover:not(:disabled){
+      transform:translateY(-1px);
+      box-shadow:0 4px 10px rgba(15,23,42,0.12);
+    }
+
+    button:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+    }
+
+    .primary{
+      background:var(--blue);
+      color:#ffffff;
+    }
+
+    .primary:hover:not(:disabled){background:var(--blue-dark);}
+
+    .danger{
+      background:var(--red-soft);
+      color:#991b1b;
+      border-color:#fecaca;
+    }
+
+    .export{
+      background:#ecfdf5;
+      color:#166534;
+      border-color:#bbf7d0;
+    }
+
+    .statusline{
+      margin-top:12px;
+      padding:12px 14px;
+      border-radius:12px;
+      background:#f8fafc;
+      border:1px solid var(--border);
+      color:#334155;
+      font-weight:700;
+    }
+
+    .tip{
+      font-size:13px;
+      color:var(--muted);
+      margin-top:10px;
+    }
+
+    .badge{
+      display:inline-block;
+      padding:2px 8px;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      color:#1d4ed8;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .lanes{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+    }
+
+    .lane{
+      position:relative;
+      min-height:220px;
+      border:2px solid var(--border);
+      border-radius:18px;
+      overflow:hidden;
+      background:linear-gradient(180deg,#f8fafc,#eef2f7);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding:54px 16px 44px;
+      transition:all .18s ease;
+    }
+
+    .lane h2{
+      position:absolute;
+      top:14px;
+      left:16px;
+      right:90px;
+      margin:0;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      font-size:18px;
+    }
+
+    .lane .state{
+      position:absolute;
+      top:14px;
+      right:14px;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#e2e8f0;
+      color:#334155;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .big{
+      font-size:58px;
+      line-height:1;
+      font-weight:900;
+      color:#0f172a;
+      font-variant-numeric:tabular-nums;
+      text-align:center;
+    }
+
+    .instruction{
+      margin-top:10px;
+      color:#475569;
+      font-weight:700;
+      text-align:center;
+    }
+
+    .meta{
+      position:absolute;
+      bottom:14px;
+      left:16px;
+      right:16px;
+      font-size:13px;
+      color:#475569;
+      text-align:center;
+    }
+
+    .inactive{
+      opacity:.58;
+      filter:grayscale(.25);
+    }
+
+    .active{
+      border-color:#60a5fa;
+      box-shadow:0 0 0 4px rgba(37,99,235,.12), var(--shadow);
+      background:linear-gradient(180deg,#ffffff,#eff6ff);
+      opacity:1;
+      filter:none;
+    }
+
+    .waiting{
+      border-color:#fbbf24;
+      background:linear-gradient(180deg,#fffdf5,#fef3c7);
+    }
+
+    .go{
+      border-color:#22c55e;
+      background:linear-gradient(180deg,#ecfdf5,#bbf7d0);
+    }
+
+    .go .big{color:#166534;}
+
+    .false-start{
+      border-color:#ef4444;
+      background:linear-gradient(180deg,#fff1f2,#fee2e2);
+    }
+
+    .false-start .big{color:#991b1b;}
+
+    .recorded{
+      border-color:#38bdf8;
+      background:linear-gradient(180deg,#ffffff,#e0f2fe);
+    }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .stat-card{
+      padding:12px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#f8fafc;
+    }
+
+    .stat-label{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.03em;
+    }
+
+    .stat-value{
+      margin-top:4px;
+      font-size:22px;
+      font-weight:900;
+      color:#0f172a;
+    }
+
+    .table-wrap{
+      max-height:360px;
+      overflow:auto;
+      border:1px solid var(--border);
+      border-radius:12px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+    }
+
+    th,td{
+      padding:9px 10px;
+      border-bottom:1px solid var(--border);
+      text-align:right;
+      vertical-align:top;
+    }
+
+    th{
+      position:sticky;
+      top:0;
+      background:#f1f5f9;
+      color:#334155;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.03em;
+      z-index:1;
+    }
+
+    th:first-child,td:first-child,th:last-child,td:last-child{text-align:left;}
+    tr:last-child td{border-bottom:none;}
+
+    .summary-list{
+      display:grid;
+      gap:8px;
+    }
+
+    .summary-item{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:10px;
+      align-items:center;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#f8fafc;
+    }
+
+    .summary-name{
+      font-weight:900;
+      color:#0f172a;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .summary-data{
+      color:#475569;
+      font-size:13px;
+      text-align:right;
+      white-space:nowrap;
+    }
+
+    .empty-row{
+      color:#94a3b8;
+      font-style:italic;
+    }
+
+    @media (max-width:1050px){
+      .app-grid{grid-template-columns:1fr;}
+      .side-stack{grid-template-columns:1fr 1fr;}
+    }
+
+    @media (max-width:760px){
+      body{padding:14px;}
+      h1{font-size:26px;}
+      .name-entry,.lanes,.stats-grid,.side-stack{grid-template-columns:1fr;}
+      .lane{min-height:190px;}
+      .big{font-size:46px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="top-nav">
+    <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+  </div>
+
+  <header class="hero">
+    <h1>Reaction Time Challenge</h1>
+    <p class="sub">A classroom reaction-time simulator for comparing repeated trials. Students respond only when their lane changes to <strong>GO!</strong>. False starts are recorded, and valid trials are used to calculate summary statistics.</p>
+    <div class="name-entry">
+      <input id="n1" type="text" placeholder="Student 1 name" autocomplete="off" />
+      <input id="n2" type="text" placeholder="Student 2 name" autocomplete="off" />
+      <input id="n3" type="text" placeholder="Student 3 name" autocomplete="off" />
+    </div>
+    <div id="status" class="statusline">Enter student names, then lock names or press Start.</div>
+    <div class="tip">Keyboard shortcuts: <span class="badge">Space</span> start/respond, <span class="badge">R</span> reset. This sim runs sequentially so only the active student can record a response.</div>
+  </header>
+
+  <main class="app-grid">
+    <section class="main-stack">
+      <div class="card">
+        <h2>Student lanes</h2>
+        <div class="lanes">
+          <div class="lane inactive" id="lane1" aria-label="Student 1 lane">
+            <h2 id="label1">Student 1</h2>
+            <div class="state" id="state1">Idle</div>
+            <div class="big" id="big1">—</div>
+            <div class="instruction" id="instruction1">Waiting</div>
+            <div class="meta" id="meta1">Mean — ms • Best — ms • Trials 0</div>
+          </div>
+          <div class="lane inactive" id="lane2" aria-label="Student 2 lane">
+            <h2 id="label2">Student 2</h2>
+            <div class="state" id="state2">Idle</div>
+            <div class="big" id="big2">—</div>
+            <div class="instruction" id="instruction2">Waiting</div>
+            <div class="meta" id="meta2">Mean — ms • Best — ms • Trials 0</div>
+          </div>
+          <div class="lane inactive" id="lane3" aria-label="Student 3 lane">
+            <h2 id="label3">Student 3</h2>
+            <div class="state" id="state3">Idle</div>
+            <div class="big" id="big3">—</div>
+            <div class="instruction" id="instruction3">Waiting</div>
+            <div class="meta" id="meta3">Mean — ms • Best — ms • Trials 0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Active student statistics</h2>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-label">Mean</div><div class="stat-value" id="activeMean">—</div></div>
+          <div class="stat-card"><div class="stat-label">Median</div><div class="stat-value" id="activeMedian">—</div></div>
+          <div class="stat-card"><div class="stat-label">Best</div><div class="stat-value" id="activeBest">—</div></div>
+          <div class="stat-card"><div class="stat-label">Range</div><div class="stat-value" id="activeRange">—</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Trial data</h2>
+        <div class="table-wrap">
+          <table id="score">
+            <thead><tr><th>Student</th><th>Trial</th><th>Reaction</th><th>Note</th></tr></thead>
+            <tbody><tr class="empty-row"><td colspan="4">No trials recorded yet.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side-stack">
+      <section class="card">
+        <h2>Controls</h2>
+        <div class="control-row">
+          <label for="trials">Trials per student</label>
+          <input id="trials" type="number" min="1" max="20" step="1" value="5" />
+        </div>
+        <div class="control-row">
+          <label>Random wait range in seconds</label>
+          <div class="range-row">
+            <input id="waitMin" type="number" min="0.2" step="0.1" value="1.0" aria-label="Minimum wait time" />
+            <span>to</span>
+            <input id="waitMax" type="number" min="0.3" step="0.1" value="3.0" aria-label="Maximum wait time" />
+          </div>
+        </div>
+        <div class="check-row">
+          <label for="readyCue">Show ready cue</label>
+          <input id="readyCue" type="checkbox" checked />
+        </div>
+        <div class="button-row">
+          <button id="lockNames">Lock names</button>
+          <button id="startAll" class="primary">Start</button>
+          <button id="nextStudent" disabled>Next student</button>
+          <button id="reset" class="danger">Reset</button>
+        </div>
+        <div class="button-row">
+          <button id="exportCsv" class="export">Export trials CSV</button>
+          <button id="exportSummary" class="export">Export summary CSV</button>
+        </div>
+        <p class="tip">For fair testing, keep the same number of trials and the same wait range for each student.</p>
+      </section>
+
+      <section class="card">
+        <h2>Summary</h2>
+        <div class="summary-list" id="summaryList"></div>
+      </section>
+    </aside>
+  </main>
+
+<script>
+  'use strict';
+
+  const $ = id => document.getElementById(id);
+  const LF = String.fromCharCode(10);
+  const CR = String.fromCharCode(13);
+
+  const lanes = [
+    {id:1, el:$('lane1'), label:$('label1'), state:$('state1'), big:$('big1'), instruction:$('instruction1'), meta:$('meta1'), name:'Student 1', trials:[], falseStarts:0, waiting:false, goAt:0, raf:null},
+    {id:2, el:$('lane2'), label:$('label2'), state:$('state2'), big:$('big2'), instruction:$('instruction2'), meta:$('meta2'), name:'Student 2', trials:[], falseStarts:0, waiting:false, goAt:0, raf:null},
+    {id:3, el:$('lane3'), label:$('label3'), state:$('state3'), big:$('big3'), instruction:$('instruction3'), meta:$('meta3'), name:'Student 3', trials:[], falseStarts:0, waiting:false, goAt:0, raf:null}
+  ];
+
+  const scoreBody = $('score').querySelector('tbody');
+  const statusEl = $('status');
+
+  let current = 0;
+  let trialIndex = 0;
+  let running = false;
+  let namesLocked = false;
+  let scoreHasRows = false;
+
+  function roundMs(value){ return Math.round(value); }
+
+  function mean(values){
+    if(!values.length) return null;
+    return values.reduce((a,b)=>a+b,0) / values.length;
+  }
+
+  function median(values){
+    if(!values.length) return null;
+    const sorted = [...values].sort((a,b)=>a-b);
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+  }
+
+  function range(values){
+    if(values.length < 2) return null;
+    return Math.max(...values) - Math.min(...values);
+  }
+
+  function best(values){
+    if(!values.length) return null;
+    return Math.min(...values);
+  }
+
+  function formatMs(value){
+    return value === null || Number.isNaN(value) ? '—' : `${roundMs(value)} ms`;
+  }
+
+  function setActive(idx){
+    lanes.forEach((lane,i)=>{
+      lane.el.classList.toggle('active', i === idx);
+      lane.el.classList.toggle('inactive', i !== idx);
+      if(i !== idx && !lane.el.classList.contains('recorded')){
+        lane.instruction.textContent = 'Waiting';
+      }
+    });
+  }
+
+  function clearLaneState(lane){
+    lane.el.classList.remove('waiting','go','false-start','recorded');
+  }
+
+  function lockNames(){
+    lanes[0].name = $('n1').value.trim() || 'Student 1';
+    lanes[1].name = $('n2').value.trim() || 'Student 2';
+    lanes[2].name = $('n3').value.trim() || 'Student 3';
+
+    lanes.forEach(lane => lane.label.textContent = lane.name);
+    $('n1').disabled = true;
+    $('n2').disabled = true;
+    $('n3').disabled = true;
+    namesLocked = true;
+    setActive(current);
+    updateAllDisplays();
+    statusEl.textContent = `Ready: ${lanes[current].name}. Press Start for trial 1/${getTotalTrials()}.`;
+  }
+
+  function getTotalTrials(){
+    const parsed = Number($('trials').value) || 5;
+    const clamped = Math.max(1, Math.min(20, parsed));
+    $('trials').value = clamped;
+    return clamped;
+  }
+
+  function getWaitRange(){
+    let min = Math.max(0.2, Number($('waitMin').value) || 1) * 1000;
+    let max = Math.max(0.3, Number($('waitMax').value) || 3) * 1000;
+    if(max < min){
+      const oldMin = min;
+      min = max;
+      max = oldMin;
+      $('waitMin').value = (min / 1000).toFixed(1);
+      $('waitMax').value = (max / 1000).toFixed(1);
+    }
+    return {min,max};
+  }
+
+  function randomBetween(min,max){ return Math.random() * (max - min) + min; }
+
+  function updateLaneMeta(lane){
+    lane.meta.textContent = `Mean ${formatMs(mean(lane.trials))} • Best ${formatMs(best(lane.trials))} • Trials ${lane.trials.length}`;
+  }
+
+  function updateActiveStats(){
+    const lane = lanes[current] || lanes[0];
+    $('activeMean').textContent = formatMs(mean(lane.trials));
+    $('activeMedian').textContent = formatMs(median(lane.trials));
+    $('activeBest').textContent = formatMs(best(lane.trials));
+    $('activeRange').textContent = formatMs(range(lane.trials));
+  }
+
+  function updateSummary(){
+    const list = $('summaryList');
+    list.innerHTML = '';
+
+    const ranked = [...lanes].sort((a,b)=>{
+      const am = mean(a.trials);
+      const bm = mean(b.trials);
+      if(am === null && bm === null) return a.id - b.id;
+      if(am === null) return 1;
+      if(bm === null) return -1;
+      return am - bm;
+    });
+
+    ranked.forEach((lane,index)=>{
+      const item = document.createElement('div');
+      item.className = 'summary-item';
+
+      const name = document.createElement('div');
+      name.className = 'summary-name';
+      name.textContent = `${index + 1}. ${lane.name}`;
+
+      const data = document.createElement('div');
+      data.className = 'summary-data';
+      data.textContent = `${formatMs(mean(lane.trials))} mean • ${formatMs(best(lane.trials))} best • ${lane.falseStarts} false`;
+
+      item.append(name,data);
+      list.appendChild(item);
+    });
+  }
+
+  function updateAllDisplays(){
+    lanes.forEach(updateLaneMeta);
+    updateActiveStats();
+    updateSummary();
+  }
+
+  function ensureScoreTableReady(){
+    if(!scoreHasRows){
+      scoreBody.innerHTML = '';
+      scoreHasRows = true;
+    }
+  }
+
+  function addScoreRow(name, trial, value, note=''){
+    ensureScoreTableReady();
+    const tr = document.createElement('tr');
+    const cells = [name, trial, value === null ? '—' : formatMs(value), note];
+    cells.forEach(content=>{
+      const td = document.createElement('td');
+      td.textContent = content;
+      tr.appendChild(td);
+    });
+    scoreBody.appendChild(tr);
+  }
+
+  function reset(){
+    running = false;
+    trialIndex = 0;
+    current = 0;
+    scoreHasRows = false;
+    scoreBody.innerHTML = '<tr class="empty-row"><td colspan="4">No trials recorded yet.</td></tr>';
+    $('nextStudent').disabled = true;
+    $('n1').disabled = false;
+    $('n2').disabled = false;
+    $('n3').disabled = false;
+    namesLocked = false;
+
+    lanes.forEach(lane=>{
+      lane.trials = [];
+      lane.falseStarts = 0;
+      lane.waiting = false;
+      lane.goAt = 0;
+      if(lane.raf) cancelAnimationFrame(lane.raf);
+      lane.raf = null;
+      clearLaneState(lane);
+      lane.big.textContent = '—';
+      lane.state.textContent = 'Idle';
+      lane.instruction.textContent = 'Waiting';
+    });
+
+    setActive(-1);
+    updateAllDisplays();
+    statusEl.textContent = 'Enter student names, then lock names or press Start.';
+  }
+
+  function startTrial(){
+    if(running) return;
+    if(!namesLocked) lockNames();
+
+    const totalTrials = getTotalTrials();
+    if(trialIndex >= totalTrials) return;
+
+    const lane = lanes[current];
+    const {min,max} = getWaitRange();
+    const delay = randomBetween(min,max);
+
+    running = true;
+    lane.waiting = true;
+    lane.goAt = performance.now() + delay;
+    clearLaneState(lane);
+    lane.el.classList.add('waiting');
+    lane.big.textContent = $('readyCue').checked ? 'Ready…' : '—';
+    lane.state.textContent = 'Wait';
+    lane.instruction.textContent = 'Do not press yet';
+    $('nextStudent').disabled = true;
+    statusEl.textContent = `${lane.name}: trial ${trialIndex + 1}/${totalTrials}. Wait for GO!`;
+
+    if(lane.raf) cancelAnimationFrame(lane.raf);
+    lane.raf = requestAnimationFrame(tick);
+  }
+
+  function tick(now){
+    if(!running) return;
+    const lane = lanes[current];
+    if(lane.waiting && now >= lane.goAt){
+      lane.waiting = false;
+      clearLaneState(lane);
+      lane.el.classList.add('go');
+      lane.state.textContent = 'GO!';
+      lane.big.textContent = 'GO!';
+      lane.instruction.textContent = 'Press Space now';
+    }
+    lane.raf = requestAnimationFrame(tick);
+  }
+
+  function respond(){
+    if(!running) return;
+    const lane = lanes[current];
+    const totalTrials = getTotalTrials();
+
+    if(lane.waiting){
+      running = false;
+      lane.waiting = false;
+      lane.falseStarts += 1;
+      clearLaneState(lane);
+      lane.el.classList.add('false-start');
+      lane.state.textContent = 'False start';
+      lane.big.textContent = 'Too soon';
+      lane.instruction.textContent = 'Retry this trial';
+      addScoreRow(lane.name, trialIndex + 1, null, 'False start');
+      updateAllDisplays();
+      statusEl.textContent = `${lane.name}: false start. Press Start to retry trial ${trialIndex + 1}/${totalTrials}.`;
+      return;
+    }
+
+    const reactionTime = performance.now() - lane.goAt;
+    lane.trials.push(reactionTime);
+    running = false;
+    clearLaneState(lane);
+    lane.el.classList.add('recorded');
+    lane.state.textContent = 'Recorded';
+    lane.big.textContent = formatMs(reactionTime);
+    lane.instruction.textContent = 'Result saved';
+    addScoreRow(lane.name, trialIndex + 1, reactionTime, '');
+
+    trialIndex += 1;
+    updateAllDisplays();
+
+    if(trialIndex >= totalTrials){
+      $('nextStudent').disabled = false;
+      statusEl.textContent = `${lane.name} has finished. Click Next student to continue.`;
+    }else{
+      statusEl.textContent = `${lane.name}: press Start for trial ${trialIndex + 1}/${totalTrials}.`;
+    }
+  }
+
+  function nextStudent(){
+    const totalTrials = getTotalTrials();
+    if(trialIndex < totalTrials) return;
+
+    current += 1;
+    if(current > lanes.length - 1){
+      running = false;
+      setActive(-1);
+      $('nextStudent').disabled = true;
+      updateActiveStats();
+      statusEl.textContent = 'All students have finished. Export the CSV files or reset for a new round.';
+      return;
+    }
+
+    trialIndex = 0;
+    setActive(current);
+    updateAllDisplays();
+    $('nextStudent').disabled = true;
+    statusEl.textContent = `Now ${lanes[current].name}: press Start for trial 1/${totalTrials}.`;
+  }
+
+  function csvEscape(value){
+    const text = String(value ?? '');
+    const hasComma = text.includes(',');
+    const hasQuote = text.includes('"');
+    const hasLineBreak = text.includes(LF) || text.includes(CR);
+
+    if(hasComma || hasQuote || hasLineBreak){
+      return '"' + text.replaceAll('"','""') + '"';
+    }
+
+    return text;
+  }
+
+  function buildCsv(rows){
+    return rows.map(row => row.map(csvEscape).join(',')).join(LF);
+  }
+
+  function exportTrials(){
+    const rows = [['student','trial','reaction_ms','note']];
+    Array.from(scoreBody.querySelectorAll('tr')).forEach(tr=>{
+      if(tr.classList.contains('empty-row')) return;
+      const cells = Array.from(tr.children).map(td=>td.textContent.replace(' ms',''));
+      rows.push(cells);
+    });
+    downloadCsv(buildCsv(rows), 'reaction_trials');
+  }
+
+  function exportSummary(){
+    const rows = [['student','mean_ms','median_ms','best_ms','range_ms','valid_trials','false_starts']];
+    lanes.forEach(lane=>{
+      rows.push([
+        lane.name,
+        mean(lane.trials) === null ? '' : roundMs(mean(lane.trials)),
+        median(lane.trials) === null ? '' : roundMs(median(lane.trials)),
+        best(lane.trials) === null ? '' : roundMs(best(lane.trials)),
+        range(lane.trials) === null ? '' : roundMs(range(lane.trials)),
+        lane.trials.length,
+        lane.falseStarts
+      ]);
+    });
+    downloadCsv(buildCsv(rows), 'reaction_summary');
+  }
+
+  function downloadCsv(csv, base){
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const d = new Date();
+    const dd = String(d.getDate()).padStart(2,'0');
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const yyyy = d.getFullYear();
+    a.href = url;
+    a.download = `${base}_${dd}-${mm}-${yyyy}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function runSelfTests(){
+    const tests = [
+      {name:'plain text is unchanged', actual:csvEscape('Alice'), expected:'Alice'},
+      {name:'comma is quoted', actual:csvEscape('Alice, Bob'), expected:'"Alice, Bob"'},
+      {name:'quote is doubled and quoted', actual:csvEscape('Alice "A"'), expected:'"Alice ""A"""'},
+      {name:'line feed is quoted', actual:csvEscape('Line 1' + LF + 'Line 2'), expected:'"Line 1' + LF + 'Line 2"'},
+      {name:'carriage return is quoted', actual:csvEscape('Line 1' + CR + 'Line 2'), expected:'"Line 1' + CR + 'Line 2"'},
+      {name:'CSV rows join with LF', actual:buildCsv([['a','b'],['c','d']]), expected:'a,b' + LF + 'c,d'}
+    ];
+
+    tests.forEach(test=>{
+      if(test.actual !== test.expected){
+        console.error('Self-test failed:', test.name, {actual:test.actual, expected:test.expected});
+      }
+    });
+  }
+
+  $('lockNames').addEventListener('click', lockNames);
+  $('startAll').addEventListener('click', startTrial);
+  $('nextStudent').addEventListener('click', nextStudent);
+  $('reset').addEventListener('click', reset);
+  $('exportCsv').addEventListener('click', exportTrials);
+  $('exportSummary').addEventListener('click', exportSummary);
+
+  $('n3').addEventListener('keydown', e=>{
+    if(e.key === 'Enter') lockNames();
+  });
+
+  window.addEventListener('keydown', e=>{
+    if(e.code === 'Space'){
+      e.preventDefault();
+      if(running) respond();
+      else startTrial();
+    }
+    if(e.key.toLowerCase() === 'r'){
+      reset();
+    }
+  });
+
+  lanes.forEach((lane,index)=>{
+    lane.el.addEventListener('click',()=>{
+      if(index !== current) return;
+      if(running) respond();
+      else startTrial();
+    });
+  });
+
+  runSelfTests();
+  reset();
+</script>
+</body>
+</html>
