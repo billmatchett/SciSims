@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ohm's Law: Ohmic and Non-Ohmic Components</title>
+  <style>
+    :root {
+      --bg: #f2f6ff;
+      --panel: #ffffff;
+      --ink: #162033;
+      --muted: #5d6b82;
+      --line: #d8e2f2;
+      --blue: #2563eb;
+      --blue-dark: #1e40af;
+      --green: #16a34a;
+      --orange: #ea580c;
+      --red: #dc2626;
+      --purple: #7c3aed;
+      --yellow: #facc15;
+      --shadow: 0 16px 42px rgba(18, 32, 61, 0.12);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 34rem),
+        radial-gradient(circle at top right, rgba(124, 58, 237, 0.12), transparent 34rem),
+        var(--bg);
+      color: var(--ink);
+    }
+
+    .page {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 22px;
+    }
+
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: #ffffff;
+      color: var(--blue-dark);
+      border: 1px solid var(--line);
+      text-decoration: none;
+      font-weight: 800;
+      box-shadow: 0 8px 22px rgba(18, 32, 61, 0.08);
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a 52%, #581c87);
+      color: white;
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -110px;
+      bottom: -160px;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.10);
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(32px, 5vw, 60px);
+      line-height: 1;
+      letter-spacing: -1px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 980px;
+      color: rgba(255,255,255,0.88);
+      font-size: 18px;
+      line-height: 1.5;
+      position: relative;
+      z-index: 1;
+    }
+
+    .grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: minmax(320px, 0.85fr) minmax(580px, 1.45fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .card h2, .card h3 { margin: 0 0 12px; }
+
+    .intro-box {
+      display: grid;
+      gap: 10px;
+      color: var(--muted);
+      line-height: 1.45;
+      margin-bottom: 16px;
+    }
+
+    .formula {
+      display: grid;
+      place-items: center;
+      background: #eef6ff;
+      border: 1px solid #c8dbff;
+      color: var(--blue-dark);
+      border-radius: 18px;
+      padding: 18px;
+      font-size: 34px;
+      font-weight: 900;
+      margin-bottom: 16px;
+    }
+
+    .control-block {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      background: #fbfdff;
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    select, input[type="number"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 11px 12px;
+      font: inherit;
+      background: white;
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--blue);
+    }
+
+    .slider-row {
+      display: grid;
+      grid-template-columns: 1fr 88px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .readout-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin: 12px 0 4px;
+    }
+
+    .readout {
+      border-radius: 16px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      padding: 12px;
+      text-align: center;
+    }
+
+    .readout strong {
+      display: block;
+      font-size: 26px;
+      color: var(--blue-dark);
+      margin-bottom: 3px;
+    }
+
+    .readout span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    button {
+      font: inherit;
+      border: 0;
+      border-radius: 14px;
+      padding: 11px 12px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 18px rgba(18, 32, 61, 0.12);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .primary { background: var(--blue); color: white; }
+    .secondary { background: #edf4ff; color: var(--blue-dark); border: 1px solid #c9dcff; }
+    .success { background: var(--green); color: white; }
+    .warning { background: #fff4e8; color: #9a3412; border: 1px solid #fed7aa; }
+    .danger { background: #fff1f1; color: #991b1b; border: 1px solid #fecaca; }
+    .purple { background: #f3e8ff; color: #6b21a8; border: 1px solid #ddd6fe; }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      padding: 10px 13px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--muted);
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: var(--blue);
+      color: white;
+      border-color: var(--blue);
+    }
+
+    .visual-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    canvas {
+      width: 100%;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: white;
+      display: block;
+    }
+
+    #circuitCanvas { height: 330px; }
+    #graphCanvas { height: 330px; }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .data-card { min-height: 310px; }
+
+    .table-wrap {
+      max-height: 252px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: white;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: right;
+    }
+
+    th:first-child, td:first-child { text-align: left; }
+    th {
+      position: sticky;
+      top: 0;
+      background: #eef4ff;
+      z-index: 1;
+    }
+
+    .feedback { min-height: 310px; }
+
+    .feedback-box {
+      border-radius: 16px;
+      padding: 13px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      line-height: 1.45;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .feedback-box strong { color: var(--ink); }
+
+    .challenge-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+      margin-top: -6px;
+      margin-bottom: 8px;
+    }
+
+    .mode-note {
+      border-radius: 14px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      padding: 10px;
+      color: var(--muted);
+      line-height: 1.35;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    .concepts {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .concept {
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 8px 18px rgba(18, 32, 61, 0.07);
+      line-height: 1.4;
+    }
+
+    .concept strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--blue-dark);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 20px;
+      transform: translateX(-50%) translateY(120px);
+      padding: 12px 16px;
+      border-radius: 999px;
+      background: #111827;
+      color: white;
+      font-weight: 800;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s ease;
+      z-index: 10;
+      max-width: min(92vw, 720px);
+      text-align: center;
+    }
+
+    .toast.visible { transform: translateX(-50%) translateY(0); }
+
+    .footer-note {
+      margin: 18px 2px 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 1050px) {
+      .grid,
+      .visual-grid,
+      .analysis-grid,
+      .concepts { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 680px) {
+      .page { padding: 14px; }
+      .hero, .card { padding: 18px; }
+      .readout-grid,
+      .button-grid,
+      .challenge-row { grid-template-columns: 1fr; }
+      #circuitCanvas, #graphCanvas { height: 280px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+
+    <header class="hero">
+      <h1>Ohm's Law Simulator</h1>
+      <p>Investigate how voltage and current are related in ohmic and non-ohmic components. Collect data, build an I-V graph and decide whether the resistance stays constant.</p>
+    </header>
+
+    <main class="grid">
+      <section class="card">
+        <h2>Experiment controls</h2>
+        <div class="intro-box">
+          <div>Change the voltage, observe the current, then record readings. Compare the shape of the I-V graph for each component.</div>
+        </div>
+
+        <div class="formula">V = IR</div>
+
+        <div class="control-block">
+          <label for="componentSelect">Component or challenge</label>
+          <select id="componentSelect">
+            <option value="ohmic">Ohmic resistor</option>
+            <option value="lamp">Filament lamp</option>
+            <option value="diode">Diode</option>
+            <option value="thermistor">Thermistor</option>
+            <option value="led">LED</option>
+            <option value="unknownEasy">Unknown 1: easy</option>
+            <option value="unknownMedium">Unknown 2: medium</option>
+            <option value="unknownHard">Unknown 3: hard</option>
+            <option value="unknownAdvanced">Unknown 4: advanced</option>
+            <option value="unknownExpert">Unknown 5: expert</option>
+          </select>
+          <div class="mode-note" id="modeNote">Known component. Use this first to learn the graph shapes.</div>
+        </div>
+
+        <div class="control-block">
+          <label for="voltageRange">Supply voltage</label>
+          <div class="slider-row">
+            <input id="voltageRange" type="range" min="-6" max="6" step="0.1" value="0" />
+            <input id="voltageNumber" type="number" min="-6" max="6" step="0.1" value="0" />
+          </div>
+          <div class="mini">Negative voltage means the supply polarity has been reversed.</div>
+        </div>
+
+        <div class="control-block">
+          <label for="noiseToggle">Measurement style</label>
+          <select id="noiseToggle">
+            <option value="clean">Ideal readings</option>
+            <option value="noise">Realistic meter uncertainty</option>
+          </select>
+        </div>
+
+        <div class="readout-grid">
+          <div class="readout">
+            <strong id="voltageReadout">0.00 V</strong>
+            <span>Voltage across component</span>
+          </div>
+          <div class="readout">
+            <strong id="currentReadout">0.000 A</strong>
+            <span>Current through component</span>
+          </div>
+          <div class="readout">
+            <strong id="resistanceReadout">-- Ω</strong>
+            <span>Calculated resistance</span>
+          </div>
+          <div class="readout">
+            <strong id="powerReadout">0.00 W</strong>
+            <span>Power transferred</span>
+          </div>
+        </div>
+
+        <div class="button-grid">
+          <button class="primary" id="recordBtn">Record reading</button>
+          <button class="secondary" id="autoBtn">Auto collect data</button>
+          <button class="warning" id="clearBtn">Clear data</button>
+          <button class="purple" id="analyseBtn">Analyse graph</button>
+          <button class="secondary" id="modelBtn">Hide model curve</button>
+          <button class="purple" id="revealBtn">Reveal component</button>
+          <button class="secondary" id="downloadBtn">Download CSV</button>
+          <button class="danger" id="resetBtn">Reset sim</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="tabs" aria-label="View controls">
+          <button class="tab active" id="tabBoth">Circuit and graph</button>
+          <button class="tab" id="tabCircuit">Circuit only</button>
+          <button class="tab" id="tabGraph">Graph only</button>
+        </div>
+
+        <div class="visual-grid" id="visualGrid">
+          <div id="circuitPanel">
+            <h2>Circuit model</h2>
+            <canvas id="circuitCanvas" width="620" height="360"></canvas>
+          </div>
+          <div id="graphPanel">
+            <h2>I-V graph</h2>
+            <canvas id="graphCanvas" width="620" height="360"></canvas>
+          </div>
+        </div>
+
+        <div class="analysis-grid">
+          <div class="card data-card" style="box-shadow:none; margin:0;">
+            <h3>Recorded results</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>V (V)</th>
+                    <th>I (A)</th>
+                    <th>R (Ω)</th>
+                    <th>P (W)</th>
+                  </tr>
+                </thead>
+                <tbody id="dataBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card feedback" style="box-shadow:none; margin:0;">
+            <h3>Graph interpretation</h3>
+            <div class="feedback-box" id="interpretationBox">Record at least five readings, then press <strong>Analyse graph</strong>.</div>
+            <div class="feedback-box" id="classificationBox">Classify the current component after you collect enough data.</div>
+            <div class="challenge-row">
+              <button class="success" id="ohmicBtn">This is ohmic</button>
+              <button class="warning" id="nonOhmicBtn">This is non-ohmic</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <section class="concepts">
+      <div class="concept"><strong>Independent variable</strong>The voltage is changed deliberately using the power supply.</div>
+      <div class="concept"><strong>Dependent variable</strong>The current is measured to see how the component responds.</div>
+      <div class="concept"><strong>Ohmic component</strong>An ohmic component has a straight-line I-V graph through the origin because resistance is constant.</div>
+      <div class="concept"><strong>Non-ohmic component</strong>A non-ohmic component has a curved or threshold-shaped I-V graph because resistance changes with conditions such as temperature or direction.</div>
+    </section>
+
+    <p class="footer-note">Teacher note: students can collect negative and positive voltage readings to compare symmetrical ohmic behaviour with the curved response of a filament lamp, the one-way behaviour of a diode, and more difficult unknown components.</p>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const componentSelect = document.getElementById('componentSelect');
+    const voltageRange = document.getElementById('voltageRange');
+    const voltageNumber = document.getElementById('voltageNumber');
+    const noiseToggle = document.getElementById('noiseToggle');
+    const voltageReadout = document.getElementById('voltageReadout');
+    const currentReadout = document.getElementById('currentReadout');
+    const resistanceReadout = document.getElementById('resistanceReadout');
+    const powerReadout = document.getElementById('powerReadout');
+    const dataBody = document.getElementById('dataBody');
+    const interpretationBox = document.getElementById('interpretationBox');
+    const classificationBox = document.getElementById('classificationBox');
+    const modeNote = document.getElementById('modeNote');
+    const modelBtn = document.getElementById('modelBtn');
+    const revealBtn = document.getElementById('revealBtn');
+    const toast = document.getElementById('toast');
+
+    const circuitCanvas = document.getElementById('circuitCanvas');
+    const circuitCtx = circuitCanvas.getContext('2d');
+    const graphCanvas = document.getElementById('graphCanvas');
+    const graphCtx = graphCanvas.getContext('2d');
+
+    const visualGrid = document.getElementById('visualGrid');
+    const circuitPanel = document.getElementById('circuitPanel');
+    const graphPanel = document.getElementById('graphPanel');
+    const tabBoth = document.getElementById('tabBoth');
+    const tabCircuit = document.getElementById('tabCircuit');
+    const tabGraph = document.getElementById('tabGraph');
+
+    const components = {
+      ohmic: {
+        label: 'Ohmic resistor',
+        classification: 'ohmic',
+        symbol: 'resistor',
+        interpretation: 'The graph should be close to a straight line through the origin. The calculated resistance stays roughly constant, so current is directly proportional to voltage.'
+      },
+      lamp: {
+        label: 'Filament lamp',
+        classification: 'non-ohmic',
+        symbol: 'lamp',
+        interpretation: 'The graph is curved. As voltage increases, the filament heats up and its resistance changes, so current is not directly proportional to voltage.'
+      },
+      diode: {
+        label: 'Diode',
+        classification: 'non-ohmic',
+        symbol: 'diode',
+        interpretation: 'The graph shows very little reverse current and a much larger forward current after a threshold voltage. This is not a straight-line relationship.'
+      },
+      thermistor: {
+        label: 'Thermistor',
+        classification: 'non-ohmic',
+        symbol: 'thermistor',
+        interpretation: 'The graph is curved because the resistance changes as the component warms. In this model the current increases more rapidly at higher voltages.'
+      },
+      led: {
+        label: 'LED',
+        classification: 'non-ohmic',
+        symbol: 'led',
+        interpretation: 'The graph shows a threshold before current rises strongly in the forward direction. This threshold behaviour is non-ohmic.'
+      }
+    };
+
+    const challengeModes = {
+      unknownEasy: {
+        title: 'Unknown 1: easy',
+        pool: ['ohmic', 'lamp', 'diode'],
+        showSymbol: true,
+        initialModel: true,
+        unlockModelOnAnalyse: true,
+        genericFeedback: false,
+        note: 'Easy unknown. The model curve and circuit symbol are visible, so students can focus on connecting graph shape to classification.'
+      },
+      unknownMedium: {
+        title: 'Unknown 2: medium',
+        pool: ['ohmic', 'lamp', 'diode'],
+        showSymbol: false,
+        initialModel: true,
+        unlockModelOnAnalyse: true,
+        genericFeedback: true,
+        note: 'Medium unknown. The circuit symbol is hidden, but the model curve is visible.'
+      },
+      unknownHard: {
+        title: 'Unknown 3: hard',
+        pool: ['ohmic', 'lamp', 'diode'],
+        showSymbol: false,
+        initialModel: false,
+        unlockModelOnAnalyse: true,
+        genericFeedback: true,
+        note: 'Hard unknown. The circuit symbol and model curve are hidden until students collect enough data and analyse the graph.'
+      },
+      unknownAdvanced: {
+        title: 'Unknown 4: advanced',
+        pool: ['ohmic', 'lamp', 'diode', 'thermistor'],
+        showSymbol: false,
+        initialModel: false,
+        unlockModelOnAnalyse: true,
+        genericFeedback: true,
+        note: 'Advanced unknown. A thermistor may also appear. Use several voltage values before classifying.'
+      },
+      unknownExpert: {
+        title: 'Unknown 5: expert',
+        pool: ['ohmic', 'lamp', 'diode', 'thermistor', 'led'],
+        showSymbol: false,
+        initialModel: false,
+        unlockModelOnAnalyse: false,
+        genericFeedback: true,
+        note: 'Expert unknown. More component types are possible and the model curve stays hidden until the component is revealed.'
+      }
+    };
+
+    const state = {
+      readings: [],
+      unknownType: pickUnknown('unknownEasy'),
+      showModelCurve: true,
+      modelUnlocked: true,
+      revealed: false,
+      lastMeasured: { voltage: 0, current: 0, resistance: null, power: 0 }
+    };
+
+    function isUnknownMode(value = componentSelect.value) {
+      return Object.prototype.hasOwnProperty.call(challengeModes, value);
+    }
+
+    function pickUnknown(mode) {
+      const pool = challengeModes[mode]?.pool || ['ohmic', 'lamp', 'diode'];
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    function actualComponent() {
+      return isUnknownMode() ? state.unknownType : componentSelect.value;
+    }
+
+    function selectedMode() {
+      return challengeModes[componentSelect.value] || null;
+    }
+
+    function componentName() {
+      const mode = selectedMode();
+      const actual = actualComponent();
+      if (!mode) return components[actual].label;
+      if (state.revealed) return `${mode.title}: ${components[actual].label}`;
+      return mode.title;
+    }
+
+    function shouldShowCircuitSymbol() {
+      const mode = selectedMode();
+      if (!mode) return true;
+      return mode.showSymbol || state.revealed;
+    }
+
+    function shouldDrawModelCurve() {
+      if (!state.showModelCurve) return false;
+      const mode = selectedMode();
+      if (!mode) return true;
+      if (mode.initialModel) return true;
+      if (mode.unlockModelOnAnalyse && state.modelUnlocked) return true;
+      if (state.revealed) return true;
+      return false;
+    }
+
+    function updateModeDefaults(newUnknown = false) {
+      const mode = selectedMode();
+      state.readings = [];
+      state.revealed = false;
+      if (mode) {
+        if (newUnknown) state.unknownType = pickUnknown(componentSelect.value);
+        state.showModelCurve = mode.initialModel;
+        state.modelUnlocked = mode.initialModel;
+        modeNote.textContent = mode.note;
+      } else {
+        state.showModelCurve = true;
+        state.modelUnlocked = true;
+        modeNote.textContent = 'Known component. Use this first to learn the graph shapes.';
+      }
+      updateModelButton();
+      updateRevealButton();
+      updateTable();
+      interpretationBox.innerHTML = 'Record at least five readings, then press <strong>Analyse graph</strong>.';
+      classificationBox.textContent = 'Classify the current component after you collect enough data.';
+    }
+
+    function updateModelButton() {
+      const mode = selectedMode();
+      const available = !mode || mode.initialModel || state.modelUnlocked || state.revealed;
+      modelBtn.disabled = !available;
+      modelBtn.textContent = state.showModelCurve ? 'Hide model curve' : 'Show model curve';
+      if (!available) modelBtn.textContent = 'Model curve locked';
+    }
+
+    function updateRevealButton() {
+      revealBtn.disabled = !isUnknownMode();
+      revealBtn.textContent = state.revealed ? 'Component revealed' : 'Reveal component';
+    }
+
+    function idealCurrent(voltage, type = actualComponent()) {
+      if (type === 'ohmic') {
+        const resistance = 12;
+        return voltage / resistance;
+      }
+
+      if (type === 'lamp') {
+        const baseResistance = 6.5;
+        const heatResistance = 2.3 * Math.pow(Math.abs(voltage), 1.18);
+        const resistance = baseResistance + heatResistance;
+        return voltage / resistance;
+      }
+
+      if (type === 'diode') {
+        if (voltage < 0.55) {
+          if (voltage < 0) return -0.002 * Math.min(Math.abs(voltage), 6);
+          return 0.002 * voltage;
+        }
+        const current = 0.035 * Math.pow(voltage - 0.5, 1.65);
+        return Math.min(current, 1.15);
+      }
+
+      if (type === 'thermistor') {
+        const resistance = 18 / (1 + 0.22 * Math.pow(Math.abs(voltage), 1.35)) + 2.5;
+        return voltage / resistance;
+      }
+
+      if (type === 'led') {
+        if (voltage < 1.75) {
+          if (voltage < 0) return -0.001 * Math.min(Math.abs(voltage), 6);
+          return 0.0015 * voltage;
+        }
+        const current = 0.18 * Math.pow(voltage - 1.75, 1.55);
+        return Math.min(current, 1.15);
+      }
+
+      return 0;
+    }
+
+    function measuredCurrent(voltage) {
+      let current = idealCurrent(voltage);
+      if (noiseToggle.value === 'noise') {
+        const jitter = (Math.random() - 0.5) * 0.012;
+        const scaleJitter = 1 + (Math.random() - 0.5) * 0.035;
+        current = current * scaleJitter + jitter;
+      }
+      return current;
+    }
+
+    function calculateReading() {
+      const voltage = Number(voltageRange.value);
+      const current = measuredCurrent(voltage);
+      const resistance = Math.abs(current) < 0.005 || Math.abs(voltage) < 0.005 ? null : Math.abs(voltage / current);
+      const power = Math.abs(voltage * current);
+      state.lastMeasured = { voltage, current, resistance, power };
+      updateReadouts();
+      drawCircuit();
+      drawGraph();
+    }
+
+    function updateReadouts() {
+      const r = state.lastMeasured;
+      voltageReadout.textContent = `${r.voltage.toFixed(2)} V`;
+      currentReadout.textContent = `${r.current.toFixed(3)} A`;
+      resistanceReadout.textContent = r.resistance === null ? '-- Ω' : `${r.resistance.toFixed(1)} Ω`;
+      powerReadout.textContent = `${r.power.toFixed(2)} W`;
+    }
+
+    function recordReading() {
+      const v = Number(voltageRange.value);
+      const i = measuredCurrent(v);
+      const resistance = Math.abs(i) < 0.005 || Math.abs(v) < 0.005 ? null : Math.abs(v / i);
+      const power = Math.abs(v * i);
+      state.readings.push({ voltage: v, current: i, resistance, power, component: componentName() });
+      state.lastMeasured = { voltage: v, current: i, resistance, power };
+      updateTable();
+      updateReadouts();
+      drawCircuit();
+      drawGraph();
+      showToast('Reading recorded.');
+    }
+
+    function autoCollect() {
+      state.readings = [];
+      const values = [-6, -4.5, -3, -1.5, 0, 1.5, 3, 4.5, 6];
+      values.forEach(v => {
+        const i = measuredCurrent(v);
+        const resistance = Math.abs(i) < 0.005 || Math.abs(v) < 0.005 ? null : Math.abs(v / i);
+        const power = Math.abs(v * i);
+        state.readings.push({ voltage: v, current: i, resistance, power, component: componentName() });
+      });
+      voltageRange.value = '6';
+      voltageNumber.value = '6';
+      calculateReading();
+      updateTable();
+      analyseGraph();
+      showToast('Data collected across the full voltage range.');
+    }
+
+    function updateTable() {
+      if (!state.readings.length) {
+        dataBody.innerHTML = '<tr><td colspan="5" style="text-align:left;color:#5d6b82;">No readings recorded yet.</td></tr>';
+        return;
+      }
+      dataBody.innerHTML = state.readings.map((r, index) => `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${r.voltage.toFixed(2)}</td>
+          <td>${r.current.toFixed(3)}</td>
+          <td>${r.resistance === null ? '--' : r.resistance.toFixed(1)}</td>
+          <td>${r.power.toFixed(2)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function clearData() {
+      state.readings = [];
+      updateTable();
+      if (selectedMode() && !selectedMode().initialModel) {
+        state.modelUnlocked = false;
+      }
+      interpretationBox.innerHTML = 'Record at least five readings, then press <strong>Analyse graph</strong>.';
+      classificationBox.textContent = 'Classify the current component after you collect enough data.';
+      updateModelButton();
+      drawGraph();
+      showToast('Data cleared.');
+    }
+
+    function analyseGraph() {
+      if (state.readings.length < 5) {
+        interpretationBox.innerHTML = 'Collect at least <strong>five readings</strong> before analysing the graph.';
+        showToast('Collect at least five readings first.');
+        return;
+      }
+
+      const mode = selectedMode();
+      if (mode && mode.unlockModelOnAnalyse) {
+        state.modelUnlocked = true;
+        if (!state.showModelCurve) state.showModelCurve = true;
+        updateModelButton();
+      }
+
+      const type = actualComponent();
+      const comp = components[type];
+      const resistances = state.readings
+        .filter(r => r.resistance !== null && Math.abs(r.voltage) > 0.5)
+        .map(r => r.resistance);
+
+      const meanR = resistances.length ? resistances.reduce((a, b) => a + b, 0) / resistances.length : 0;
+      const rangeR = resistances.length ? Math.max(...resistances) - Math.min(...resistances) : 0;
+
+      if (mode && mode.genericFeedback && !state.revealed) {
+        if (comp.classification === 'ohmic') {
+          interpretationBox.innerHTML = `The plotted points are close to a <strong>straight line through the origin</strong>. The resistance values are roughly constant, with an average of about <strong>${meanR.toFixed(1)} Ω</strong>.`;
+          classificationBox.innerHTML = '<strong>Evidence:</strong> this pattern supports an ohmic classification.';
+        } else {
+          interpretationBox.innerHTML = `The plotted points do <strong>not</strong> form a straight line through the origin. The resistance changes across the data set, with a range of about <strong>${rangeR.toFixed(1)} Ω</strong>.`;
+          classificationBox.innerHTML = '<strong>Evidence:</strong> this pattern supports a non-ohmic classification.';
+        }
+      } else {
+        interpretationBox.innerHTML = `${comp.interpretation} ${comp.classification === 'ohmic' ? `The average resistance is about <strong>${meanR.toFixed(1)} Ω</strong>.` : `The resistance range in this data set is about <strong>${rangeR.toFixed(1)} Ω</strong>.`}`;
+        classificationBox.innerHTML = `<strong>Classification:</strong> ${comp.classification} component.`;
+      }
+
+      drawGraph();
+    }
+
+    function classify(choice) {
+      if (state.readings.length < 5) {
+        classificationBox.innerHTML = 'Collect at least <strong>five readings</strong> before classifying the component.';
+        showToast('Collect at least five readings before classifying.');
+        return;
+      }
+
+      const type = actualComponent();
+      const correctClass = components[type].classification;
+      const correct = choice === correctClass;
+      analyseGraph();
+
+      if (correct) {
+        classificationBox.innerHTML = `<strong>Correct:</strong> this component is ${correctClass}. Use the shape of the I-V graph as your evidence.`;
+        showToast('Correct classification. Use the graph shape as evidence.');
+      } else {
+        classificationBox.innerHTML = `<strong>Not quite:</strong> check whether the graph is a straight line through the origin and whether resistance stays constant.`;
+        showToast('Not quite. Check the graph shape and resistance values.');
+      }
+    }
+
+    function revealComponent() {
+      if (!isUnknownMode()) {
+        showToast('This component is already named.');
+        return;
+      }
+      state.revealed = true;
+      state.modelUnlocked = true;
+      state.showModelCurve = true;
+      const actual = components[actualComponent()];
+      classificationBox.innerHTML = `<strong>Revealed:</strong> ${actual.label}. This is a <strong>${actual.classification}</strong> component.`;
+      interpretationBox.innerHTML = actual.interpretation;
+      updateModelButton();
+      updateRevealButton();
+      updateTable();
+      drawCircuit();
+      drawGraph();
+      showToast(`Revealed: ${actual.label}.`);
+    }
+
+    function resetSim() {
+      const mode = selectedMode();
+      state.readings = [];
+      if (mode) state.unknownType = pickUnknown(componentSelect.value);
+      state.revealed = false;
+      state.showModelCurve = mode ? mode.initialModel : true;
+      state.modelUnlocked = mode ? mode.initialModel : true;
+      voltageRange.value = '0';
+      voltageNumber.value = '0';
+      noiseToggle.value = 'clean';
+      interpretationBox.innerHTML = 'Record at least five readings, then press <strong>Analyse graph</strong>.';
+      classificationBox.textContent = mode ? 'A new unknown has been loaded. Collect data before classifying it.' : 'Classify the current component after you collect enough data.';
+      updateTable();
+      updateModelButton();
+      updateRevealButton();
+      calculateReading();
+      showToast(mode ? 'Sim reset. A new unknown component has been loaded.' : 'Sim reset.');
+    }
+
+    function downloadCSV() {
+      if (!state.readings.length) {
+        showToast('No data to download yet.');
+        return;
+      }
+      const rows = [['Component', 'Voltage (V)', 'Current (A)', 'Resistance (ohms)', 'Power (W)', 'Actual component if revealed']];
+      state.readings.forEach(r => {
+        rows.push([
+          r.component,
+          r.voltage.toFixed(2),
+          r.current.toFixed(4),
+          r.resistance === null ? '' : r.resistance.toFixed(2),
+          r.power.toFixed(4),
+          state.revealed || !isUnknownMode() ? components[actualComponent()].label : ''
+        ]);
+      });
+      const csv = rows.map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'ohms_law_iv_data.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast('CSV downloaded.');
+    }
+
+    function setView(view) {
+      [tabBoth, tabCircuit, tabGraph].forEach(tab => tab.classList.remove('active'));
+      if (view === 'both') {
+        tabBoth.classList.add('active');
+        circuitPanel.style.display = 'block';
+        graphPanel.style.display = 'block';
+        visualGrid.style.gridTemplateColumns = '1fr 1fr';
+      } else if (view === 'circuit') {
+        tabCircuit.classList.add('active');
+        circuitPanel.style.display = 'block';
+        graphPanel.style.display = 'none';
+        visualGrid.style.gridTemplateColumns = '1fr';
+      } else {
+        tabGraph.classList.add('active');
+        circuitPanel.style.display = 'none';
+        graphPanel.style.display = 'block';
+        visualGrid.style.gridTemplateColumns = '1fr';
+      }
+      drawCircuit();
+      drawGraph();
+    }
+
+    function clearCanvas(ctx, canvas) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function drawCircuit() {
+      const ctx = circuitCtx;
+      const canvas = circuitCanvas;
+      clearCanvas(ctx, canvas);
+
+      const v = state.lastMeasured.voltage;
+      const i = state.lastMeasured.current;
+      const type = actualComponent();
+      const intensity = Math.min(1, Math.abs(i) / 0.75);
+
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      ctx.strokeStyle = '#c9d7ec';
+      ctx.lineWidth = 18;
+      roundedRect(ctx, 55, 60, 510, 230, 36, false, true);
+
+      ctx.strokeStyle = '#1e3a8a';
+      ctx.lineWidth = 5;
+      roundedRect(ctx, 55, 60, 510, 230, 36, false, true);
+
+      drawBattery(ctx, 70, 160, v);
+      drawAmmeter(ctx, 300, 60, i);
+      drawVoltmeter(ctx, 300, 290, v);
+
+      if (shouldShowCircuitSymbol()) {
+        drawComponent(ctx, 300, 160, type, intensity);
+      } else {
+        drawMysteryComponent(ctx, 300, 160);
+      }
+
+      drawWire(ctx, 120, 175, 220, 175);
+      drawWire(ctx, 380, 175, 495, 175);
+
+      ctx.fillStyle = '#162033';
+      ctx.font = 'bold 17px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(componentName(), 310, 35);
+
+      const direction = i >= 0 ? 1 : -1;
+      drawCurrentDots(ctx, direction, intensity);
+
+      ctx.fillStyle = '#5d6b82';
+      ctx.font = '13px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('Moving markers show conventional current direction, not individual electrons.', 310, 335);
+    }
+
+    function roundedRect(ctx, x, y, w, h, r, fill, stroke) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      if (fill) ctx.fill();
+      if (stroke) ctx.stroke();
+    }
+
+    function drawWire(ctx, x1, y1, x2, y2) {
+      ctx.strokeStyle = '#1e3a8a';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+    }
+
+    function drawBattery(ctx, x, y, v) {
+      ctx.strokeStyle = '#1e3a8a';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(x, y - 48);
+      ctx.lineTo(x, y + 48);
+      ctx.moveTo(x + 28, y - 72);
+      ctx.lineTo(x + 28, y + 72);
+      ctx.stroke();
+
+      const longPlateLabel = v >= 0 ? '+' : '−';
+      const shortPlateLabel = v >= 0 ? '−' : '+';
+      ctx.fillStyle = '#162033';
+      ctx.font = 'bold 14px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${v.toFixed(1)} V`, x + 14, y + 100);
+      ctx.fillText(longPlateLabel, x + 28, y - 86);
+      ctx.fillText(shortPlateLabel, x, y - 64);
+      if (v < 0) {
+        ctx.fillStyle = '#9a3412';
+        ctx.font = 'bold 11px Arial';
+        ctx.fillText('polarity reversed', x + 20, y + 118);
+      }
+    }
+
+    function drawAmmeter(ctx, x, y, i) {
+      ctx.fillStyle = '#eef6ff';
+      ctx.strokeStyle = '#2563eb';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(x, y, 38, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#1e40af';
+      ctx.font = 'bold 22px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('A', x, y + 8);
+      ctx.font = 'bold 12px Arial';
+      ctx.fillText(`${i.toFixed(3)} A`, x, y + 58);
+    }
+
+    function drawVoltmeter(ctx, x, y, v) {
+      ctx.fillStyle = '#f3e8ff';
+      ctx.strokeStyle = '#7c3aed';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(x, y, 38, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#6b21a8';
+      ctx.font = 'bold 22px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('V', x, y + 8);
+      ctx.font = 'bold 12px Arial';
+      ctx.fillText(`${v.toFixed(2)} V`, x, y - 50);
+
+      ctx.strokeStyle = '#7c3aed';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(x - 34, y - 20);
+      ctx.lineTo(x - 80, y - 92);
+      ctx.moveTo(x + 34, y - 20);
+      ctx.lineTo(x + 80, y - 92);
+      ctx.stroke();
+    }
+
+    function drawMysteryComponent(ctx, x, y) {
+      ctx.fillStyle = '#f8fbff';
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 5;
+      roundedRect(ctx, x - 76, y - 50, 152, 100, 16, true, true);
+      ctx.fillStyle = '#1f2937';
+      ctx.font = 'bold 46px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('?', x, y + 16);
+      ctx.font = 'bold 13px Arial';
+      ctx.fillText('mystery component', x, y + 75);
+    }
+
+    function drawComponent(ctx, x, y, type, intensity) {
+      if (type === 'ohmic') {
+        ctx.strokeStyle = '#ea580c';
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(x - 80, y);
+        for (let n = 0; n < 8; n++) {
+          const px = x - 70 + n * 20;
+          ctx.lineTo(px + 10, y - 22);
+          ctx.lineTo(px + 20, y + 22);
+        }
+        ctx.lineTo(x + 90, y);
+        ctx.stroke();
+        ctx.fillStyle = '#9a3412';
+        ctx.font = 'bold 13px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('resistor', x, y + 56);
+      } else if (type === 'lamp') {
+        const glow = Math.floor(40 + intensity * 170);
+        ctx.fillStyle = `rgba(250, 204, 21, ${0.15 + intensity * 0.55})`;
+        ctx.beginPath();
+        ctx.arc(x, y, 58 + intensity * 22, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fffbea';
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.arc(x, y, 55, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.strokeStyle = `rgb(${glow + 40}, ${Math.max(90, glow)}, 20)`;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(x - 30, y + 5);
+        ctx.quadraticCurveTo(x - 12, y - 28, x, y + 5);
+        ctx.quadraticCurveTo(x + 12, y + 38, x + 30, y + 5);
+        ctx.stroke();
+        ctx.fillStyle = '#9a3412';
+        ctx.font = 'bold 13px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('filament lamp', x, y + 78);
+      } else if (type === 'diode' || type === 'led') {
+        ctx.strokeStyle = type === 'led' ? '#7c3aed' : '#16a34a';
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(x - 82, y);
+        ctx.lineTo(x - 30, y);
+        ctx.moveTo(x + 30, y);
+        ctx.lineTo(x + 82, y);
+        ctx.stroke();
+        ctx.fillStyle = type === 'led' ? '#f3e8ff' : '#dcfce7';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(x - 30, y - 40);
+        ctx.lineTo(x - 30, y + 40);
+        ctx.lineTo(x + 30, y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x + 34, y - 42);
+        ctx.lineTo(x + 34, y + 42);
+        ctx.stroke();
+        if (type === 'led') {
+          ctx.beginPath();
+          ctx.moveTo(x + 45, y - 45);
+          ctx.lineTo(x + 68, y - 68);
+          ctx.moveTo(x + 56, y - 25);
+          ctx.lineTo(x + 78, y - 47);
+          ctx.stroke();
+        }
+        ctx.fillStyle = type === 'led' ? '#6b21a8' : '#166534';
+        ctx.font = 'bold 13px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(type === 'led' ? 'LED' : 'diode', x, y + 70);
+      } else if (type === 'thermistor') {
+        ctx.strokeStyle = '#0f766e';
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(x - 86, y);
+        for (let n = 0; n < 7; n++) {
+          const px = x - 72 + n * 20;
+          ctx.lineTo(px + 10, y - 20);
+          ctx.lineTo(px + 20, y + 20);
+        }
+        ctx.lineTo(x + 82, y);
+        ctx.stroke();
+        ctx.strokeStyle = '#0f766e';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(x - 65, y + 48);
+        ctx.lineTo(x + 65, y - 48);
+        ctx.stroke();
+        ctx.fillStyle = '#115e59';
+        ctx.font = 'bold 13px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('thermistor', x, y + 70);
+      }
+    }
+
+    function drawCurrentDots(ctx, direction, intensity) {
+      if (intensity < 0.04) return;
+      const count = Math.max(3, Math.round(5 + intensity * 12));
+      ctx.fillStyle = '#38bdf8';
+      for (let n = 0; n < count; n++) {
+        const t = (n / count + (Date.now() % 1800) / 1800 * direction + 1) % 1;
+        let x, y;
+        if (t < 0.25) {
+          x = 90 + t / 0.25 * 430;
+          y = 60;
+        } else if (t < 0.5) {
+          x = 520;
+          y = 60 + (t - 0.25) / 0.25 * 230;
+        } else if (t < 0.75) {
+          x = 520 - (t - 0.5) / 0.25 * 430;
+          y = 290;
+        } else {
+          x = 90;
+          y = 290 - (t - 0.75) / 0.25 * 230;
+        }
+        ctx.beginPath();
+        ctx.arc(x, y, 3 + intensity * 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function drawGraph() {
+      const ctx = graphCtx;
+      const canvas = graphCanvas;
+      clearCanvas(ctx, canvas);
+
+      const margin = { left: 62, right: 24, top: 22, bottom: 52 };
+      const plotW = canvas.width - margin.left - margin.right;
+      const plotH = canvas.height - margin.top - margin.bottom;
+      const maxV = 6;
+      const maxI = 1.2;
+
+      function xScale(v) { return margin.left + ((v + maxV) / (2 * maxV)) * plotW; }
+      function yScale(i) { return margin.top + ((maxI - i) / (2 * maxI)) * plotH; }
+
+      ctx.strokeStyle = '#e5e7eb';
+      ctx.lineWidth = 1;
+      ctx.font = '12px Arial';
+      ctx.fillStyle = '#5d6b82';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      for (let v = -6; v <= 6; v += 1.5) {
+        const x = xScale(v);
+        ctx.beginPath();
+        ctx.moveTo(x, margin.top);
+        ctx.lineTo(x, margin.top + plotH);
+        ctx.stroke();
+        ctx.fillText(v.toString(), x, margin.top + plotH + 18);
+      }
+
+      for (let i = -1.2; i <= 1.201; i += 0.3) {
+        const y = yScale(i);
+        ctx.beginPath();
+        ctx.moveTo(margin.left, y);
+        ctx.lineTo(margin.left + plotW, y);
+        ctx.stroke();
+        ctx.textAlign = 'right';
+        ctx.fillText(i.toFixed(1), margin.left - 8, y);
+      }
+
+      ctx.strokeStyle = '#162033';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(margin.left, yScale(0));
+      ctx.lineTo(margin.left + plotW, yScale(0));
+      ctx.moveTo(xScale(0), margin.top);
+      ctx.lineTo(xScale(0), margin.top + plotH);
+      ctx.stroke();
+
+      ctx.fillStyle = '#162033';
+      ctx.font = 'bold 14px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('Voltage (V)', margin.left + plotW / 2, canvas.height - 15);
+      ctx.save();
+      ctx.translate(18, margin.top + plotH / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText('Current (A)', 0, 0);
+      ctx.restore();
+
+      if (shouldDrawModelCurve()) {
+        drawIdealCurve(ctx, xScale, yScale, actualComponent());
+      } else {
+        ctx.fillStyle = '#64748b';
+        ctx.font = 'bold 13px Arial';
+        ctx.textAlign = 'left';
+        ctx.fillText('model curve hidden', xScale(-5.7), yScale(1.05));
+      }
+
+      state.readings.forEach(r => {
+        ctx.fillStyle = '#dc2626';
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(xScale(r.voltage), yScale(r.current), 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      });
+
+      const current = state.lastMeasured;
+      ctx.fillStyle = '#2563eb';
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(xScale(current.voltage), yScale(current.current), 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    function drawIdealCurve(ctx, xScale, yScale, type) {
+      const colour = {
+        ohmic: '#2563eb',
+        lamp: '#ea580c',
+        diode: '#16a34a',
+        thermistor: '#0f766e',
+        led: '#7c3aed'
+      }[type] || '#2563eb';
+
+      ctx.strokeStyle = colour;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      for (let step = 0; step <= 240; step++) {
+        const v = -6 + (12 * step / 240);
+        const i = idealCurrent(v, type);
+        const x = xScale(v);
+        const y = yScale(i);
+        if (step === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      ctx.fillStyle = '#5d6b82';
+      ctx.font = '12px Arial';
+      ctx.textAlign = 'left';
+      ctx.fillText('model curve', xScale(-5.7), yScale(1.05));
+    }
+
+    function syncVoltageFromRange() {
+      voltageNumber.value = voltageRange.value;
+      calculateReading();
+    }
+
+    function syncVoltageFromNumber() {
+      let value = Number(voltageNumber.value);
+      if (Number.isNaN(value)) value = 0;
+      value = Math.min(6, Math.max(-6, value));
+      voltageNumber.value = value.toFixed(1);
+      voltageRange.value = value;
+      calculateReading();
+    }
+
+    let toastTimer = null;
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('visible');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('visible'), 2200);
+    }
+
+    function animate() {
+      drawCircuit();
+      requestAnimationFrame(animate);
+    }
+
+    voltageRange.addEventListener('input', syncVoltageFromRange);
+    voltageNumber.addEventListener('change', syncVoltageFromNumber);
+    componentSelect.addEventListener('change', () => {
+      updateModeDefaults(true);
+      calculateReading();
+    });
+    noiseToggle.addEventListener('change', calculateReading);
+    document.getElementById('recordBtn').addEventListener('click', recordReading);
+    document.getElementById('autoBtn').addEventListener('click', autoCollect);
+    document.getElementById('clearBtn').addEventListener('click', clearData);
+    document.getElementById('analyseBtn').addEventListener('click', analyseGraph);
+    document.getElementById('downloadBtn').addEventListener('click', downloadCSV);
+    document.getElementById('resetBtn').addEventListener('click', resetSim);
+    document.getElementById('ohmicBtn').addEventListener('click', () => classify('ohmic'));
+    document.getElementById('nonOhmicBtn').addEventListener('click', () => classify('non-ohmic'));
+    modelBtn.addEventListener('click', () => {
+      if (modelBtn.disabled) return;
+      state.showModelCurve = !state.showModelCurve;
+      updateModelButton();
+      drawGraph();
+    });
+    revealBtn.addEventListener('click', revealComponent);
+    tabBoth.addEventListener('click', () => setView('both'));
+    tabCircuit.addEventListener('click', () => setView('circuit'));
+    tabGraph.addEventListener('click', () => setView('graph'));
+
+    updateModeDefaults(false);
+    updateTable();
+    calculateReading();
+    animate();
+  </script>
+</body>
+</html>
