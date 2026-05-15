@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Experimental Variables Drag and Drop Sim</title>
+  <style>
+    :root {
+      --bg: #eef5ff;
+      --panel: #ffffff;
+      --ink: #172033;
+      --muted: #5b667a;
+      --line: #d6e0ee;
+      --blue: #2563eb;
+      --blue-dark: #1e40af;
+      --green: #16a34a;
+      --red: #dc2626;
+      --orange: #ea580c;
+      --purple: #7c3aed;
+      --shadow: 0 16px 40px rgba(18, 32, 61, 0.12);
+      --radius: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 34rem),
+        radial-gradient(circle at top right, rgba(22, 163, 74, 0.12), transparent 30rem),
+        var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 22px;
+    }
+
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: #ffffff;
+      color: var(--blue-dark);
+      border: 1px solid var(--line);
+      text-decoration: none;
+      font-weight: 800;
+      box-shadow: 0 8px 22px rgba(18, 32, 61, 0.08);
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #10213f, #1e3a8a 52%, #166534);
+      color: white;
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -120px -150px auto;
+      width: 380px;
+      height: 380px;
+      background: rgba(255, 255, 255, 0.10);
+      border-radius: 50%;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px 0;
+      font-size: clamp(32px, 5vw, 58px);
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+
+    .hero p {
+      max-width: 900px;
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.88);
+    }
+
+    .top-grid {
+      display: grid;
+      grid-template-columns: minmax(280px, 1.25fr) minmax(280px, 0.75fr);
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .scenario-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .scenario-title h2,
+    .card h2,
+    .card h3 {
+      margin: 0;
+    }
+
+    .scenario-title h2 {
+      font-size: 24px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #e0ecff;
+      color: #1e3a8a;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .prompt {
+      font-size: 20px;
+      line-height: 1.45;
+      padding: 18px;
+      border-radius: 18px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      margin: 12px 0 16px;
+    }
+
+    .focus-line {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .focus-box {
+      border: 1px solid var(--line);
+      background: #fbfdff;
+      border-radius: 16px;
+      padding: 12px;
+      min-height: 92px;
+    }
+
+    .focus-box strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #1e3a8a;
+    }
+
+    .focus-box span {
+      color: var(--muted);
+      line-height: 1.35;
+      font-size: 14px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    button,
+    select {
+      font: inherit;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 11px 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 18px rgba(18, 32, 61, 0.12);
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #edf4ff;
+      color: #1e3a8a;
+      border: 1px solid #c9dcff;
+    }
+
+    .btn-success {
+      background: var(--green);
+      color: white;
+    }
+
+    .btn-warning {
+      background: #fff4e8;
+      color: #9a3412;
+      border: 1px solid #fed7aa;
+    }
+
+    .btn-danger {
+      background: #fff1f1;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .select-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    select {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .score-panel {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .score-box {
+      padding: 14px;
+      border-radius: 18px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      text-align: center;
+    }
+
+    .score-box .num {
+      font-size: 30px;
+      font-weight: 900;
+      color: var(--blue-dark);
+    }
+
+    .score-box .label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      margin-top: 3px;
+    }
+
+    .teacher-note {
+      display: none;
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: #fefce8;
+      border: 1px solid #fde68a;
+      line-height: 1.45;
+    }
+
+    .teacher-note.visible {
+      display: block;
+    }
+
+    .teacher-note ul {
+      margin: 8px 0 0 20px;
+      padding: 0;
+    }
+
+    .workspace {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .bank {
+      position: sticky;
+      top: 12px;
+    }
+
+    .bank h2,
+    .drop-section h2 {
+      margin: 0 0 12px 0;
+      font-size: 22px;
+    }
+
+    .help-text {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.4;
+      margin: -4px 0 12px;
+    }
+
+    .variable-bank,
+    .drop-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .variable-bank {
+      min-height: 180px;
+    }
+
+    .variable-card {
+      border: 1px solid #cfd9e8;
+      background: white;
+      border-radius: 16px;
+      padding: 13px;
+      cursor: grab;
+      user-select: none;
+      box-shadow: 0 8px 14px rgba(18, 32, 61, 0.07);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      touch-action: manipulation;
+    }
+
+    .variable-card:active {
+      cursor: grabbing;
+    }
+
+    .variable-card.selected {
+      outline: 4px solid rgba(37, 99, 235, 0.26);
+      border-color: var(--blue);
+    }
+
+    .variable-card.correct {
+      border-color: rgba(22, 163, 74, 0.65);
+      background: #f0fdf4;
+    }
+
+    .variable-card.incorrect {
+      border-color: rgba(220, 38, 38, 0.65);
+      background: #fff1f2;
+    }
+
+    .pill {
+      flex: 0 0 auto;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 900;
+      color: white;
+      background: var(--blue);
+    }
+
+    .variable-card .text {
+      line-height: 1.3;
+      font-weight: 800;
+    }
+
+    .drop-grid {
+      grid-template-columns: repeat(2, minmax(260px, 1fr));
+    }
+
+    .drop-zone {
+      min-height: 230px;
+      border: 2px dashed #b8c7da;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.72);
+      padding: 14px;
+      transition: border 0.12s ease, background 0.12s ease, transform 0.12s ease;
+    }
+
+    .drop-zone.over {
+      border-color: var(--blue);
+      background: #eff6ff;
+      transform: scale(1.01);
+    }
+
+    .zone-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .zone-head h3 {
+      font-size: 18px;
+      margin: 0;
+    }
+
+    .zone-head small {
+      color: var(--muted);
+      line-height: 1.35;
+      display: block;
+      margin-top: 4px;
+    }
+
+    .zone-tag {
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .tag-iv { background: #dbeafe; color: #1e40af; }
+    .tag-dv { background: #dcfce7; color: #166534; }
+    .tag-control { background: #f3e8ff; color: #6b21a8; }
+    .tag-not { background: #ffedd5; color: #9a3412; }
+
+    .drop-content {
+      display: grid;
+      gap: 10px;
+      min-height: 150px;
+    }
+
+    .feedback {
+      margin-top: 18px;
+      display: none;
+      border-radius: 20px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: white;
+      box-shadow: var(--shadow);
+    }
+
+    .feedback.visible {
+      display: block;
+    }
+
+    .feedback h2 {
+      margin: 0 0 8px;
+    }
+
+    .feedback.good {
+      border-color: rgba(22, 163, 74, 0.5);
+      background: #f0fdf4;
+    }
+
+    .feedback.okay {
+      border-color: rgba(234, 88, 12, 0.5);
+      background: #fff7ed;
+    }
+
+    .feedback.needs-work {
+      border-color: rgba(220, 38, 38, 0.5);
+      background: #fff1f2;
+    }
+
+    .feedback-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .feedback-line {
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(0, 0, 0, 0.07);
+      line-height: 1.35;
+    }
+
+    .reasoning {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 110px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      font: inherit;
+      resize: vertical;
+      background: #fbfdff;
+    }
+
+    label {
+      font-weight: 900;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .mini {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.35;
+      margin-bottom: 7px;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 20px;
+      transform: translateX(-50%) translateY(120px);
+      padding: 12px 16px;
+      border-radius: 999px;
+      background: #111827;
+      color: white;
+      font-weight: 800;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s ease;
+      z-index: 10;
+      max-width: min(92vw, 720px);
+      text-align: center;
+    }
+
+    .toast.visible {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 13px;
+      margin: 18px 2px 0;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 980px) {
+      .top-grid,
+      .workspace,
+      .reasoning {
+        grid-template-columns: 1fr;
+      }
+
+      .bank {
+        position: static;
+      }
+
+      .focus-line,
+      .score-panel {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .page {
+        padding: 14px;
+      }
+
+      .hero,
+      .card {
+        padding: 18px;
+      }
+
+      .controls,
+      .drop-grid,
+      .select-row {
+        grid-template-columns: 1fr;
+        display: grid;
+      }
+
+      .drop-zone {
+        min-height: 190px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+
+    <header class="hero">
+      <h1>Experimental Variables Sorter</h1>
+      <p>Read the investigation idea, then sort each card into the correct part of a fair test: independent variable, dependent variable, controlled variables or not relevant. Tap a card then tap a box, or drag and drop.</p>
+    </header>
+
+    <section class="top-grid">
+      <div class="card">
+        <div class="scenario-title">
+          <h2 id="scenarioName">Investigation</h2>
+          <span class="badge" id="scenarioBadge">Fair testing</span>
+        </div>
+        <div class="prompt" id="scenarioPrompt"></div>
+
+        <div class="focus-line">
+          <div class="focus-box">
+            <strong>Independent variable</strong>
+            <span>The one thing deliberately changed by the scientist.</span>
+          </div>
+          <div class="focus-box">
+            <strong>Dependent variable</strong>
+            <span>The thing measured or observed to collect results.</span>
+          </div>
+          <div class="focus-box">
+            <strong>Controlled variables</strong>
+            <span>The things kept the same to make the test fair.</span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="card">
+        <h2>Controls</h2>
+        <div class="select-row">
+          <select id="scenarioSelect" aria-label="Choose an investigation"></select>
+        </div>
+        <div class="controls">
+          <button class="btn btn-primary" id="newBtn">New random idea</button>
+          <button class="btn btn-secondary" id="resetBtn">Reset cards</button>
+          <button class="btn btn-success" id="checkBtn">Check answers</button>
+          <button class="btn btn-warning" id="teacherBtn">Teacher notes</button>
+          <button class="btn btn-secondary" id="downloadBtn">Download CSV</button>
+          <button class="btn btn-danger" id="clearHistoryBtn">Clear history</button>
+        </div>
+        <div class="score-panel">
+          <div class="score-box">
+            <div class="num" id="scoreNum">0</div>
+            <div class="label">Current score</div>
+          </div>
+          <div class="score-box">
+            <div class="num" id="bestNum">0</div>
+            <div class="label">Best score</div>
+          </div>
+          <div class="score-box">
+            <div class="num" id="attemptNum">0</div>
+            <div class="label">Attempts</div>
+          </div>
+        </div>
+        <div class="teacher-note" id="teacherNote"></div>
+      </aside>
+    </section>
+
+    <main class="workspace">
+      <section class="card bank">
+        <h2>Variable cards</h2>
+        <p class="help-text">Move every card into the best box. Some cards are distractors and belong in <strong>Not relevant</strong>.</p>
+        <div class="variable-bank drop-zone" id="bankZone" data-zone="bank" aria-label="Variable card bank">
+          <div class="drop-content" id="bankCards"></div>
+        </div>
+      </section>
+
+      <section class="drop-section">
+        <div class="drop-grid">
+          <div class="drop-zone" data-zone="iv" aria-label="Independent variable drop zone">
+            <div class="zone-head">
+              <div>
+                <h3>Independent variable</h3>
+                <small>What is changed on purpose?</small>
+              </div>
+              <span class="zone-tag tag-iv">IV</span>
+            </div>
+            <div class="drop-content" id="ivCards"></div>
+          </div>
+
+          <div class="drop-zone" data-zone="dv" aria-label="Dependent variable drop zone">
+            <div class="zone-head">
+              <div>
+                <h3>Dependent variable</h3>
+                <small>What is measured as the result?</small>
+              </div>
+              <span class="zone-tag tag-dv">DV</span>
+            </div>
+            <div class="drop-content" id="dvCards"></div>
+          </div>
+
+          <div class="drop-zone" data-zone="control" aria-label="Controlled variables drop zone">
+            <div class="zone-head">
+              <div>
+                <h3>Controlled variables</h3>
+                <small>What should be kept the same?</small>
+              </div>
+              <span class="zone-tag tag-control">CONTROL</span>
+            </div>
+            <div class="drop-content" id="controlCards"></div>
+          </div>
+
+          <div class="drop-zone" data-zone="not" aria-label="Not relevant drop zone">
+            <div class="zone-head">
+              <div>
+                <h3>Not relevant</h3>
+                <small>Interesting, but not part of this fair test.</small>
+              </div>
+              <span class="zone-tag tag-not">DISTRACTOR</span>
+            </div>
+            <div class="drop-content" id="notCards"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <section class="feedback" id="feedbackBox">
+      <h2 id="feedbackTitle">Feedback</h2>
+      <div id="feedbackSummary"></div>
+      <div class="feedback-list" id="feedbackList"></div>
+    </section>
+
+    <section class="card reasoning">
+      <div>
+        <label for="hypothesisBox">Write a hypothesis</label>
+        <div class="mini">Use the structure: If the independent variable changes, then the dependent variable will change because...</div>
+        <textarea id="hypothesisBox" placeholder="If..., then..., because..."></textarea>
+      </div>
+      <div>
+        <label for="methodBox">Explain how you would keep it fair</label>
+        <div class="mini">Mention at least two controlled variables and why they matter.</div>
+        <textarea id="methodBox" placeholder="This investigation would be made fair by..."></textarea>
+      </div>
+    </section>
+
+    <p class="footer-note">Teacher tip: this sim works well as a quick retrieval activity before students design their own practical investigation. Students can download their attempt history as a CSV for evidence of learning.</p>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const scenarios = [
+      {
+        name: "Sugar dissolving",
+        badge: "Chemistry",
+        prompt: "A student investigates how water temperature affects the time taken for a sugar cube to dissolve.",
+        teacher: "A strong response identifies water temperature as the independent variable and dissolving time as the dependent variable. Fair testing requires the same sugar cube size, water volume and stirring method.",
+        cards: [
+          { text: "Water temperature", answer: "iv" },
+          { text: "Time taken for the sugar cube to dissolve", answer: "dv" },
+          { text: "Size of the sugar cube", answer: "control" },
+          { text: "Volume of water", answer: "control" },
+          { text: "Amount of stirring", answer: "control" },
+          { text: "Colour of the beaker", answer: "not" },
+          { text: "Brand of the bench", answer: "not" },
+          { text: "Type of sugar used", answer: "control" }
+        ]
+      },
+      {
+        name: "Plant growth",
+        badge: "Biology",
+        prompt: "A student investigates how different amounts of fertiliser affect the height of bean plants over three weeks.",
+        teacher: "Fertiliser amount is the independent variable. Plant height is the dependent variable. Controls include the plant species, pot size, soil type, water, light and growth time.",
+        cards: [
+          { text: "Amount of fertiliser", answer: "iv" },
+          { text: "Height of the bean plants", answer: "dv" },
+          { text: "Species of plant", answer: "control" },
+          { text: "Amount of water", answer: "control" },
+          { text: "Amount of light", answer: "control" },
+          { text: "Pot size", answer: "control" },
+          { text: "Colour of the plant label", answer: "not" },
+          { text: "Music playing in the classroom", answer: "not" }
+        ]
+      },
+      {
+        name: "Pendulum timing",
+        badge: "Physics",
+        prompt: "A student investigates how the length of a pendulum affects the time taken for 10 swings.",
+        teacher: "Pendulum length is changed on purpose, making it the independent variable. Time for 10 swings is measured, making it the dependent variable. Controls include mass, release angle and number of swings timed.",
+        cards: [
+          { text: "Length of the pendulum string", answer: "iv" },
+          { text: "Time taken for 10 swings", answer: "dv" },
+          { text: "Mass of the pendulum bob", answer: "control" },
+          { text: "Release angle", answer: "control" },
+          { text: "Number of swings timed", answer: "control" },
+          { text: "Person using the stopwatch", answer: "control" },
+          { text: "Colour of the string", answer: "not" },
+          { text: "Shape of the classroom door", answer: "not" }
+        ]
+      },
+      {
+        name: "Parachute drop",
+        badge: "Physics",
+        prompt: "A student investigates how parachute canopy area affects the time taken for a model parachute to reach the ground.",
+        teacher: "The independent variable is canopy area. The dependent variable is fall time. Controls include drop height, model mass, parachute material and release method.",
+        cards: [
+          { text: "Parachute canopy area", answer: "iv" },
+          { text: "Time taken to reach the ground", answer: "dv" },
+          { text: "Drop height", answer: "control" },
+          { text: "Mass of the model", answer: "control" },
+          { text: "Parachute material", answer: "control" },
+          { text: "Release method", answer: "control" },
+          { text: "Colour of the parachute", answer: "not" },
+          { text: "Student's favourite superhero", answer: "not" }
+        ]
+      },
+      {
+        name: "Reaction rate",
+        badge: "Chemistry",
+        prompt: "A student investigates how acid concentration affects the rate of reaction with calcium carbonate chips.",
+        teacher: "Acid concentration is the independent variable. Reaction rate can be measured through gas produced per minute, mass lost per minute or time to complete the reaction. Controls include mass and surface area of calcium carbonate, acid volume and temperature.",
+        cards: [
+          { text: "Acid concentration", answer: "iv" },
+          { text: "Rate of carbon dioxide production", answer: "dv" },
+          { text: "Mass of calcium carbonate", answer: "control" },
+          { text: "Surface area of calcium carbonate chips", answer: "control" },
+          { text: "Volume of acid", answer: "control" },
+          { text: "Temperature of the reaction", answer: "control" },
+          { text: "Pattern on the test tube rack", answer: "not" },
+          { text: "Name of the student group", answer: "not" }
+        ]
+      },
+      {
+        name: "Exercise and heart rate",
+        badge: "Biology",
+        prompt: "A student investigates how exercise intensity affects heart rate immediately after exercise.",
+        teacher: "Exercise intensity is the independent variable and heart rate after exercise is the dependent variable. Controls include exercise duration, rest time before testing, measurement method and participant health factors where possible.",
+        cards: [
+          { text: "Exercise intensity", answer: "iv" },
+          { text: "Heart rate immediately after exercise", answer: "dv" },
+          { text: "Length of exercise time", answer: "control" },
+          { text: "Rest time before the test", answer: "control" },
+          { text: "Method used to measure heart rate", answer: "control" },
+          { text: "Same participant or matched participants", answer: "control" },
+          { text: "Colour of the sports shoes", answer: "not" },
+          { text: "Poster on the gym wall", answer: "not" }
+        ]
+      },
+      {
+        name: "Light and photosynthesis",
+        badge: "Biology",
+        prompt: "A student investigates how light intensity affects the rate of photosynthesis in pondweed.",
+        teacher: "Light intensity is the independent variable. Rate of photosynthesis is the dependent variable, often estimated by oxygen bubbles produced per minute. Controls include pondweed length, carbon dioxide level, water temperature and measurement time.",
+        cards: [
+          { text: "Light intensity", answer: "iv" },
+          { text: "Number of oxygen bubbles per minute", answer: "dv" },
+          { text: "Length of pondweed", answer: "control" },
+          { text: "Carbon dioxide availability", answer: "control" },
+          { text: "Water temperature", answer: "control" },
+          { text: "Time counted for each trial", answer: "control" },
+          { text: "Colour of the laboratory stool", answer: "not" },
+          { text: "Brand of the pencil used", answer: "not" }
+        ]
+      },
+      {
+        name: "Friction surfaces",
+        badge: "Physics",
+        prompt: "A student investigates how surface type affects the force needed to pull a wooden block at a steady speed.",
+        teacher: "Surface type is the independent variable. Pulling force is the dependent variable. Controls include block mass, contact area, pulling speed and the force meter used.",
+        cards: [
+          { text: "Type of surface", answer: "iv" },
+          { text: "Force needed to pull the block", answer: "dv" },
+          { text: "Mass of the wooden block", answer: "control" },
+          { text: "Contact area of the block", answer: "control" },
+          { text: "Pulling speed", answer: "control" },
+          { text: "Same force meter", answer: "control" },
+          { text: "Colour of the wooden block", answer: "not" },
+          { text: "Weather outside the classroom", answer: "not" }
+        ]
+      },
+      {
+        name: "Seed germination",
+        badge: "Biology",
+        prompt: "A student investigates how the amount of water affects the percentage of seeds that germinate after five days.",
+        teacher: "Amount of water is the independent variable. Percentage of seeds germinated is the dependent variable. Controls include seed type, number of seeds, temperature, light and time allowed for germination.",
+        cards: [
+          { text: "Amount of water", answer: "iv" },
+          { text: "Percentage of seeds that germinate", answer: "dv" },
+          { text: "Type of seed", answer: "control" },
+          { text: "Number of seeds in each group", answer: "control" },
+          { text: "Temperature", answer: "control" },
+          { text: "Time allowed for germination", answer: "control" },
+          { text: "Colour of the tray", answer: "not" },
+          { text: "Day of the week", answer: "not" }
+        ]
+      },
+      {
+        name: "Insulation test",
+        badge: "Energy transfer",
+        prompt: "A student investigates how different insulating materials affect the rate at which hot water cools.",
+        teacher: "Insulating material is the independent variable. Cooling rate or temperature change over time is the dependent variable. Controls include starting temperature, water volume, container size, lid use and measurement time.",
+        cards: [
+          { text: "Type of insulating material", answer: "iv" },
+          { text: "Temperature change after 10 minutes", answer: "dv" },
+          { text: "Starting temperature of the water", answer: "control" },
+          { text: "Volume of water", answer: "control" },
+          { text: "Container size and shape", answer: "control" },
+          { text: "Time between measurements", answer: "control" },
+          { text: "Colour of the desk", answer: "not" },
+          { text: "Brand of the classroom clock", answer: "not" }
+        ]
+      }
+    ];
+
+    const zoneMap = {
+      bank: document.getElementById("bankCards"),
+      iv: document.getElementById("ivCards"),
+      dv: document.getElementById("dvCards"),
+      control: document.getElementById("controlCards"),
+      not: document.getElementById("notCards")
+    };
+
+    const state = {
+      currentIndex: 0,
+      selectedCardId: null,
+      attempts: 0,
+      best: Number(localStorage.getItem("variableSorterBest") || 0),
+      history: JSON.parse(localStorage.getItem("variableSorterHistory") || "[]")
+    };
+
+    const scenarioName = document.getElementById("scenarioName");
+    const scenarioBadge = document.getElementById("scenarioBadge");
+    const scenarioPrompt = document.getElementById("scenarioPrompt");
+    const scenarioSelect = document.getElementById("scenarioSelect");
+    const teacherNote = document.getElementById("teacherNote");
+    const feedbackBox = document.getElementById("feedbackBox");
+    const feedbackTitle = document.getElementById("feedbackTitle");
+    const feedbackSummary = document.getElementById("feedbackSummary");
+    const feedbackList = document.getElementById("feedbackList");
+    const scoreNum = document.getElementById("scoreNum");
+    const bestNum = document.getElementById("bestNum");
+    const attemptNum = document.getElementById("attemptNum");
+    const hypothesisBox = document.getElementById("hypothesisBox");
+    const methodBox = document.getElementById("methodBox");
+    const toast = document.getElementById("toast");
+
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function populateScenarioSelect() {
+      scenarioSelect.innerHTML = "";
+      scenarios.forEach((scenario, index) => {
+        const option = document.createElement("option");
+        option.value = index;
+        option.textContent = scenario.name;
+        scenarioSelect.appendChild(option);
+      });
+    }
+
+    function loadScenario(index, randomiseCards = true) {
+      state.currentIndex = Number(index);
+      state.selectedCardId = null;
+      const scenario = scenarios[state.currentIndex];
+
+      scenarioName.textContent = scenario.name;
+      scenarioBadge.textContent = scenario.badge;
+      scenarioPrompt.textContent = scenario.prompt;
+      scenarioSelect.value = String(state.currentIndex);
+      teacherNote.innerHTML = `<strong>Teacher notes:</strong> ${scenario.teacher}`;
+
+      Object.values(zoneMap).forEach(zone => zone.innerHTML = "");
+      const cards = randomiseCards ? shuffle(scenario.cards) : scenario.cards;
+      cards.forEach((card, indexInScenario) => {
+        const originalIndex = scenario.cards.indexOf(card);
+        zoneMap.bank.appendChild(createCard(card, originalIndex, indexInScenario));
+      });
+
+      feedbackBox.className = "feedback";
+      feedbackTitle.textContent = "Feedback";
+      feedbackSummary.textContent = "";
+      feedbackList.innerHTML = "";
+      scoreNum.textContent = "0";
+      removeCardMarking();
+      showToast("New investigation loaded.");
+    }
+
+    function createCard(card, originalIndex, displayIndex) {
+      const div = document.createElement("div");
+      div.className = "variable-card";
+      div.draggable = true;
+      div.id = `card-${originalIndex}`;
+      div.dataset.answer = card.answer;
+      div.dataset.text = card.text;
+      div.setAttribute("role", "button");
+      div.setAttribute("tabindex", "0");
+      div.setAttribute("aria-label", `Variable card: ${card.text}`);
+      div.innerHTML = `<span class="pill">${displayIndex + 1}</span><span class="text">${card.text}</span>`;
+
+      div.addEventListener("dragstart", event => {
+        event.dataTransfer.setData("text/plain", div.id);
+        state.selectedCardId = div.id;
+      });
+
+      div.addEventListener("click", () => selectCard(div.id));
+      div.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          selectCard(div.id);
+        }
+      });
+
+      return div;
+    }
+
+    function selectCard(cardId) {
+      const oldCard = document.getElementById(state.selectedCardId);
+      if (oldCard) oldCard.classList.remove("selected");
+
+      if (state.selectedCardId === cardId) {
+        state.selectedCardId = null;
+        return;
+      }
+
+      state.selectedCardId = cardId;
+      const card = document.getElementById(cardId);
+      if (card) card.classList.add("selected");
+      showToast("Card selected. Tap a box to move it.");
+    }
+
+    function moveCardToZone(cardId, zoneName) {
+      const card = document.getElementById(cardId);
+      if (!card || !zoneMap[zoneName]) return;
+      zoneMap[zoneName].appendChild(card);
+      card.classList.remove("selected");
+      state.selectedCardId = null;
+      removeCardMarking();
+      feedbackBox.className = "feedback";
+    }
+
+    function setupDropZones() {
+      document.querySelectorAll(".drop-zone").forEach(zone => {
+        zone.addEventListener("dragover", event => {
+          event.preventDefault();
+          zone.classList.add("over");
+        });
+
+        zone.addEventListener("dragleave", () => {
+          zone.classList.remove("over");
+        });
+
+        zone.addEventListener("drop", event => {
+          event.preventDefault();
+          zone.classList.remove("over");
+          const cardId = event.dataTransfer.getData("text/plain") || state.selectedCardId;
+          const zoneName = zone.dataset.zone;
+          moveCardToZone(cardId, zoneName);
+        });
+
+        zone.addEventListener("click", event => {
+          if (event.target.closest(".variable-card")) return;
+          if (state.selectedCardId) {
+            moveCardToZone(state.selectedCardId, zone.dataset.zone);
+          }
+        });
+      });
+    }
+
+    function removeCardMarking() {
+      document.querySelectorAll(".variable-card").forEach(card => {
+        card.classList.remove("correct", "incorrect");
+      });
+    }
+
+    function getZoneForCard(card) {
+      const container = card.parentElement;
+      if (!container) return "bank";
+      if (container.id === "ivCards") return "iv";
+      if (container.id === "dvCards") return "dv";
+      if (container.id === "controlCards") return "control";
+      if (container.id === "notCards") return "not";
+      return "bank";
+    }
+
+    function zoneLabel(zone) {
+      return {
+        iv: "Independent variable",
+        dv: "Dependent variable",
+        control: "Controlled variables",
+        not: "Not relevant",
+        bank: "Variable cards"
+      }[zone] || zone;
+    }
+
+    function checkAnswers() {
+      const cards = Array.from(document.querySelectorAll(".variable-card"));
+      const total = cards.length;
+      let correct = 0;
+      const issues = [];
+
+      cards.forEach(card => {
+        const placed = getZoneForCard(card);
+        const expected = card.dataset.answer;
+        const text = card.dataset.text;
+
+        if (placed === expected) {
+          correct += 1;
+          card.classList.add("correct");
+          card.classList.remove("incorrect");
+        } else {
+          card.classList.add("incorrect");
+          card.classList.remove("correct");
+          issues.push(`<strong>${text}</strong> belongs in <strong>${zoneLabel(expected)}</strong>, not <strong>${zoneLabel(placed)}</strong>.`);
+        }
+      });
+
+      const score = Math.round((correct / total) * 100);
+      state.attempts += 1;
+      if (score > state.best) {
+        state.best = score;
+        localStorage.setItem("variableSorterBest", String(state.best));
+      }
+
+      const scenario = scenarios[state.currentIndex];
+      state.history.push({
+        timestamp: new Date().toLocaleString("en-AU"),
+        scenario: scenario.name,
+        score,
+        correct,
+        total,
+        hypothesis: hypothesisBox.value.trim(),
+        fairTestExplanation: methodBox.value.trim(),
+        placements: cards.map(card => ({
+          card: card.dataset.text,
+          placed: zoneLabel(getZoneForCard(card)),
+          expected: zoneLabel(card.dataset.answer),
+          correct: getZoneForCard(card) === card.dataset.answer ? "yes" : "no"
+        }))
+      });
+      localStorage.setItem("variableSorterHistory", JSON.stringify(state.history));
+
+      scoreNum.textContent = String(score);
+      bestNum.textContent = String(state.best);
+      attemptNum.textContent = String(state.attempts);
+
+      feedbackBox.className = "feedback visible";
+      if (score === 100) {
+        feedbackBox.classList.add("good");
+        feedbackTitle.textContent = "Excellent fair test thinking";
+        feedbackSummary.innerHTML = `You correctly sorted <strong>${correct} out of ${total}</strong> cards.`;
+        feedbackList.innerHTML = `<div class="feedback-line">Now write a clear hypothesis and explain why your controlled variables make the investigation fair.</div>`;
+        showToast("Perfect score. Excellent work.");
+      } else if (score >= 70) {
+        feedbackBox.classList.add("okay");
+        feedbackTitle.textContent = "Good attempt. Check the details.";
+        feedbackSummary.innerHTML = `You correctly sorted <strong>${correct} out of ${total}</strong> cards. Review the cards marked in red.`;
+        feedbackList.innerHTML = issues.map(issue => `<div class="feedback-line">${issue}</div>`).join("");
+        showToast("Good attempt. Review the red cards.");
+      } else {
+        feedbackBox.classList.add("needs-work");
+        feedbackTitle.textContent = "Keep working on the variable types";
+        feedbackSummary.innerHTML = `You correctly sorted <strong>${correct} out of ${total}</strong> cards.`;
+        feedbackList.innerHTML = issues.map(issue => `<div class="feedback-line">${issue}</div>`).join("");
+        showToast("Review the feedback, then try again.");
+      }
+    }
+
+    function resetCurrent() {
+      loadScenario(state.currentIndex, true);
+    }
+
+    function newRandomScenario() {
+      let next = state.currentIndex;
+      if (scenarios.length > 1) {
+        while (next === state.currentIndex) {
+          next = Math.floor(Math.random() * scenarios.length);
+        }
+      }
+      loadScenario(next, true);
+    }
+
+    function downloadHistory() {
+      const history = state.history || [];
+      if (!history.length) {
+        showToast("No attempt history yet. Check an answer first.");
+        return;
+      }
+
+      const rows = [[
+        "Timestamp",
+        "Scenario",
+        "Score",
+        "Correct",
+        "Total",
+        "Hypothesis",
+        "Fair test explanation",
+        "Card",
+        "Placed",
+        "Expected",
+        "Card correct"
+      ]];
+
+      history.forEach(entry => {
+        entry.placements.forEach(place => {
+          rows.push([
+            entry.timestamp,
+            entry.scenario,
+            entry.score,
+            entry.correct,
+            entry.total,
+            entry.hypothesis,
+            entry.fairTestExplanation,
+            place.card,
+            place.placed,
+            place.expected,
+            place.correct
+          ]);
+        });
+      });
+
+      const csv = rows.map(row => row.map(value => {
+        const text = String(value ?? "");
+        return `"${text.replace(/"/g, '""')}"`;
+      }).join(",")).join("\n");
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "experimental_variables_sorter_results.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast("CSV downloaded.");
+    }
+
+    function clearHistory() {
+      state.history = [];
+      state.attempts = 0;
+      localStorage.removeItem("variableSorterHistory");
+      attemptNum.textContent = "0";
+      showToast("Attempt history cleared.");
+    }
+
+    let toastTimer = null;
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("visible");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("visible"), 2200);
+    }
+
+    function init() {
+      populateScenarioSelect();
+      setupDropZones();
+      bestNum.textContent = String(state.best);
+      attemptNum.textContent = String(state.attempts);
+      loadScenario(0, true);
+
+      document.getElementById("newBtn").addEventListener("click", newRandomScenario);
+      document.getElementById("resetBtn").addEventListener("click", resetCurrent);
+      document.getElementById("checkBtn").addEventListener("click", checkAnswers);
+      document.getElementById("teacherBtn").addEventListener("click", () => {
+        teacherNote.classList.toggle("visible");
+      });
+      document.getElementById("downloadBtn").addEventListener("click", downloadHistory);
+      document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
+      scenarioSelect.addEventListener("change", event => loadScenario(event.target.value, true));
+    }
+
+    init();
+  </script>
+</body>
+</html>
