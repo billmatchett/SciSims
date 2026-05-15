@@ -1,405 +1,789 @@
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SciSims</title>
   <style>
-    :root {
-      --bg: #f5f7fb;
-      --panel: #ffffff;
-      --text: #1f2937;
-      --muted: #5f6b7a;
-      --line: #e5e7eb;
-      --header: #e9eef8;
-      --button: #2563eb;
-      --button-hover: #1d4ed8;
-      --inactive: #94a3b8;
-      --shadow: 0 4px 14px rgba(0,0,0,0.08);
-      --radius: 14px;
+    :root{
+      --bg:#f5f7fb;
+      --panel:#ffffff;
+      --text:#1f2937;
+      --muted:#64748b;
+      --line:#dbe3ef;
+      --header:#e9eef8;
+      --button:#2563eb;
+      --button-hover:#1d4ed8;
+      --soft-blue:#e0ecff;
+      --soft-green:#dcfce7;
+      --soft-purple:#ede9fe;
+      --soft-orange:#ffedd5;
+      --soft-slate:#f1f5f9;
+      --shadow:0 4px 14px rgba(0,0,0,0.08);
+      --radius:16px;
     }
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 1300px;
-      margin: 40px auto;
-      padding: 20px;
-      background: var(--bg);
-      color: var(--text);
+
+    *{box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+
+    body{
+      font-family:Arial, Helvetica, sans-serif;
+      max-width:1300px;
+      margin:40px auto;
+      padding:20px;
+      background:var(--bg);
+      color:var(--text);
     }
-    h1 {
-      font-size: 42px;
-      margin-bottom: 5px;
+
+    h1,h2,h3,p{margin-top:0;}
+
+    h1{
+      font-size:44px;
+      margin-bottom:8px;
+      color:#0f172a;
+      line-height:1.05;
     }
-    h2 {
-      margin-top: 34px;
-      font-size: 28px;
+
+    h2{
+      font-size:28px;
+      margin-bottom:8px;
+      color:#0f172a;
     }
-    p { line-height: 1.5; }
-    .hero-image {
-      width: 100%;
-      max-height: 260px;
-      object-fit: cover;
-      border-radius: var(--radius);
-      display: block;
-      margin: 20px 0 30px;
-      box-shadow: var(--shadow);
+
+    h3{
+      font-size:18px;
+      margin-bottom:8px;
+      color:#0f172a;
     }
-    .contents {
-      background: var(--panel);
-      border-radius: var(--radius);
-      padding: 18px 20px;
-      margin: 20px 0 30px;
-      box-shadow: var(--shadow);
+
+    p{line-height:1.5;}
+
+    a{
+      color:inherit;
     }
-    .contents h2 {
-      margin-top: 0;
-      font-size: 24px;
+
+    .hero{
+      background:linear-gradient(135deg,#ffffff 0%,#eef5ff 100%);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:24px;
+      margin-bottom:22px;
     }
-    .contents-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+
+    .hero-top{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 320px;
+      gap:20px;
+      align-items:center;
     }
-    .section-intro {
-      color: var(--muted);
-      margin-top: -8px;
-      margin-bottom: 14px;
+
+    .hero-text p{
+      color:var(--muted);
+      margin-bottom:10px;
     }
-    .section-banner {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-      border-radius: var(--radius);
-      display: block;
-      margin: 10px 0 16px;
-      box-shadow: var(--shadow);
-      background: #dbe4f0;
+
+    .hero-image{
+      width:100%;
+      height:210px;
+      object-fit:cover;
+      border-radius:14px;
+      box-shadow:var(--shadow);
+      background:#dbe4f0;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: var(--panel);
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      margin: 16px 0 30px;
+
+    .fullscreen-tip{
+      background:#f8fafc;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px 14px;
+      color:#334155;
+      margin-top:16px;
     }
-    th {
-      background: var(--header);
-      text-align: left;
-      padding: 14px 16px;
-      font-size: 15px;
+
+    .dashboard{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:16px;
+      margin-bottom:26px;
     }
-    td {
-      padding: 16px;
-      border-top: 1px solid var(--line);
-      vertical-align: top;
+
+    .toolbar{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
     }
-    .sim-name {
-      font-weight: bold;
-      font-size: 17px;
-      width: 16%;
+
+    .toolbar-grid{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:14px;
+      align-items:center;
     }
-    .sim-description {
-      width: 24%;
+
+    .search-box{
+      width:100%;
+      border:1px solid #cbd5e1;
+      border-radius:12px;
+      padding:12px 14px;
+      font-size:16px;
+      background:#ffffff;
+      color:var(--text);
     }
-    .sim-link {
-      width: 10%;
-      text-align: right;
+
+    .counter{
+      color:#475569;
+      font-weight:800;
+      white-space:nowrap;
+      background:#f8fafc;
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:10px 14px;
     }
-    a {
-      display: inline-block;
-      padding: 10px 16px;
-      background: var(--button);
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: bold;
-      white-space: nowrap;
+
+    .contents{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:14px;
     }
-    a:hover { background: var(--button-hover); }
-    .empty-cell {
-      background: #f8fafc;
-      color: var(--muted);
+
+    .contents a,
+    .filter-button{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border:none;
+      padding:10px 14px;
+      background:var(--button);
+      color:#ffffff;
+      text-decoration:none;
+      border-radius:10px;
+      font-weight:800;
+      cursor:pointer;
+      font-size:14px;
     }
-    .footer-note {
-      color: var(--muted);
-      font-size: 0.95rem;
-      margin-top: 36px;
-      padding-top: 16px;
-      border-top: 1px solid var(--line);
+
+    .contents a:hover,
+    .filter-button:hover{background:var(--button-hover);}
+
+    .filter-button.secondary{
+      background:#e2e8f0;
+      color:#0f172a;
     }
-    @media (max-width: 900px) {
-      body {
-        margin: 20px auto;
-        padding: 14px;
+
+    .filter-button.secondary:hover{
+      background:#cbd5e1;
+    }
+
+    .filter-button.active{
+      background:#0f172a;
+      color:#ffffff;
+    }
+
+    .section{
+      margin-top:30px;
+    }
+
+    .section-header{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    .section-banner{
+      width:100%;
+      height:125px;
+      object-fit:cover;
+      border-radius:var(--radius);
+      display:block;
+      box-shadow:var(--shadow);
+      background:#dbe4f0;
+    }
+
+    .section-intro{
+      color:var(--muted);
+      margin-bottom:0;
+    }
+
+    .subsection{
+      margin:18px 0 10px;
+    }
+
+    .subsection-title{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      background:#ffffff;
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      border-radius:999px;
+      padding:8px 12px;
+      color:#334155;
+      font-size:14px;
+      font-weight:900;
+      margin-bottom:12px;
+    }
+
+    .cards{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+    }
+
+    .sim-card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:16px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      min-height:190px;
+    }
+
+    .sim-card-top{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+    }
+
+    .sim-title{
+      font-size:19px;
+      font-weight:900;
+      color:#0f172a;
+      margin:0;
+      line-height:1.2;
+    }
+
+    .sim-description{
+      color:#475569;
+      margin:0;
+      flex:1;
+    }
+
+    .tag-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+    }
+
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      color:#334155;
+      background:#f1f5f9;
+      border:1px solid #e2e8f0;
+    }
+
+    .tag.bio{background:var(--soft-green);border-color:#bbf7d0;color:#166534;}
+    .tag.chem{background:var(--soft-purple);border-color:#ddd6fe;color:#5b21b6;}
+    .tag.earth{background:var(--soft-orange);border-color:#fed7aa;color:#9a3412;}
+    .tag.physics{background:var(--soft-blue);border-color:#bfdbfe;color:#1d4ed8;}
+    .tag.working{background:#fef3c7;border-color:#fde68a;color:#92400e;}
+    .tag.interesting{background:#e2e8f0;border-color:#cbd5e1;color:#334155;}
+
+    .open-link{
+      align-self:flex-start;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:10px 14px;
+      background:var(--button);
+      color:#ffffff;
+      text-decoration:none;
+      border-radius:10px;
+      font-weight:900;
+      white-space:nowrap;
+      margin-top:auto;
+    }
+
+    .open-link:hover{background:var(--button-hover);}
+
+    .empty-message{
+      background:#ffffff;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+      color:var(--muted);
+      display:none;
+    }
+
+    .footer-note{
+      color:var(--muted);
+      font-size:0.95rem;
+      margin-top:36px;
+      padding-top:16px;
+      border-top:1px solid var(--line);
+    }
+
+    @media (max-width:960px){
+      body{
+        margin:20px auto;
+        padding:14px;
       }
-      h1 { font-size: 34px; }
-      table, thead, tbody, tr, th, td {
-        display: block;
+
+      .hero-top{
+        grid-template-columns:1fr;
       }
-      thead { display: none; }
-      tr {
-        border-top: 1px solid var(--line);
-        padding: 12px 0;
+
+      .hero-image{
+        height:170px;
       }
-      td {
-        border-top: none;
-        padding: 8px 16px;
+
+      .toolbar-grid{
+        grid-template-columns:1fr;
       }
-      .sim-name,
-      .sim-description,
-      .sim-link {
-        width: auto;
-        text-align: left;
+
+      .counter{
+        justify-self:start;
       }
-      .sim-link {
-        padding-top: 12px;
-        margin-bottom: 14px;
+
+      .cards{
+        grid-template-columns:1fr;
       }
-      .empty-cell {
-        display: none;
-      }
+    }
+
+    @media (max-width:560px){
+      h1{font-size:34px;}
+      h2{font-size:24px;}
+      .contents a,.filter-button{width:100%;}
+      .sim-card-top{display:block;}
     }
   </style>
 </head>
 <body>
-<h1>SciSims</h1>
-<p>A collection of classroom science simulations.</p>
-<p>When you enter each sim, it is recommended that you go into full screen mode in the browser.</p>
-  <p>  <p class="section-intro"><strong>Fullscreen tip:</strong> In Chrome, press <strong>F11</strong> on Windows/Linux, <strong>Control + Command + F</strong> on Mac, or the <strong>Full screen</strong> key on a Chromebook. Press the same shortcut again to exit fullscreen.</p></p>
-<img src="mainbanner.png" alt="Science simulations banner" class="hero-image">
+  <header class="hero">
+    <div class="hero-top">
+      <div class="hero-text">
+        <h1>SciSims</h1>
+        <p>A collection of classroom science simulations for practical inquiry, modelling, data analysis and concept development.</p>
+        <p>When you enter each sim, it is recommended that you go into full screen mode in the browser.</p>
+      </div>
+      <img src="mainbanner.png" alt="Science simulations banner" class="hero-image" />
+    </div>
+    <p class="fullscreen-tip"><strong>Fullscreen tip:</strong> In Chrome, press <strong>F11</strong> on Windows/Linux, <strong>Control + Command + F</strong> on Mac, or the <strong>Full screen</strong> key on a Chromebook. Press the same shortcut again to exit fullscreen.</p>
+  </header>
 
-<nav class="contents" aria-label="SciSims contents">
-  <h2>Contents</h2>
-  <div class="contents-links">
-    <a href="#workingscientifically">Working Scientifically</a>
-    <a href="#biosims">BioSims</a>
-    <a href="#chemsims">ChemSims</a>
-    <a href="#earthsims">Earth Science</a>
-    <a href="#physicssims">Physics</a>
-    <a href="#interestingsims">Interesting Sims</a>
-  </div>
-</nav>
+  <section class="dashboard" aria-label="SciSims controls">
+    <div class="toolbar">
+      <div class="toolbar-grid">
+        <label for="searchInput" class="sr-only">Search simulations</label>
+        <input id="searchInput" class="search-box" type="search" placeholder="Search sims by name, topic or keyword..." autocomplete="off" />
+        <div id="simCounter" class="counter">0 sims</div>
+      </div>
+      <div class="contents" id="filterButtons" aria-label="Filter simulations"></div>
+      <nav class="contents" aria-label="SciSims contents" id="contentsLinks"></nav>
+    </div>
+  </section>
 
-<section class="sim-section" id="workingscientifically">
-  <h2>Working Scientifically</h2>
-  <p class="section-intro">Inquiry and practical investigation simulations for fair testing, variables, data collection and experimental design.</p>
- 
-  <img src="WS.png" alt="Working Scientifically simulations banner" class="section-banner">
-  <table>
-    <thead>
-      <tr>
-        <th>Simulation</th>
-        <th>Description</th>
-        <th>Open</th>
-        <th>Simulation</th>
-        <th>Description</th>
-        <th>Open</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="sim-name">Experimental Variables Sorter</td>
-        <td class="sim-description">Identify independent variables, dependent variables, controlled variables and irrelevant factors using a drag-and-drop fair testing activity.</td>
-        <td class="sim-link"><a href="WorkingScientifically/Variables/">Open sim</a></td>
-        <td class="empty-cell" colspan="3"></td>
-      </tr>
-    </tbody>
-  </table>
-</section>
+  <main id="catalogue"></main>
 
-<section class="sim-section" id="biosims">
-  <h2>BioSims</h2>
-  <p class="section-intro">Biology simulations for modelling living systems, disease, growth and change.</p>
-  <img src="biosims.png" alt="BioSims biology simulations banner" class="section-banner">
-  <table>
-    <thead>
-      <tr>
-        <th>Simulation</th>
-        <th>Description</th>
-        <th>Open</th>
-        <th>Simulation</th>
-        <th>Description</th>
-        <th>Open</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="sim-name">Pandemic Simulation</td>
-        <td class="sim-description">Model how an infectious disease can spread through a population.</td>
-        <td class="sim-link"><a href="BioSims/Pandemic/">Open sim</a></td>
-        <td class="sim-name">Petri Dish Bacterial Growth Simulator</td>
-        <td class="sim-description">Explore how bacteria grow in a petri dish under different conditions.</td>
-        <td class="sim-link"><a href="BioSims/PetriBacteria/">Open sim</a></td>
-      </tr>
-      <tr>
-        <td class="sim-name">Drag-and-Drop Punnett Square</td>
-        <td class="sim-description">Build simple genetic crosses and compare predicted genotype and phenotype ratios with simulated offspring data.</td>
-        <td class="sim-link"><a href="BioSims/PunnettSq/">Open sim</a></td>
-        <td class="sim-name">Punnett Square Simulator</td>
-        <td class="sim-description">Practise completing Punnett squares by dragging allele tiles into the correct offspring boxes.</td>
-        <td class="sim-link"><a href="BioSims/PunnettSq2/">Open sim</a></td>
-      </tr>
-      <tr>
-        <td class="sim-name">Pedigree Simulator</td>
-        <td class="sim-description">Explore family pedigrees to identify affected individuals, carriers and likely inheritance patterns.</td>
-        <td class="sim-link"><a href="BioSims/Pedigree/">Open sim</a></td>
-        <td class="sim-name">Evolution Timeline Table</td>
-        <td class="sim-description">Complete a table showing how life on Earth has changed in complexity and diversity over geological time.</td>
-        <td class="sim-link"><a href="BioSims/EvolutionTimeline/">Open sim</a></td>
-      </tr>
-      <tr>
-        <td class="sim-name">Peppered Moth Evolution Simulator</td>
-        <td class="sim-description">Model natural selection as the environment changes from clean to polluted, and back again.</td>
-        <td class="sim-link"><a href="BioSims/Moths/">Open sim</a></td>
-        <td class="sim-name">Measuring Abundance Simulator</td>
-        <td class="sim-description">Compare quadrat sampling and capture-mark-recapture methods for estimating population size.</td>
-        <td class="sim-link"><a href="BioSims/Abundance/">Open sim</a></td>
-      </tr>
-      <tr>
-        <td class="sim-name">DNA Profiling Gel Electrophoresis Simulator</td>
-        <td class="sim-description">Compare DNA banding patterns from a mother, child and possible fathers to identify the biological father.</td>
-        <td class="sim-link"><a href="BioSims/DNAProfiling/">Open sim</a></td>
-        <td class="sim-name">Negative Feedback System Challenge</td>
-        <td class="sim-description">Respond to random events and maintain homeostasis in temperature, glucose and water balance systems.</td>
-        <td class="sim-link"><a href="BioSims/NegativeFeedback/">Open sim</a></td>
-      </tr>
-    </tbody>
-  </table>
-</section>
+  <div id="emptyMessage" class="empty-message">No simulations matched your search. Try a broader keyword such as genetics, forces, data, reaction, disease or light.</div>
 
-<section class="sim-section" id="chemsims">
-  <h2>ChemSims</h2>
-  <p class="section-intro">Chemistry simulations and games for atoms, elements, ions and bonding.</p>
-  <img src="chemsims.png" alt="ChemSims chemistry simulations banner" class="section-banner">
-  <table>
-    <thead>
-      <tr>
-        <th>Simulation</th>
-        <th>Description</th>
-        <th>Open</th>
-        <th>Simulation</th>
-        <th>Description</th>
-        <th>Open</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="sim-name">Element Symbol and Name Matching Game</td>
-        <td class="sim-description">Match chemical symbols to their correct element names.</td>
-        <td class="sim-link"><a href="ChemSims/Element_Game/">Open sim</a></td>
-        <td class="sim-name">Cations and Anions Simulator</td>
-        <td class="sim-description">Model how atoms gain or lose electrons to form positive and negative ions.</td>
-        <td class="sim-link"><a href="ChemSims/CationsAnions/">Open sim</a></td>
-      </tr>
-      <tr>
-        <td class="sim-name">Bonding Simulator</td>
-        <td class="sim-description">Explore how atoms interact through ionic and covalent bonding.</td>
-        <td class="sim-link"><a href="ChemSims/Bonding/">Open sim</a></td>
-        <td class="empty-cell" colspan="3"></td>
-      </tr>
-    </tbody>
-  </table>
-</section>
+  <p class="footer-note"><strong>Adding a new sim:</strong> add one new object to the <code>SIMS</code> list in the script, including its section, subgroup, title, description, path and tags. The page will automatically place it in the correct section and make it searchable.</p>
 
-<section class="sim-section" id="earthsims">
-  <h2>Earth Science</h2>
-  <p class="section-intro">Earth and space simulations for geology, weather, climate, resources and planetary systems.</p>
-  <img src="earthsims.png" alt="Earth Science simulations banner" class="section-banner">
-  <table>
-    <thead>
-      <tr>
-        <th>Simulation</th>
-        <th>Description</th>
-        <th>Open</th>
-        <th>Simulation</th>
-        <th>Description</th>
-        <th>Open</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="sim-name">Greenhouse Effect Energy Balance Simulator</td>
-        <td class="sim-description">Model how incoming sunlight, reflected energy, outgoing infrared radiation and greenhouse gases affect Earth’s surface temperature.</td>
-        <td class="sim-link"><a href="EarthSims/GreenHouse/">Open sim</a></td>
-        <td class="empty-cell" colspan="3"></td>
-      </tr>
-    </tbody>
-  </table>
-</section>
+<script>
+  'use strict';
 
-<section class="sim-section" id="physicssims">
-  <h2>Physics</h2>
-  <p class="section-intro">Physics simulations for forces, motion, energy, waves, electricity and light.</p>
-  <img src="physicssims.png" alt="Physics simulations banner" class="section-banner">
-  <table>
-    <thead>
-      <tr>
-        <th>Simulation</th>
-        <th>Description</th>
-        <th>Open</th>
-        <th>Simulation</th>
-        <th>Description</th>
-        <th>Open</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="sim-name">Parachute Drop Parameter Simulator</td>
-        <td class="sim-description">Change mass, drop height, parachute size, air density and gravity to investigate drag force, terminal velocity and impact speed.</td>
-        <td class="sim-link"><a href="PhySims/Parachute/">Open sim</a></td>
-        <td class="sim-name">Spectrometer Simulator</td>
-        <td class="sim-description">Explore continuous, emission and absorption spectra by measuring wavelengths, comparing spectral lines and identifying unknown elements.</td>
-        <td class="sim-link"><a href="PhySims/Spectrometer/">Open sim</a></td>
-      </tr>
-      <tr>
-        <td class="sim-name">Photoelectric Effect Simulator</td>
-        <td class="sim-description">Change metal threshold frequency, light intensity and stopping potential to investigate photoelectron emission.</td>
-        <td class="sim-link"><a href="PhySims/PhotoElectric/">Open sim</a></td>
+  const SECTIONS = [
+    {
+      id:'workingscientifically',
+      title:'Working Scientifically',
+      intro:'Inquiry and practical investigation simulations for fair testing, variables, data collection and experimental design.',
+      banner:'WS.png',
+      tagClass:'working'
+    },
+    {
+      id:'biosims',
+      title:'BioSims',
+      intro:'Biology simulations for modelling living systems, disease, growth, inheritance and change.',
+      banner:'biosims.png',
+      tagClass:'bio'
+    },
+    {
+      id:'chemsims',
+      title:'ChemSims',
+      intro:'Chemistry simulations and games for atoms, elements, ions, bonding and chemical models.',
+      banner:'chemsims.png',
+      tagClass:'chem'
+    },
+    {
+      id:'earthsims',
+      title:'Earth Science',
+      intro:'Earth and space simulations for geology, weather, climate, resources and planetary systems.',
+      banner:'earthsims.png',
+      tagClass:'earth'
+    },
+    {
+      id:'physicssims',
+      title:'Physics',
+      intro:'Physics simulations for forces, motion, energy, waves, electricity and light.',
+      banner:'physicssims.png',
+      tagClass:'physics'
+    },
+    {
+      id:'interestingsims',
+      title:'Interesting Sims',
+      intro:'Cross-topic, unusual or experimental simulations that do not fit neatly into one science area.',
+      banner:'interestingsims.png',
+      tagClass:'interesting'
+    }
+  ];
 
-        <td class="sim-name">Ohm’s Law Simulator</td>
-  <td class="sim-description">Investigate voltage, current and resistance by comparing ohmic and non-ohmic components, including resistors, filament lamps, diodes, thermistors, LEDs and unknown challenge components.</td>
-  <td class="sim-link"><a href="PhySims/Ohm/">Open sim</a></td>
-      </tr>
-      <tr>
-        <td class="sim-name">Optics Ray Diagram Simulator</td>
-<td class="sim-description">Explore convex, concave and bifocal lenses by moving an object, changing focal length, tracing ray diagrams and identifying real, virtual, upright, inverted, enlarged and reduced images.</td>
-<td class="sim-link"><a href="PhySims/Optics/">Open sim</a></td>
-      </tr>
-</tr>
-    </tbody>
-  </table>
-</section>
+  const SIMS = [
+    {
+      section:'workingscientifically',
+      group:'Variables and Fair Testing',
+      title:'Experimental Variables Sorter',
+      description:'Identify independent variables, dependent variables, controlled variables and irrelevant factors using a drag-and-drop fair testing activity.',
+      path:'WorkingScientifically/Variables/',
+      tags:['Working Scientifically','Variables','Fair testing','Drag and drop']
+    },
+    {
+      section:'biosims',
+      group:'Disease and Microbes',
+      title:'Pandemic Simulation',
+      description:'Model how an infectious disease can spread through a population.',
+      path:'BioSims/Pandemic/',
+      tags:['Biology','Disease','Pandemic','Population model']
+    },
+    {
+      section:'biosims',
+      group:'Disease and Microbes',
+      title:'Petri Dish Bacterial Growth Simulator',
+      description:'Explore how bacteria grow in a petri dish under different conditions.',
+      path:'BioSims/PetriBacteria/',
+      tags:['Biology','Bacteria','Growth','Microbes']
+    },
+    {
+      section:'biosims',
+      group:'Genetics and Inheritance',
+      title:'Drag-and-Drop Punnett Square',
+      description:'Build simple genetic crosses and compare predicted genotype and phenotype ratios with simulated offspring data.',
+      path:'BioSims/PunnettSq/',
+      tags:['Biology','Genetics','Punnett squares','Inheritance']
+    },
+    {
+      section:'biosims',
+      group:'Genetics and Inheritance',
+      title:'Punnett Square Simulator',
+      description:'Practise completing Punnett squares by dragging allele tiles into the correct offspring boxes.',
+      path:'BioSims/PunnettSq2/',
+      tags:['Biology','Genetics','Alleles','Inheritance']
+    },
+    {
+      section:'biosims',
+      group:'Genetics and Inheritance',
+      title:'Pedigree Simulator',
+      description:'Explore family pedigrees to identify affected individuals, carriers and likely inheritance patterns.',
+      path:'BioSims/Pedigree/',
+      tags:['Biology','Genetics','Pedigree','Inheritance']
+    },
+    {
+      section:'biosims',
+      group:'Genetics and Inheritance',
+      title:'DNA Profiling Gel Electrophoresis Simulator',
+      description:'Compare DNA banding patterns from a mother, child and possible fathers to identify the biological father.',
+      path:'BioSims/DNAProfiling/',
+      tags:['Biology','DNA','Gel electrophoresis','Genetics']
+    },
+    {
+      section:'biosims',
+      group:'Evolution and Populations',
+      title:'Evolution Timeline Table',
+      description:'Complete a table showing how life on Earth has changed in complexity and diversity over geological time.',
+      path:'BioSims/EvolutionTimeline/',
+      tags:['Biology','Evolution','Geological time','Timeline']
+    },
+    {
+      section:'biosims',
+      group:'Evolution and Populations',
+      title:'Peppered Moth Evolution Simulator',
+      description:'Model natural selection as the environment changes from clean to polluted, and back again.',
+      path:'BioSims/Moths/',
+      tags:['Biology','Evolution','Natural selection','Data']
+    },
+    {
+      section:'biosims',
+      group:'Evolution and Populations',
+      title:'Measuring Abundance Simulator',
+      description:'Compare quadrat sampling and capture-mark-recapture methods for estimating population size.',
+      path:'BioSims/Abundance/',
+      tags:['Biology','Ecology','Abundance','Sampling']
+    },
+    {
+      section:'biosims',
+      group:'Human Body and Homeostasis',
+      title:'Negative Feedback System Challenge',
+      description:'Respond to random events and maintain homeostasis in temperature, glucose and water balance systems.',
+      path:'BioSims/NegativeFeedback/',
+      tags:['Biology','Homeostasis','Negative feedback','Human body']
+    },
+    {
+      section:'biosims',
+      group:'Human Body and Homeostasis',
+      title:'Reaction Time Challenge',
+      description:'Measure and compare student reaction times across repeated trials, including false starts, mean reaction time, best time, range and CSV export.',
+      path:'BioSims/ReactionTime/',
+      tags:['Biology','Reaction time','Nervous system','Data']
+    },
+    {
+      section:'chemsims',
+      group:'Elements and Atomic Structure',
+      title:'Element Symbol and Name Matching Game',
+      description:'Match chemical symbols to their correct element names.',
+      path:'ChemSims/Element_Game/',
+      tags:['Chemistry','Elements','Symbols','Matching']
+    },
+    {
+      section:'chemsims',
+      group:'Elements and Atomic Structure',
+      title:'Cations and Anions Simulator',
+      description:'Model how atoms gain or lose electrons to form positive and negative ions.',
+      path:'ChemSims/CationsAnions/',
+      tags:['Chemistry','Ions','Electrons','Cations','Anions']
+    },
+    {
+      section:'chemsims',
+      group:'Bonding and Chemical Models',
+      title:'Bonding Simulator',
+      description:'Explore how atoms interact through ionic and covalent bonding.',
+      path:'ChemSims/Bonding/',
+      tags:['Chemistry','Bonding','Ionic','Covalent']
+    },
+    {
+      section:'earthsims',
+      group:'Climate and Energy Balance',
+      title:'Greenhouse Effect Energy Balance Simulator',
+      description:'Model how incoming sunlight, reflected energy, outgoing infrared radiation and greenhouse gases affect Earth’s surface temperature.',
+      path:'EarthSims/GreenHouse/',
+      tags:['Earth Science','Climate','Greenhouse effect','Energy balance']
+    },
+    {
+      section:'physicssims',
+      group:'Forces and Motion',
+      title:'Parachute Drop Parameter Simulator',
+      description:'Change mass, drop height, parachute size, air density and gravity to investigate drag force, terminal velocity and impact speed.',
+      path:'PhySims/Parachute/',
+      tags:['Physics','Forces','Motion','Drag']
+    },
+    {
+      section:'physicssims',
+      group:'Light and Waves',
+      title:'Spectrometer Simulator',
+      description:'Explore continuous, emission and absorption spectra by measuring wavelengths, comparing spectral lines and identifying unknown elements.',
+      path:'PhySims/Spectrometer/',
+      tags:['Physics','Light','Spectra','Waves']
+    },
+    {
+      section:'physicssims',
+      group:'Light and Waves',
+      title:'Photoelectric Effect Simulator',
+      description:'Change metal threshold frequency, light intensity and stopping potential to investigate photoelectron emission.',
+      path:'PhySims/PhotoElectric/',
+      tags:['Physics','Light','Photoelectric effect','Modern physics']
+    },
+    {
+      section:'physicssims',
+      group:'Electricity',
+      title:'Ohm’s Law Simulator',
+      description:'Investigate voltage, current and resistance by comparing ohmic and non-ohmic components, including resistors, filament lamps, diodes, thermistors, LEDs and unknown challenge components.',
+      path:'PhySims/Ohm/',
+      tags:['Physics','Electricity','Ohm’s law','Circuits']
+    },
+    {
+      section:'physicssims',
+      group:'Light and Waves',
+      title:'Optics Ray Diagram Simulator',
+      description:'Explore convex, concave and bifocal lenses by moving an object, changing focal length, tracing ray diagrams and identifying real, virtual, upright, inverted, enlarged and reduced images.',
+      path:'PhySims/Optics/',
+      tags:['Physics','Optics','Lenses','Ray diagrams']
+    },
+    {
+      section:'interestingsims',
+      group:'Mathematical and Cross-topic Models',
+      title:'Fractal Infinite Zoom Simulator',
+      description:'Explore the Mandelbrot set using guided zoom, infinite zoom, preset fractal regions, colour palettes and live coordinate data.',
+      path:'InterestingSims/Fractal/',
+      tags:['Fractals','Mathematics','Patterns','Visual model']
+    }
+  ];
 
-<section class="sim-section" id="interestingsims">
-  <h2>Interesting Sims</h2>
-  <p class="section-intro">Cross-topic, unusual or experimental simulations that do not fit neatly into one science area.</p>
-  <img src="interestingsims.png" alt="Interesting simulations banner" class="section-banner">
-  <table>
-    <thead>
-      <tr>
-        <th>Simulation</th>
-        <th>Description</th>
-        <th>Open</th>
-        <th>Simulation</th>
-        <th>Description</th>
-        <th>Open</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="sim-name">Fractal Infinite Zoom Simulator</td>
-        <td class="sim-description">Explore the Mandelbrot set using guided zoom, infinite zoom, preset fractal regions, colour palettes and live coordinate data.</td>
-        <td class="sim-link"><a href="InterestingSims/Fractal/">Open sim</a></td>
-        <td class="empty-cell" colspan="3"></td>
-      </tr>
-    </tbody>
-  </table>
-</section>
+  const catalogue = document.getElementById('catalogue');
+  const contentsLinks = document.getElementById('contentsLinks');
+  const filterButtons = document.getElementById('filterButtons');
+  const searchInput = document.getElementById('searchInput');
+  const simCounter = document.getElementById('simCounter');
+  const emptyMessage = document.getElementById('emptyMessage');
 
-<p class="footer-note">To add a new sim, copy one set of three cells, update the simulation name, description and folder link, then place the new HTML file in the matching GitHub Pages folder.</p>
+  let activeFilter = 'all';
+
+  function normalise(text){
+    return String(text).toLowerCase();
+  }
+
+  function getSection(sectionId){
+    return SECTIONS.find(section => section.id === sectionId);
+  }
+
+  function matchesSearch(sim, query){
+    if(!query) return true;
+    const searchable = [sim.title, sim.description, sim.group, sim.section, ...sim.tags].join(' ');
+    return normalise(searchable).includes(query);
+  }
+
+  function matchesFilter(sim){
+    return activeFilter === 'all' || sim.section === activeFilter;
+  }
+
+  function createTextElement(tagName, className, text){
+    const element = document.createElement(tagName);
+    if(className) element.className = className;
+    element.textContent = text;
+    return element;
+  }
+
+  function createCard(sim){
+    const section = getSection(sim.section);
+    const card = document.createElement('article');
+    card.className = 'sim-card';
+
+    const top = document.createElement('div');
+    top.className = 'sim-card-top';
+
+    const title = createTextElement('h3','sim-title',sim.title);
+    top.appendChild(title);
+
+    const description = createTextElement('p','sim-description',sim.description);
+
+    const tagRow = document.createElement('div');
+    tagRow.className = 'tag-row';
+
+    sim.tags.forEach(tagText => {
+      const tag = createTextElement('span','tag',tagText);
+      if(section && tagText === section.title) tag.classList.add(section.tagClass);
+      if(section && sim.section === section.id && tagText.includes(section.title.split(' ')[0])) tag.classList.add(section.tagClass);
+      tagRow.appendChild(tag);
+    });
+
+    const link = document.createElement('a');
+    link.className = 'open-link';
+    link.href = sim.path;
+    link.textContent = 'Open sim';
+
+    card.append(top,description,tagRow,link);
+    return card;
+  }
+
+  function groupSims(sims){
+    return sims.reduce((groups,sim)=>{
+      if(!groups[sim.group]) groups[sim.group] = [];
+      groups[sim.group].push(sim);
+      return groups;
+    },{});
+  }
+
+  function renderContents(){
+    contentsLinks.innerHTML = '';
+    SECTIONS.forEach(section => {
+      const link = document.createElement('a');
+      link.href = `#${section.id}`;
+      link.textContent = section.title;
+      contentsLinks.appendChild(link);
+    });
+  }
+
+  function renderFilters(){
+    filterButtons.innerHTML = '';
+
+    const allButton = document.createElement('button');
+    allButton.className = 'filter-button secondary active';
+    allButton.type = 'button';
+    allButton.dataset.filter = 'all';
+    allButton.textContent = 'All sims';
+    filterButtons.appendChild(allButton);
+
+    SECTIONS.forEach(section => {
+      const button = document.createElement('button');
+      button.className = 'filter-button secondary';
+      button.type = 'button';
+      button.dataset.filter = section.id;
+      button.textContent = section.title;
+      filterButtons.appendChild(button);
+    });
+
+    filterButtons.addEventListener('click', event => {
+      const button = event.target.closest('button[data-filter]');
+      if(!button) return;
+      activeFilter = button.dataset.filter;
+      filterButtons.querySelectorAll('button').forEach(btn => btn.classList.toggle('active', btn === button));
+      renderCatalogue();
+    });
+  }
+
+  function renderCatalogue(){
+    const query = normalise(searchInput.value.trim());
+    const visibleSims = SIMS.filter(sim => matchesFilter(sim) && matchesSearch(sim,query));
+    catalogue.innerHTML = '';
+
+    SECTIONS.forEach(section => {
+      const simsForSection = visibleSims.filter(sim => sim.section === section.id);
+      if(!simsForSection.length) return;
+
+      const sectionElement = document.createElement('section');
+      sectionElement.className = 'section';
+      sectionElement.id = section.id;
+
+      const header = document.createElement('div');
+      header.className = 'section-header';
+
+      const title = createTextElement('h2','',section.title);
+      const intro = createTextElement('p','section-intro',section.intro);
+      const banner = document.createElement('img');
+      banner.src = section.banner;
+      banner.alt = `${section.title} simulations banner`;
+      banner.className = 'section-banner';
+
+      header.append(title,intro,banner);
+      sectionElement.appendChild(header);
+
+      const grouped = groupSims(simsForSection);
+      Object.keys(grouped).forEach(groupName => {
+        const subsection = document.createElement('div');
+        subsection.className = 'subsection';
+
+        const groupTitle = createTextElement('div','subsection-title',groupName);
+        const cards = document.createElement('div');
+        cards.className = 'cards';
+
+        grouped[groupName].forEach(sim => cards.appendChild(createCard(sim)));
+        subsection.append(groupTitle,cards);
+        sectionElement.appendChild(subsection);
+      });
+
+      catalogue.appendChild(sectionElement);
+    });
+
+    simCounter.textContent = `${visibleSims.length} sim${visibleSims.length === 1 ? '' : 's'}`;
+    emptyMessage.style.display = visibleSims.length ? 'none' : 'block';
+  }
+
+  searchInput.addEventListener('input', renderCatalogue);
+
+  renderContents();
+  renderFilters();
+  renderCatalogue();
+</script>
 </body>
 </html>
