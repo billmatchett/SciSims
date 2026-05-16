@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Air Flow Around Objects Simulator</title>
+<style>
+  :root {
+    --bg: #f5f7fb;
+    --card: #ffffff;
+    --card-soft: #eef4ff;
+    --ink: #1f2937;
+    --muted: #526173;
+    --line: #dbe3f0;
+    --accent: #2563eb;
+    --accent-dark: #1e40af;
+    --accent-soft: #dbeafe;
+    --success-soft: #ecfdf5;
+    --success-line: #a7f3d0;
+    --warning-soft: #fff7ed;
+    --warning-line: #fed7aa;
+    --object: #111827;
+    --particle: #172033;
+    --stream: #2563eb;
+    --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.5;
+  }
+
+  main {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  .home-link {
+    display: inline-block;
+    margin-bottom: 16px;
+    color: var(--accent-dark);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .home-link:hover {
+    text-decoration: underline;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, #dbeafe 0%, #ffffff 55%, #eef4ff 100%);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 26px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    margin: 0 0 8px;
+    font-size: clamp(2rem, 4vw, 3.1rem);
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+  }
+
+  .subtitle {
+    max-width: 780px;
+    margin: 0;
+    color: var(--muted);
+    font-size: 1.08rem;
+  }
+
+  .learning-box {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 18px 0;
+  }
+
+  .learning-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+  }
+
+  .learning-card h2,
+  .controls-card h2,
+  .info-card h2 {
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+  }
+
+  .learning-card p,
+  .info-card p,
+  .info-card li {
+    margin-top: 0;
+    color: var(--muted);
+  }
+
+  .sim-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(310px, 0.8fr);
+    gap: 18px;
+    align-items: start;
+  }
+
+  .canvas-card,
+  .controls-card,
+  .info-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    box-shadow: var(--shadow);
+  }
+
+  .canvas-card {
+    padding: 14px;
+  }
+
+  .canvas-wrap {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: #ffffff;
+  }
+
+  .canvas-caption {
+    margin: 10px 4px 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .controls-card {
+    padding: 18px;
+  }
+
+  .control {
+    margin: 14px 0;
+  }
+
+  label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .value-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+    color: var(--muted);
+    font-size: 0.94rem;
+    margin-bottom: 5px;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent);
+  }
+
+  select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #ffffff;
+    color: var(--ink);
+    font-size: 1rem;
+  }
+
+  .check-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-weight: 700;
+    margin: 12px 0;
+  }
+
+  .check-row input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+  }
+
+  .button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  button {
+    border: 0;
+    border-radius: 999px;
+    padding: 10px 14px;
+    font-weight: 700;
+    cursor: pointer;
+    background: var(--accent);
+    color: white;
+  }
+
+  button.secondary {
+    background: var(--accent-soft);
+    color: var(--accent-dark);
+  }
+
+  button:hover {
+    filter: brightness(0.96);
+  }
+
+  .metric-card {
+    margin-top: 16px;
+    background: var(--card-soft);
+    border: 1px solid #c7d9ff;
+    border-radius: 16px;
+    padding: 14px;
+  }
+
+  .metric-label {
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .metric-value {
+    font-size: 2rem;
+    line-height: 1;
+    font-weight: 800;
+    color: var(--accent-dark);
+    margin: 8px 0;
+  }
+
+  .metric-desc {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 18px;
+  }
+
+  .info-card {
+    padding: 18px;
+  }
+
+  .model-note {
+    background: var(--warning-soft);
+    border-color: var(--warning-line);
+  }
+
+  .student-challenge {
+    background: var(--success-soft);
+    border-color: var(--success-line);
+  }
+
+  ol,
+  ul {
+    padding-left: 1.25rem;
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 920px) {
+    main {
+      padding: 16px;
+    }
+
+    .learning-box,
+    .sim-grid,
+    .info-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+<main>
+  <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+
+  <section class="hero">
+    <h1>Air Flow Around Objects Simulator</h1>
+    <p class="subtitle">Explore how object shape, size, angle and flow speed affect the way air particles move around an obstacle.</p>
+  </section>
+
+  <section class="learning-box" aria-label="Learning intention and success criteria">
+    <div class="learning-card">
+      <h2>Learning Intention</h2>
+      <p>Students will understand that the shape and angle of an object can change how air flows around it.</p>
+    </div>
+    <div class="learning-card">
+      <h2>Success Criteria</h2>
+      <p>Students can compare flow patterns around different shapes and explain how shape, size and angle affect particle paths, visible wake patterns and drag.</p>
+    </div>
+  </section>
+
+  <section class="sim-grid">
+    <div class="canvas-card">
+      <div class="canvas-wrap">
+        <canvas id="c" width="900" height="440"></canvas>
+      </div>
+      <p class="canvas-caption">Air flows from left to right. The shaded region is a simplified wake guide showing where disturbed flow may occur.</p>
+    </div>
+
+    <div class="controls-card">
+      <h2>Controls</h2>
+
+      <div class="control">
+        <label for="shape">Shape</label>
+        <select id="shape">
+          <option value="circle" selected>Circle</option>
+          <option value="square">Square</option>
+          <option value="triangle">Triangle / wedge</option>
+          <option value="ellipse">Streamlined oval</option>
+        </select>
+      </div>
+
+      <div class="control">
+        <div class="value-row">
+          <label for="speed">Flow speed</label>
+          <span id="speedVal"></span>
+        </div>
+        <input id="speed" type="range" min="20" max="260" value="130" />
+      </div>
+
+      <div class="control">
+        <div class="value-row">
+          <label for="size">Object size</label>
+          <span id="sizeVal"></span>
+        </div>
+        <input id="size" type="range" min="30" max="140" value="75" />
+      </div>
+
+      <div class="control">
+        <div class="value-row">
+          <label for="rot">Rotation</label>
+          <span id="rotVal"></span>
+        </div>
+        <input id="rot" type="range" min="-45" max="45" value="0" />
+      </div>
+
+      <div class="control">
+        <div class="value-row">
+          <label for="count">Particles</label>
+          <span id="countVal"></span>
+        </div>
+        <input id="count" type="range" min="200" max="1800" value="750" />
+      </div>
+
+      <label class="check-row" for="showStream">
+        <input id="showStream" type="checkbox" checked />
+        Show tracer trails
+      </label>
+
+      <label class="check-row" for="showWake">
+        <input id="showWake" type="checkbox" checked />
+        Show simplified wake guide
+      </label>
+
+      <div class="button-row">
+        <button id="resetBtn" type="button">Reset particles</button>
+        <button id="pauseBtn" type="button" class="secondary">Pause</button>
+      </div>
+
+      <div class="metric-card" aria-live="polite">
+        <div class="metric-label">Estimated visible flow disruption</div>
+        <div class="metric-value"><span id="disruptVal">0</span>/100</div>
+        <p class="metric-desc" id="disruptDesc">Adjust the controls to compare shapes.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="info-grid">
+    <div class="info-card student-challenge">
+      <h2>Student challenge</h2>
+      <ol>
+        <li>Start with the circle. Describe how the particles move around it.</li>
+        <li>Change to the square. Look carefully near the corners and behind the object.</li>
+        <li>Rotate the triangle / wedge and streamlined oval. Explain how the angle changes the flow.</li>
+        <li>Choose the shape that disturbs the flow least and justify your answer using evidence from the model.</li>
+      </ol>
+    </div>
+
+    <div class="info-card model-note">
+      <h2>Model note</h2>
+      <p>This is a visual model. It uses a simple velocity field to show particles being diverted around objects. It is not a full fluid dynamics, viscosity or turbulence simulation.</p>
+      <p>For the triangle / wedge and streamlined oval, rotation also adds a simple angle-of-attack effect so students can clearly observe how changing angle changes the disturbed flow pattern.</p>
+      <p>The visible disruption score is based on this model’s settings. It is not a real drag coefficient and should only be used to compare patterns within this simulator.</p>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  const canvas = document.getElementById("c");
+  const ctx = canvas.getContext("2d");
+
+  const shapeSel = document.getElementById("shape");
+  const speed = document.getElementById("speed");
+  const size = document.getElementById("size");
+  const rot = document.getElementById("rot");
+  const count = document.getElementById("count");
+  const showStream = document.getElementById("showStream");
+  const showWake = document.getElementById("showWake");
+  const resetBtn = document.getElementById("resetBtn");
+  const pauseBtn = document.getElementById("pauseBtn");
+
+  const speedVal = document.getElementById("speedVal");
+  const sizeVal = document.getElementById("sizeVal");
+  const rotVal = document.getElementById("rotVal");
+  const countVal = document.getElementById("countVal");
+  const disruptVal = document.getElementById("disruptVal");
+  const disruptDesc = document.getElementById("disruptDesc");
+
+  const W = canvas.width;
+  const H = canvas.height;
+  const centre = { x: W * 0.52, y: H * 0.50 };
+
+  let particles = [];
+  let trails = [];
+  let running = true;
+  let last = performance.now();
+
+  function rand(min, max) {
+    return min + Math.random() * (max - min);
+  }
+
+  function clamp(x, a, b) {
+    return Math.max(a, Math.min(b, x));
+  }
+
+  function length2(x, y) {
+    return Math.sqrt(x * x + y * y);
+  }
+
+  function getDisruptionScore() {
+    const shape = shapeSel.value;
+    const s = Number(size.value);
+    const U = Number(speed.value);
+    const r = Math.abs(Number(rot.value)) / 45;
+
+    const baseByShape = {
+      circle: 55,
+      square: 78,
+      triangle: 64,
+      ellipse: 36
+    };
+
+    const rotationPenaltyByShape = {
+      circle: 4,
+      square: 11,
+      triangle: 18,
+      ellipse: 27
+    };
+
+    const base = baseByShape[shape] || 55;
+    const rotationPenalty = rotationPenaltyByShape[shape] * r;
+    const sizePenalty = (s - 75) * 0.25;
+    const speedPenalty = (U - 130) * 0.045;
+
+    return Math.round(clamp(base + rotationPenalty + sizePenalty + speedPenalty, 15, 100));
+  }
+
+  function updateLabels() {
+    speedVal.textContent = `${speed.value} arb. units`;
+    sizeVal.textContent = `${size.value} px`;
+    rotVal.textContent = `${rot.value}°`;
+    countVal.textContent = `${count.value}`;
+
+    const score = getDisruptionScore();
+    disruptVal.textContent = score;
+
+    if (score < 45) {
+      disruptDesc.textContent = "Low visible disruption. The flow remains comparatively smooth around the object.";
+    } else if (score < 70) {
+      disruptDesc.textContent = "Moderate visible disruption. The object clearly bends the flow and creates a visible wake guide.";
+    } else {
+      disruptDesc.textContent = "High visible disruption. The object strongly diverts the flow and creates a larger wake guide.";
+    }
+  }
+
+  function resetParticles() {
+    particles = [];
+    trails = [];
+
+    const n = Number(count.value);
+    for (let i = 0; i < n; i++) {
+      particles.push({
+        x: rand(-W * 0.2, 0),
+        y: rand(0, H)
+      });
+    }
+
+    const seedYs = [0.16, 0.27, 0.38, 0.50, 0.62, 0.73, 0.84].map(f => f * H);
+    trails = seedYs.map(y => ({ x: -W * 0.1, y, path: [] }));
+  }
+
+  function toLocal(x, y) {
+    const ang = (Number(rot.value) * Math.PI) / 180;
+    const dx = x - centre.x;
+    const dy = y - centre.y;
+    const ca = Math.cos(-ang);
+    const sa = Math.sin(-ang);
+    return { x: dx * ca - dy * sa, y: dx * sa + dy * ca };
+  }
+
+  function sdfCircle(px, py, r) {
+    return length2(px, py) - r;
+  }
+
+  function sdfBox(px, py, hx, hy) {
+    const ax = Math.abs(px) - hx;
+    const ay = Math.abs(py) - hy;
+    const ox = Math.max(ax, 0);
+    const oy = Math.max(ay, 0);
+    const outside = length2(ox, oy);
+    const inside = Math.min(Math.max(ax, ay), 0);
+    return outside + inside;
+  }
+
+  function triangleVertices(s) {
+    const h = s * Math.sqrt(3);
+    return [
+      { x: 0, y: -h * 0.60 },
+      { x: -s, y: h * 0.40 },
+      { x: s, y: h * 0.40 }
+    ];
+  }
+
+  function distanceToSegment(px, py, ax, ay, bx, by) {
+    const abx = bx - ax;
+    const aby = by - ay;
+    const apx = px - ax;
+    const apy = py - ay;
+    const abLenSq = abx * abx + aby * aby;
+    const t = abLenSq === 0 ? 0 : clamp((apx * abx + apy * aby) / abLenSq, 0, 1);
+    const cx = ax + abx * t;
+    const cy = ay + aby * t;
+    return length2(px - cx, py - cy);
+  }
+
+  function pointInTriangle(px, py, a, b, c) {
+    const s1 = (px - c.x) * (a.y - c.y) - (a.x - c.x) * (py - c.y);
+    const s2 = (px - a.x) * (b.y - a.y) - (b.x - a.x) * (py - a.y);
+    const s3 = (px - b.x) * (c.y - b.y) - (c.x - b.x) * (py - b.y);
+    const hasNeg = s1 < 0 || s2 < 0 || s3 < 0;
+    const hasPos = s1 > 0 || s2 > 0 || s3 > 0;
+    return !(hasNeg && hasPos);
+  }
+
+  function sdfTriangle(px, py, s) {
+    const pts = triangleVertices(s);
+    const d0 = distanceToSegment(px, py, pts[0].x, pts[0].y, pts[1].x, pts[1].y);
+    const d1 = distanceToSegment(px, py, pts[1].x, pts[1].y, pts[2].x, pts[2].y);
+    const d2 = distanceToSegment(px, py, pts[2].x, pts[2].y, pts[0].x, pts[0].y);
+    const dist = Math.min(d0, d1, d2);
+    return pointInTriangle(px, py, pts[0], pts[1], pts[2]) ? -dist : dist;
+  }
+
+  function sdfEllipse(px, py, rx, ry) {
+    const nx = px / rx;
+    const ny = py / ry;
+    return (Math.sqrt(nx * nx + ny * ny) - 1) * Math.min(rx, ry);
+  }
+
+  function sdfAt(x, y) {
+    const p = toLocal(x, y);
+    const s = Number(size.value);
+    const shape = shapeSel.value;
+
+    if (shape === "circle") return sdfCircle(p.x, p.y, s);
+    if (shape === "square") return sdfBox(p.x, p.y, s * 0.85, s * 0.85);
+    if (shape === "triangle") return sdfTriangle(p.x, p.y, s);
+    if (shape === "ellipse") return sdfEllipse(p.x, p.y, s * 1.35, s * 0.52);
+
+    return sdfCircle(p.x, p.y, s);
+  }
+
+  function sdfNormal(x, y) {
+    const e = 1.5;
+    const dx = sdfAt(x + e, y) - sdfAt(x - e, y);
+    const dy = sdfAt(x, y + e) - sdfAt(x, y - e);
+    const L = Math.max(1e-6, Math.sqrt(dx * dx + dy * dy));
+    return { nx: dx / L, ny: dy / L };
+  }
+
+  function velocityAt(x, y) {
+    const U = Number(speed.value);
+    const s = Number(size.value);
+    const shape = shapeSel.value;
+    const angleRad = (Number(rot.value) * Math.PI) / 180;
+
+    const d = sdfAt(x, y);
+    const local = toLocal(x, y);
+
+    let vx = U;
+    let vy = 0;
+
+    const influence = Math.max(55, s * 1.45);
+
+    if (d < influence) {
+      const { nx, ny } = sdfNormal(x, y);
+
+      const t = clamp((influence - d) / influence, 0, 1);
+      const near = t * t * (0.65 + 0.35 * t);
+
+      const frontBias = clamp((-local.x + s * 0.9) / (s * 1.8), 0, 1);
+      const rearBias = clamp((local.x + s * 0.4) / (s * 1.8), 0, 1);
+      const side = Math.abs(local.y) < 0.001 ? 0 : Math.sign(local.y);
+
+      const repulseByShape = {
+        circle: 0.82,
+        square: 0.94,
+        triangle: 0.88,
+        ellipse: 0.72
+      };
+
+      const repulse = U * repulseByShape[shape] * near * (0.55 + 0.45 * frontBias);
+
+      vx += nx * repulse;
+      vy += ny * repulse;
+
+      const guideByShape = {
+        circle: 0.12,
+        square: 0.18,
+        triangle: 0.36,
+        ellipse: 0.28
+      };
+
+      const guide = U * guideByShape[shape] * near * (0.3 + 0.7 * frontBias);
+      vy += side * guide;
+
+      if (shape === "triangle" || shape === "ellipse") {
+        const aoa = Math.sin(angleRad);
+        const aoaStrength = shape === "triangle" ? 0.28 : 0.18;
+
+        vy += U * aoa * aoaStrength * near * (0.25 + 0.75 * rearBias);
+        vx -= Math.abs(U * aoa) * 0.04 * near;
+      }
+
+      if (rearBias > 0) {
+        vx -= U * 0.05 * near * rearBias;
+      }
+    }
+
+    if (d < 0) {
+      const { nx, ny } = sdfNormal(x, y);
+      const push = U * 1.35;
+      vx = nx * push;
+      vy = ny * push;
+    }
+
+    return { vx, vy };
+  }
+
+  function stepParticle(p, dt) {
+    const maxStepDistance = 3;
+    const estimatedDistance = Number(speed.value) * dt;
+    const steps = Math.max(1, Math.ceil(estimatedDistance / maxStepDistance));
+    const subDt = dt / steps;
+
+    for (let i = 0; i < steps; i++) {
+      const v = velocityAt(p.x, p.y);
+      const nextX = p.x + v.vx * subDt;
+      const nextY = p.y + v.vy * subDt;
+      const nextD = sdfAt(nextX, nextY);
+
+      if (nextD < 1.5) {
+        const { nx, ny } = sdfNormal(nextX, nextY);
+        p.x = nextX + nx * (2.5 - nextD);
+        p.y = nextY + ny * (2.5 - nextD);
+      } else {
+        p.x = nextX;
+        p.y = nextY;
+      }
+    }
+
+    if (p.x > W * 1.1 || p.y < -H * 0.1 || p.y > H * 1.1) {
+      p.x = rand(-W * 0.2, 0);
+      p.y = rand(0, H);
+    }
+  }
+
+  function drawWakeRegion() {
+    if (!showWake.checked) return;
+
+    const score = getDisruptionScore();
+    const s = Number(size.value);
+    const shape = shapeSel.value;
+    const angleRad = (Number(rot.value) * Math.PI) / 180;
+    const angleEffect = Math.sin(angleRad);
+
+    const wakeLength = clamp(score * 2.0 + s * 0.75, 100, 270);
+    const wakeHeight = clamp(score * 0.25 + s * (shape === "ellipse" ? 0.5 : 0.75), 35, 110);
+
+    const rearOffsetX =
+      shape === "triangle" ? s * 0.95 :
+      shape === "square" ? s * 0.85 :
+      shape === "ellipse" ? s * 0.85 :
+      s * 0.75;
+
+    const wakeOffsetY =
+      (shape === "triangle" || shape === "ellipse")
+        ? angleEffect * s * 0.18
+        : 0;
+
+    const wakeTilt =
+      (shape === "triangle" || shape === "ellipse")
+        ? angleEffect * 0.12
+        : 0;
+
+    ctx.save();
+    ctx.translate(centre.x + rearOffsetX, centre.y + wakeOffsetY);
+    ctx.rotate(wakeTilt);
+
+    const grad = ctx.createLinearGradient(0, 0, wakeLength, 0);
+    grad.addColorStop(0, "rgba(37, 99, 235, 0.10)");
+    grad.addColorStop(1, "rgba(37, 99, 235, 0.00)");
+
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.ellipse(
+      wakeLength * 0.48,
+      0,
+      wakeLength * 0.52,
+      wakeHeight * 0.48,
+      0,
+      0,
+      Math.PI * 2
+    );
+    ctx.fill();
+
+    ctx.globalAlpha = 0.32;
+    ctx.strokeStyle = "rgba(37, 99, 235, 0.20)";
+    ctx.lineWidth = 1.1;
+
+    for (let i = -2; i <= 2; i++) {
+      ctx.beginPath();
+      ctx.moveTo(0, i * wakeHeight * 0.14);
+      ctx.bezierCurveTo(
+        wakeLength * 0.22, i * wakeHeight * 0.18 + angleEffect * 8,
+        wakeLength * 0.58, -i * wakeHeight * 0.10 + angleEffect * 14,
+        wakeLength, i * wakeHeight * 0.04 + angleEffect * 18
+      );
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+
+  function drawObject() {
+    const s = Number(size.value);
+    const ang = (Number(rot.value) * Math.PI) / 180;
+    const shape = shapeSel.value;
+
+    ctx.save();
+    ctx.translate(centre.x, centre.y);
+    ctx.rotate(ang);
+    ctx.fillStyle = "#111827";
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.55)";
+    ctx.lineWidth = 2;
+
+    ctx.beginPath();
+    if (shape === "circle") {
+      ctx.arc(0, 0, s, 0, Math.PI * 2);
+    } else if (shape === "square") {
+      const a = s * 0.85;
+      ctx.rect(-a, -a, 2 * a, 2 * a);
+    } else if (shape === "triangle") {
+      const pts = triangleVertices(s);
+      ctx.moveTo(pts[0].x, pts[0].y);
+      ctx.lineTo(pts[1].x, pts[1].y);
+      ctx.lineTo(pts[2].x, pts[2].y);
+      ctx.closePath();
+    } else if (shape === "ellipse") {
+      ctx.ellipse(0, 0, s * 1.35, s * 0.52, 0, 0, Math.PI * 2);
+    } else {
+      ctx.arc(0, 0, s, 0, Math.PI * 2);
+    }
+
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawFlowArrow() {
+    ctx.save();
+    ctx.globalAlpha = 0.55;
+    ctx.strokeStyle = "#2563eb";
+    ctx.fillStyle = "#2563eb";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(48, 32);
+    ctx.lineTo(176, 32);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(176, 32);
+    ctx.lineTo(158, 22);
+    ctx.lineTo(158, 42);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.globalAlpha = 0.82;
+    ctx.font = "bold 14px Arial, Helvetica, sans-serif";
+    ctx.fillText("Air flow", 52, 56);
+    ctx.restore();
+  }
+
+  function drawScene() {
+    ctx.clearRect(0, 0, W, H);
+
+    ctx.save();
+    const bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, "#ffffff");
+    bg.addColorStop(1, "#f8fbff");
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+
+    drawFlowArrow();
+    drawWakeRegion();
+
+    if (showStream.checked) {
+      ctx.save();
+      ctx.globalAlpha = 0.66;
+      ctx.strokeStyle = "#2563eb";
+      ctx.lineWidth = 1.25;
+      for (const t of trails) {
+        ctx.beginPath();
+        for (let i = 0; i < t.path.length; i++) {
+          const pt = t.path[i];
+          if (i === 0) ctx.moveTo(pt.x, pt.y);
+          else ctx.lineTo(pt.x, pt.y);
+        }
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    ctx.save();
+    ctx.globalAlpha = 0.82;
+    ctx.fillStyle = "#172033";
+    for (const p of particles) {
+      if (sdfAt(p.x, p.y) > 0.75) {
+        ctx.fillRect(p.x, p.y, 1.35, 1.35);
+      }
+    }
+    ctx.restore();
+
+    // Draw the object last so no particles or tracer lines appear to pass through it.
+    drawObject();
+  }
+
+  function animate(now) {
+    const dtMs = Math.min(32, now - last);
+    last = now;
+    const dt = dtMs / 1000;
+
+    if (running) {
+      for (const p of particles) stepParticle(p, dt);
+
+      if (showStream.checked) {
+        for (const t of trails) {
+          const v = velocityAt(t.x, t.y);
+          t.x += v.vx * dt;
+          t.y += v.vy * dt;
+          t.path.push({ x: t.x, y: t.y });
+          if (t.path.length > 180) t.path.shift();
+
+          if (t.x > W * 1.1 || t.y < -H * 0.1 || t.y > H * 1.1) {
+            t.x = -W * 0.1;
+            t.y = rand(0, H);
+            t.path = [];
+          }
+        }
+      } else {
+        for (const t of trails) t.path = [];
+      }
+    }
+
+    drawScene();
+    requestAnimationFrame(animate);
+  }
+
+  function clearTrails() {
+    for (const t of trails) t.path = [];
+  }
+
+  function onHardReset() {
+    updateLabels();
+    resetParticles();
+  }
+
+  shapeSel.addEventListener("change", onHardReset);
+  size.addEventListener("input", onHardReset);
+  count.addEventListener("input", onHardReset);
+
+  rot.addEventListener("input", () => {
+    updateLabels();
+    resetParticles();
+  });
+
+  speed.addEventListener("input", () => {
+    updateLabels();
+    clearTrails();
+  });
+
+  showStream.addEventListener("change", clearTrails);
+  showWake.addEventListener("change", drawScene);
+
+  resetBtn.addEventListener("click", onHardReset);
+
+  pauseBtn.addEventListener("click", () => {
+    running = !running;
+    pauseBtn.textContent = running ? "Pause" : "Resume";
+  });
+
+  updateLabels();
+  resetParticles();
+  requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>
