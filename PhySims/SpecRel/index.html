@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8">
+  <title>Special Relativity Light Clock Simulator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root{--bg:#f5f7fb;--card:#fff;--ink:#1f2937;--muted:#5b6472;--accent:#2563eb;--accent-dark:#1d4ed8;--line:#d9e2ef;--soft:#eaf1ff;--warn:#b45309;--good:#15803d;}
+    *{box-sizing:border-box;}
+    html,body{margin:0;overflow-x:hidden;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;}
+    .page{width:100%;max-width:1180px;margin:0 auto;padding:24px;}
+    .home-link{display:inline-block;margin-bottom:16px;color:var(--accent);font-weight:700;text-decoration:none;}
+    .home-link:hover{text-decoration:underline;}
+    header{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;border-radius:22px;padding:28px;margin-bottom:20px;box-shadow:0 12px 30px rgba(15,23,42,.18);}
+    header h1{margin:0 0 8px;font-size:clamp(2rem,4vw,3.2rem);line-height:1.05;}
+    header p{margin:0;max-width:850px;color:#dbeafe;font-size:1.05rem;}
+    .li-sc{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+    .li-sc div{background:var(--soft);border:1px solid #c7d7fe;border-radius:16px;padding:16px;}
+    .li-sc h2{font-size:1rem;margin:0 0 8px;color:#1e3a8a;}
+    .li-sc p{margin:0;}
+    .grid{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start;}
+    .card{min-width:0;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 8px 22px rgba(15,23,42,.08);}
+    .card h2,.card h3{margin-top:0;}
+    label{display:block;font-weight:700;margin:16px 0 6px;}
+    input[type="range"]{width:100%;}
+    select,button{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font-size:.95rem;}
+    button{cursor:pointer;background:var(--accent);color:#fff;font-weight:700;border:none;margin-top:10px;}
+    button:hover{background:var(--accent-dark);}
+    .button-secondary{background:#e5e7eb;color:var(--ink);}
+    .button-secondary:hover{background:#d1d5db;}
+    .preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+    .preset-grid button{margin-top:0;padding:8px;font-size:.85rem;background:#eff6ff;color:#1e3a8a;border:1px solid #bfdbfe;}
+    .preset-grid button:hover{background:#dbeafe;}
+    .readout{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+    .metric{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:12px;}
+    .metric span{display:block;color:var(--muted);font-size:.82rem;}
+    .metric strong{display:block;font-size:1.2rem;margin-top:3px;}
+    .canvas-wrap{width:100%;overflow-x:auto;border-radius:18px;border:1px solid var(--line);background:#020617;}
+    canvas{display:block;width:100%;height:auto;background:#020617;}
+    #graphCanvas{background:#fff;border-radius:16px;border:1px solid var(--line);}
+    .wide{grid-column:1/-1;}
+    table{width:100%;border-collapse:collapse;margin-top:12px;font-size:.95rem;}
+    th,td{border:1px solid var(--line);padding:9px;text-align:left;}
+    th{background:#eff6ff;color:#1e3a8a;}
+    .prediction-box{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:10px;}
+    .prediction-box label{font-weight:400;margin:8px 0;}
+    .feedback{margin-top:10px;padding:10px;border-radius:12px;background:#f8fafc;border:1px solid var(--line);font-weight:700;}
+    .challenge{background:#fff7ed;border-color:#fed7aa;}
+    .teacher{background:#f0fdf4;border-color:#bbf7d0;}
+    .small{font-size:.9rem;color:var(--muted);}
+    ul{padding-left:20px;}
+    @media(max-width:900px){.page{padding:16px;}.grid,.li-sc{grid-template-columns:1fr;}header{padding:20px;}.readout{grid-template-columns:1fr;}canvas,#graphCanvas{width:900px;max-width:none;}.canvas-wrap{overflow-x:auto;}}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+    <header>
+      <h1>Special Relativity Light Clock Simulator</h1>
+      <p>Explore how time dilation appears when a spaceship moves close to the speed of light. Compare the traveller's light clock with the same clock as observed from a stationary frame.</p>
+    </header>
+    <section class="li-sc">
+      <div><h2>Learning Intention</h2><p>Students will understand that time measurements can differ between observers moving relative to one another at very high speeds.</p></div>
+      <div><h2>Success Criteria</h2><p>Students can explain how a light clock model shows time dilation and use the Lorentz factor to compare time measured in different frames of reference.</p></div>
+    </section>
+    <main class="grid">
+      <section class="card">
+        <h2>Controls</h2>
+        <label for="speedSlider">Spaceship speed</label>
+        <input id="speedSlider" type="range" min="0" max="99" value="80" step="1">
+        <p class="small">Current speed: <strong id="speedText">0.80c</strong></p>
+        <div class="preset-grid">
+          <button data-speed="0">Walking</button><button data-speed="1">Jet aircraft</button><button data-speed="10">Fast spacecraft</button><button data-speed="50">0.50c</button><button data-speed="90">0.90c</button><button data-speed="99">0.99c</button>
+        </div>
+        <label for="observerTimeSlider">Stationary observer time</label>
+        <input id="observerTimeSlider" type="range" min="1" max="100" value="20" step="1">
+        <p class="small">Stationary observer time: <strong id="observerTimeText">20 years</strong></p>
+        <label for="viewMode">View mode</label>
+        <select id="viewMode"><option value="split">Split view</option><option value="traveller">Traveller frame only</option><option value="observer">Stationary observer frame only</option></select>
+        <label><input id="showPath" type="checkbox" checked> Show light path</label>
+        <label><input id="showCalculations" type="checkbox" checked> Show calculations</label>
+        <button id="pauseBtn">Pause</button>
+        <button id="recordBtn" class="button-secondary">Record data row</button>
+        <button id="exportBtn" class="button-secondary">Export CSV</button>
+        <button id="resetBtn" class="button-secondary">Reset</button>
+        <div class="readout">
+          <div class="metric"><span>Lorentz factor</span><strong id="gammaOut">1.67</strong></div>
+          <div class="metric"><span>Traveller time</span><strong id="travellerTimeOut">12.0 y</strong></div>
+          <div class="metric"><span>Stationary time</span><strong id="observerTimeOut">20.0 y</strong></div>
+          <div class="metric"><span>Distance travelled</span><strong id="distanceOut">16.0 ly</strong></div>
+        </div>
+      </section>
+      <section class="card">
+        <h2>Simulation</h2>
+        <div class="canvas-wrap"><canvas id="simCanvas" width="900" height="470"></canvas></div>
+        <p class="small">The traveller sees the light move straight up and down. The stationary observer sees the clock move sideways while the light travels, creating a longer diagonal light path.</p>
+      </section>
+      <section class="card wide">
+        <h2>Speed and Time Dilation Graph</h2>
+        <p>The graph shows how the Lorentz factor changes as speed approaches the speed of light.</p>
+        <div class="canvas-wrap"><canvas id="graphCanvas" width="900" height="360"></canvas></div>
+      </section>
+      <section class="card wide">
+        <h2>Student Prediction</h2>
+        <p>Before collecting data, choose the statement you think is most correct.</p>
+        <div class="prediction-box">
+          <label><input type="radio" name="prediction" value="steady"> Time dilation increases steadily at all speeds.</label>
+          <label><input type="radio" name="prediction" value="correct"> Time dilation is tiny at low speeds but becomes very large close to the speed of light.</label>
+          <label><input type="radio" name="prediction" value="onlyc"> Time dilation only happens after reaching the speed of light.</label>
+          <label><input type="radio" name="prediction" value="faster"> Time passes faster for the traveller at high speed.</label>
+          <button id="checkPredictionBtn" class="button-secondary">Check prediction</button>
+          <div id="predictionFeedback" class="feedback">Choose a prediction, then check it.</div>
+        </div>
+      </section>
+      <section class="card wide">
+        <h2>Class Data Table</h2>
+        <p>Change the speed, record several rows, then look for the pattern between speed and time dilation.</p>
+        <table><thead><tr><th>Speed</th><th>Lorentz factor</th><th>Stationary observer time</th><th>Traveller time</th><th>Distance travelled</th></tr></thead><tbody id="dataBody"></tbody></table>
+      </section>
+      <section class="card wide challenge">
+        <h2>Student Challenge</h2>
+        <ol><li>Set the spaceship speed to <strong>50%</strong> of the speed of light. Record the Lorentz factor and traveller time.</li><li>Set the spaceship speed to <strong>90%</strong> of the speed of light. Record the Lorentz factor and traveller time.</li><li>Set the spaceship speed to <strong>99%</strong> of the speed of light. What happens to the traveller's time compared with the stationary observer's time?</li><li>Use the graph to explain why time dilation is not noticeable for cars, planes or normal rockets.</li></ol>
+      </section>
+      <section class="card wide teacher">
+        <h2>Teacher Notes</h2>
+        <p>This sim is a conceptual model of special relativity. It focuses on time dilation using a light clock rather than a full mathematical derivation.</p>
+        <ul><li><strong>Key idea:</strong> The speed of light is treated as constant for all observers.</li><li><strong>Traveller frame:</strong> The light moves straight up and down between the mirrors.</li><li><strong>Stationary observer frame:</strong> The clock moves sideways while the light travels, so the observed light path is diagonal.</li><li><strong>Formula used:</strong> gamma = 1 / sqrt(1 - v²/c²), and traveller time = stationary observer time / gamma.</li><li><strong>Discussion point:</strong> Relativistic effects become significant only when speeds are a large fraction of the speed of light.</li></ul>
+        <h3>Sources</h3>
+        <ul><li>OpenStax University Physics Volume 3, Time Dilation: https://openstax.org/books/university-physics-volume-3/pages/5-3-time-dilation</li><li>UNSW EinsteinLight, Time Dilation and Length Contraction: https://www.phys.unsw.edu.au/einsteinlight/jw/module4_time_dilation.htm</li><li>Einstein Online, From light clocks to time dilation: https://www.einstein-online.info/en/spotlight/light-clocks-time-dilation/</li></ul>
+      </section>
+    </main>
+  </div>
+  <script>
+    const canvas=document.getElementById('simCanvas'),ctx=canvas.getContext('2d');
+    const graphCanvas=document.getElementById('graphCanvas'),graphCtx=graphCanvas.getContext('2d');
+    const speedSlider=document.getElementById('speedSlider'),observerTimeSlider=document.getElementById('observerTimeSlider'),speedText=document.getElementById('speedText'),observerTimeText=document.getElementById('observerTimeText'),viewMode=document.getElementById('viewMode'),showPath=document.getElementById('showPath'),showCalculations=document.getElementById('showCalculations');
+    const gammaOut=document.getElementById('gammaOut'),travellerTimeOut=document.getElementById('travellerTimeOut'),observerTimeOut=document.getElementById('observerTimeOut'),distanceOut=document.getElementById('distanceOut'),dataBody=document.getElementById('dataBody');
+    const pauseBtn=document.getElementById('pauseBtn'),recordBtn=document.getElementById('recordBtn'),exportBtn=document.getElementById('exportBtn'),resetBtn=document.getElementById('resetBtn'),checkPredictionBtn=document.getElementById('checkPredictionBtn'),predictionFeedback=document.getElementById('predictionFeedback');
+    let running=true,phase=0,rows=[];
+    function getValues(){const beta=Number(speedSlider.value)/100,observerYears=Number(observerTimeSlider.value),gamma=1/Math.sqrt(1-beta*beta),travellerYears=observerYears/gamma,distance=beta*observerYears;return{beta,observerYears,gamma,travellerYears,distance};}
+    function formatNumber(value,places=2){return Number(value).toFixed(places);}
+    function updateReadouts(){const v=getValues();speedText.textContent=`${formatNumber(v.beta,2)}c`;observerTimeText.textContent=`${formatNumber(v.observerYears,0)} years`;gammaOut.textContent=formatNumber(v.gamma,2);travellerTimeOut.textContent=`${formatNumber(v.travellerYears,1)} y`;observerTimeOut.textContent=`${formatNumber(v.observerYears,1)} y`;distanceOut.textContent=`${formatNumber(v.distance,1)} ly`;drawGraph();}
+    function drawRoundedRect(x,y,w,h,r,fill,stroke){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke();}}
+    function drawPanelTitle(text,x,y){ctx.fillStyle='#dbeafe';ctx.font='bold 18px Arial';ctx.fillText(text,x,y);}
+    function drawShipFrame(x,y,w,h){drawRoundedRect(x,y,w,h,18,'#0f172a','#60a5fa');ctx.fillStyle='#1e293b';ctx.fillRect(x+26,y+h-44,w-52,18);ctx.fillStyle='#93c5fd';ctx.beginPath();ctx.ellipse(x+w-55,y+48,28,18,0,0,Math.PI*2);ctx.fill();}
+    function drawLightClockTraveller(panelX,panelY,panelW,panelH){const clockX=panelX+panelW/2,topY=panelY+105,bottomY=panelY+panelH-105,mirrorWidth=110,halfTickIndex=Math.floor(phase),t=phase-halfTickIndex,goingDown=halfTickIndex%2===0,startY=goingDown?topY:bottomY,endY=goingDown?bottomY:topY,lightY=startY+(endY-startY)*t;ctx.strokeStyle='#93c5fd';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(clockX-mirrorWidth/2,topY);ctx.lineTo(clockX+mirrorWidth/2,topY);ctx.moveTo(clockX-mirrorWidth/2,bottomY);ctx.lineTo(clockX+mirrorWidth/2,bottomY);ctx.stroke();ctx.strokeStyle='rgba(147,197,253,.35)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(clockX,topY);ctx.lineTo(clockX,bottomY);ctx.stroke();if(showPath.checked){ctx.strokeStyle='rgba(248,250,252,.72)';ctx.lineWidth=2;ctx.setLineDash([8,8]);ctx.beginPath();ctx.moveTo(clockX,topY);ctx.lineTo(clockX,bottomY);ctx.stroke();ctx.setLineDash([]);}ctx.fillStyle='#fde047';ctx.beginPath();ctx.arc(clockX,lightY,8,0,Math.PI*2);ctx.fill();ctx.fillStyle='#e0f2fe';ctx.font='14px Arial';ctx.fillText('Traveller frame: light moves straight up and down',panelX+28,panelY+panelH-28);}
+    function drawLightClockObserver(panelX,panelY,panelW,panelH,beta,gamma){const topY=panelY+105,bottomY=panelY+panelH-105,mirrorWidth=110,halfTickIndex=Math.floor(phase),t=phase-halfTickIndex,goingDown=halfTickIndex%2===0,startY=goingDown?topY:bottomY,endY=goingDown?bottomY:topY,pathShift=beta*135;let clockX;if(beta===0){clockX=panelX+panelW/2;}else{const startX=panelX-mirrorWidth/2-20,endX=panelX+panelW+mirrorWidth/2+20,travelDistance=endX-startX,motionSpeed=.75+beta*1.15,progress=(phase*motionSpeed*.055)%1;clockX=startX+progress*travelDistance;}const emitX=clockX-pathShift*t,lightX=emitX+pathShift*t,lightY=startY+(endY-startY)*t;ctx.save();ctx.beginPath();ctx.rect(panelX,panelY,panelW,panelH);ctx.clip();ctx.save();ctx.globalAlpha=.2;ctx.strokeStyle='#93c5fd';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(emitX-mirrorWidth/2,topY);ctx.lineTo(emitX+mirrorWidth/2,topY);ctx.moveTo(emitX-mirrorWidth/2,bottomY);ctx.lineTo(emitX+mirrorWidth/2,bottomY);ctx.stroke();ctx.strokeStyle='rgba(147,197,253,.35)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(emitX,topY);ctx.lineTo(emitX,bottomY);ctx.stroke();ctx.restore();ctx.strokeStyle='#93c5fd';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(clockX-mirrorWidth/2,topY);ctx.lineTo(clockX+mirrorWidth/2,topY);ctx.moveTo(clockX-mirrorWidth/2,bottomY);ctx.lineTo(clockX+mirrorWidth/2,bottomY);ctx.stroke();ctx.strokeStyle='rgba(147,197,253,.35)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(clockX,topY);ctx.lineTo(clockX,bottomY);ctx.stroke();if(showPath.checked){ctx.strokeStyle='rgba(248,250,252,.28)';ctx.lineWidth=2;ctx.setLineDash([7,7]);ctx.beginPath();ctx.moveTo(emitX,startY);ctx.lineTo(emitX+pathShift,endY);ctx.stroke();ctx.strokeStyle='rgba(248,250,252,.86)';ctx.lineWidth=3;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(emitX,startY);ctx.lineTo(lightX,lightY);ctx.stroke();}ctx.fillStyle='#fde047';ctx.beginPath();ctx.arc(lightX,lightY,8,0,Math.PI*2);ctx.fill();const arrowY=panelY+58;ctx.strokeStyle='#60a5fa';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(clockX-85,arrowY);ctx.lineTo(clockX-25,arrowY);ctx.stroke();ctx.beginPath();ctx.moveTo(clockX-25,arrowY);ctx.lineTo(clockX-40,arrowY-9);ctx.lineTo(clockX-40,arrowY+9);ctx.closePath();ctx.fillStyle='#60a5fa';ctx.fill();ctx.fillStyle='#bfdbfe';ctx.font='13px Arial';ctx.fillText('clock moves sideways',clockX-122,arrowY-14);ctx.restore();ctx.fillStyle='#e0f2fe';ctx.font='14px Arial';ctx.fillText(`Stationary frame: sideways motion creates a longer diagonal path, gamma = ${formatNumber(gamma,2)}`,panelX+28,panelY+panelH-28);}
+    function drawCalculations(v){if(!showCalculations.checked)return;const boxX=30,boxY=canvas.height-88,boxW=canvas.width-60,boxH=58;drawRoundedRect(boxX,boxY,boxW,boxH,14,'rgba(15,23,42,.92)','#334155');ctx.fillStyle='#f8fafc';ctx.font='15px Arial';ctx.fillText(`gamma = 1 / sqrt(1 - v²/c²) = ${formatNumber(v.gamma,2)}    traveller time = stationary time / gamma = ${formatNumber(v.travellerYears,1)} years`,boxX+18,boxY+24);ctx.fillStyle='#bfdbfe';ctx.fillText(`At ${formatNumber(v.beta,2)}c, ${formatNumber(v.observerYears,1)} years in the stationary frame is ${formatNumber(v.travellerYears,1)} years for the traveller.`,boxX+18,boxY+45);}
+    function drawStars(){ctx.fillStyle='#020617';ctx.fillRect(0,0,canvas.width,canvas.height);for(let i=0;i<100;i++){const x=(i*97)%canvas.width,y=(i*53)%canvas.height,size=(i%3)+1;ctx.fillStyle=i%4===0?'#dbeafe':'#94a3b8';ctx.fillRect(x,y,size,size);}}
+    function drawSimulation(){const v=getValues();updateReadouts();if(running){phase+=.006;}drawStars();const mode=viewMode.value;if(mode==='split'){const left={x:26,y:42,w:405,h:330},right={x:469,y:42,w:405,h:330};drawPanelTitle('Traveller frame',left.x,28);drawPanelTitle('Stationary observer frame',right.x,28);drawShipFrame(left.x,left.y,left.w,left.h);drawShipFrame(right.x,right.y,right.w,right.h);drawLightClockTraveller(left.x,left.y,left.w,left.h);drawLightClockObserver(right.x,right.y,right.w,right.h,v.beta,v.gamma);}if(mode==='traveller'){const panel={x:120,y:42,w:660,h:330};drawPanelTitle('Traveller frame',panel.x,28);drawShipFrame(panel.x,panel.y,panel.w,panel.h);drawLightClockTraveller(panel.x,panel.y,panel.w,panel.h);}if(mode==='observer'){const panel={x:70,y:42,w:760,h:330};drawPanelTitle('Stationary observer frame',panel.x,28);drawShipFrame(panel.x,panel.y,panel.w,panel.h);drawLightClockObserver(panel.x,panel.y,panel.w,panel.h,v.beta,v.gamma);}drawCalculations(v);requestAnimationFrame(drawSimulation);}
+    function drawGraph(){const v=getValues(),g=graphCtx,w=graphCanvas.width,h=graphCanvas.height;g.clearRect(0,0,w,h);g.fillStyle='#fff';g.fillRect(0,0,w,h);const marginLeft=70,marginRight=30,marginTop=30,marginBottom=60,plotW=w-marginLeft-marginRight,plotH=h-marginTop-marginBottom;g.strokeStyle='#cbd5e1';g.lineWidth=1;for(let i=0;i<=10;i++){const x=marginLeft+plotW*i/10;g.beginPath();g.moveTo(x,marginTop);g.lineTo(x,marginTop+plotH);g.stroke();}for(let i=0;i<=8;i++){const y=marginTop+plotH-plotH*i/8;g.beginPath();g.moveTo(marginLeft,y);g.lineTo(marginLeft+plotW,y);g.stroke();}g.strokeStyle='#1f2937';g.lineWidth=2;g.beginPath();g.moveTo(marginLeft,marginTop);g.lineTo(marginLeft,marginTop+plotH);g.lineTo(marginLeft+plotW,marginTop+plotH);g.stroke();g.strokeStyle='#2563eb';g.lineWidth=3;g.beginPath();for(let i=0;i<=99;i++){const beta=i/100,gamma=1/Math.sqrt(1-beta*beta),x=marginLeft+beta*plotW,y=marginTop+plotH-Math.min(gamma,8)/8*plotH;if(i===0)g.moveTo(x,y);else g.lineTo(x,y);}g.stroke();const currentX=marginLeft+v.beta*plotW,currentY=marginTop+plotH-Math.min(v.gamma,8)/8*plotH;g.fillStyle='#fde047';g.beginPath();g.arc(currentX,currentY,8,0,Math.PI*2);g.fill();g.strokeStyle='#f59e0b';g.lineWidth=2;g.beginPath();g.moveTo(currentX,currentY);g.lineTo(currentX,marginTop+plotH);g.stroke();g.fillStyle='#1f2937';g.font='bold 16px Arial';g.fillText('Lorentz factor compared with speed',marginLeft,22);g.font='13px Arial';g.fillText('Speed as a fraction of light speed',marginLeft+250,h-18);g.save();g.translate(22,marginTop+190);g.rotate(-Math.PI/2);g.fillText('Lorentz factor',0,0);g.restore();g.font='12px Arial';for(let i=0;i<=10;i+=2){const x=marginLeft+plotW*i/10;g.fillText((i/10).toFixed(1)+'c',x-12,marginTop+plotH+20);}for(let i=0;i<=8;i+=2){const y=marginTop+plotH-plotH*i/8;g.fillText(String(i),marginLeft-28,y+4);}g.fillStyle='#1e3a8a';g.font='bold 14px Arial';const labelX=currentX>700?currentX-210:currentX+12,labelY=Math.max(currentY-10,45);g.fillText(`Current: ${formatNumber(v.beta,2)}c, gamma ${formatNumber(v.gamma,2)}`,labelX,labelY);}
+    function addRow(v){rows.push({speed:`${formatNumber(v.beta,2)}c`,gamma:formatNumber(v.gamma,2),observerTime:`${formatNumber(v.observerYears,1)} years`,travellerTime:`${formatNumber(v.travellerYears,1)} years`,distance:`${formatNumber(v.distance,1)} ly`});renderTable();}
+    function renderTable(){dataBody.innerHTML='';rows.forEach(row=>{const tr=document.createElement('tr');Object.values(row).forEach(value=>{const td=document.createElement('td');td.textContent=value;tr.appendChild(td);});dataBody.appendChild(tr);});}
+    function csvEscape(value){const text=String(value);if(text.includes(',')||text.includes('"')||text.includes('\n')||text.includes('\r'))return `"${text.replaceAll('"','""')}"`;return text;}
+    function exportCSV(){const header=['Speed','Lorentz factor','Stationary observer time','Traveller time','Distance travelled'],csvRows=[header.join(',')];rows.forEach(row=>csvRows.push([row.speed,row.gamma,row.observerTime,row.travellerTime,row.distance].map(csvEscape).join(',')));const blob=new Blob([csvRows.join('\n')],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='special-relativity-light-clock-data.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);}
+    function seedRows(){[.50,.90,.99].forEach(beta=>{const gamma=1/Math.sqrt(1-beta*beta);addRow({beta,gamma,observerYears:20,travellerYears:20/gamma,distance:beta*20});});}
+    function resetSim(){speedSlider.value=80;observerTimeSlider.value=20;viewMode.value='split';showPath.checked=true;showCalculations.checked=true;phase=0;rows=[];renderTable();seedRows();updateReadouts();predictionFeedback.textContent='Choose a prediction, then check it.';predictionFeedback.style.color='#1f2937';document.querySelectorAll("input[name='prediction']").forEach(input=>input.checked=false);}
+    document.querySelectorAll('.preset-grid button').forEach(button=>button.addEventListener('click',()=>{speedSlider.value=button.dataset.speed;updateReadouts();}));
+    pauseBtn.addEventListener('click',()=>{running=!running;pauseBtn.textContent=running?'Pause':'Resume';});
+    recordBtn.addEventListener('click',()=>addRow(getValues()));
+    exportBtn.addEventListener('click',exportCSV);
+    resetBtn.addEventListener('click',resetSim);
+    checkPredictionBtn.addEventListener('click',()=>{const selected=document.querySelector("input[name='prediction']:checked");if(!selected){predictionFeedback.textContent='Choose a prediction first.';predictionFeedback.style.color='#b45309';return;}if(selected.value==='correct'){predictionFeedback.textContent='Correct. Time dilation is tiny at low speeds but rises very quickly close to the speed of light.';predictionFeedback.style.color='#15803d';}else{predictionFeedback.textContent='Not quite. Use the graph: gamma stays close to 1 at low speeds, then rises sharply near light speed.';predictionFeedback.style.color='#b45309';}});
+    speedSlider.addEventListener('input',updateReadouts);observerTimeSlider.addEventListener('input',updateReadouts);viewMode.addEventListener('change',updateReadouts);showPath.addEventListener('change',updateReadouts);showCalculations.addEventListener('change',updateReadouts);
+    seedRows();updateReadouts();drawSimulation();
+  </script>
+</body>
+</html>
