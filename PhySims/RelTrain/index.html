@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8">
+  <title>Einstein Train Thought Experiment Simulator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root{
+      --bg:#f5f7fb;--card:#ffffff;--ink:#1f2937;--muted:#5b6472;--accent:#2563eb;--accent-dark:#1d4ed8;--line:#d9e2ef;--soft:#eaf1ff;--good:#15803d;--warn:#b45309;--rear:#f59e0b;--front:#2563eb;
+    }
+    *{box-sizing:border-box;}
+    html,body{margin:0;overflow-x:hidden;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;}
+    .page{width:100%;max-width:1180px;margin:0 auto;padding:24px;}
+    .home-link{display:inline-block;margin-bottom:16px;color:var(--accent);font-weight:700;text-decoration:none;}
+    .home-link:hover{text-decoration:underline;}
+    header{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;border-radius:22px;padding:28px;margin-bottom:20px;box-shadow:0 12px 30px rgba(15,23,42,.18);}
+    header h1{margin:0 0 8px;font-size:clamp(2rem,4vw,3.2rem);line-height:1.05;}
+    header p{margin:0;max-width:900px;color:#dbeafe;font-size:1.05rem;}
+    .li-sc{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+    .li-sc div{background:var(--soft);border:1px solid #c7d7fe;border-radius:16px;padding:16px;}
+    .li-sc h2{font-size:1rem;margin:0 0 8px;color:#1e3a8a;}
+    .li-sc p{margin:0;}
+    .grid{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start;}
+    .right-stack{display:flex;flex-direction:column;gap:20px;min-width:0;}
+    .card{min-width:0;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 8px 22px rgba(15,23,42,.08);}
+    .card h2,.card h3{margin-top:0;}
+    label{display:block;font-weight:700;margin:16px 0 6px;}
+    input[type="range"]{width:100%;}
+    select,button{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font-size:.95rem;}
+    button{cursor:pointer;background:var(--accent);color:#fff;font-weight:700;border:none;margin-top:10px;}
+    button:hover{background:var(--accent-dark);}
+    .button-secondary{background:#e5e7eb;color:var(--ink);}
+    .button-secondary:hover{background:#d1d5db;}
+    .preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+    .preset-grid button{margin-top:0;padding:8px;font-size:.85rem;background:#eff6ff;color:#1e3a8a;border:1px solid #bfdbfe;}
+    .preset-grid button:hover{background:#dbeafe;}
+    .readout{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+    .metric{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:12px;}
+    .metric span{display:block;color:var(--muted);font-size:.82rem;}
+    .metric strong{display:block;font-size:1.08rem;margin-top:3px;}
+    .canvas-wrap{width:100%;overflow-x:auto;border-radius:18px;border:1px solid var(--line);background:#020617;}
+    canvas{display:block;width:100%;height:auto;background:#020617;}
+    #timelineCanvas{background:#fff;border-radius:16px;border:1px solid var(--line);}
+    .live-note{margin-top:10px;padding:12px;border-radius:14px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a8a;font-weight:700;}
+    .legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:.9rem;color:var(--muted);}
+    .key{display:inline-flex;align-items:center;gap:6px;}
+    .swatch{width:14px;height:14px;border-radius:50%;display:inline-block;}
+    .wide{grid-column:1/-1;}
+    table{width:100%;border-collapse:collapse;margin-top:12px;font-size:.95rem;}
+    th,td{border:1px solid var(--line);padding:9px;text-align:left;}
+    th{background:#eff6ff;color:#1e3a8a;}
+    .prediction-box{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:10px;}
+    .prediction-box label{font-weight:400;margin:8px 0;}
+    .feedback{margin-top:10px;padding:10px;border-radius:12px;background:#f8fafc;border:1px solid var(--line);font-weight:700;}
+    .challenge{background:#fff7ed;border-color:#fed7aa;}
+    .teacher{background:#f0fdf4;border-color:#bbf7d0;}
+    .small{font-size:.9rem;color:var(--muted);}
+    ul{padding-left:20px;}
+    @media(max-width:900px){.page{padding:16px;}.grid,.li-sc{grid-template-columns:1fr;}header{padding:20px;}.readout{grid-template-columns:1fr;}canvas,#timelineCanvas{width:900px;max-width:none;}.canvas-wrap{overflow-x:auto;}}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+    <header>
+      <h1>Einstein Train Thought Experiment Simulator</h1>
+      <p>Explore the relativity of simultaneity using a train, two lightning strikes and observers in different frames of reference.</p>
+    </header>
+
+    <section class="li-sc">
+      <div><h2>Learning Intention</h2><p>Students will understand that two distant events judged simultaneous in one frame of reference may not be judged simultaneous in another moving frame.</p></div>
+      <div><h2>Success Criteria</h2><p>Students can compare the platform and train frames, identify which light signal is received first, and explain why simultaneity is frame-dependent.</p></div>
+    </section>
+
+    <main class="grid">
+      <section class="card">
+        <h2>Controls</h2>
+        <label for="speedSlider">Train speed</label>
+        <input id="speedSlider" type="range" min="0" max="90" value="60" step="1">
+        <p class="small">Current speed: <strong id="speedText">0.60c</strong></p>
+        <div class="preset-grid">
+          <button data-speed="0">Stationary</button><button data-speed="20">0.20c</button><button data-speed="50">0.50c</button><button data-speed="80">0.80c</button>
+        </div>
+
+        <label for="offsetSlider">Platform-frame lightning timing</label>
+        <input id="offsetSlider" type="range" min="-4" max="4" value="0" step="0.2">
+        <p class="small"><strong id="offsetText">Simultaneous on platform</strong></p>
+
+        <label for="viewMode">View mode</label>
+        <select id="viewMode">
+          <option value="both">Both observers</option>
+          <option value="platform">Platform observer only</option>
+          <option value="train">Train passenger only</option>
+        </select>
+
+        <label><input id="showWavefronts" type="checkbox" checked> Show light wavefronts</label>
+        <label><input id="showCalculations" type="checkbox" checked> Show frame comparison</label>
+
+        <button id="pauseBtn">Pause</button>
+        <button id="stepBackBtn" class="button-secondary">Step back</button>
+        <button id="stepForwardBtn" class="button-secondary">Step forward</button>
+        <button id="replayBtn" class="button-secondary">Replay animation</button>
+        <button id="recordBtn" class="button-secondary">Record data row</button>
+        <button id="exportBtn" class="button-secondary">Export CSV</button>
+        <button id="resetBtn" class="button-secondary">Reset</button>
+
+        <div class="readout">
+          <div class="metric"><span>Speed</span><strong id="betaOut">0.60c</strong></div>
+          <div class="metric"><span>Lorentz factor</span><strong id="gammaOut">1.25</strong></div>
+          <div class="metric"><span>Platform judgement</span><strong id="platformOut">simultaneous</strong></div>
+          <div class="metric"><span>Train judgement</span><strong id="trainOut">front strike first</strong></div>
+        </div>
+      </section>
+
+      <div class="right-stack">
+        <section class="card">
+          <h2>Simulation</h2>
+          <div class="canvas-wrap"><canvas id="simCanvas" width="900" height="520"></canvas></div>
+          <div class="legend">
+            <span class="key"><span class="swatch" style="background:#f59e0b"></span> Rear strike signal</span>
+            <span class="key"><span class="swatch" style="background:#2563eb"></span> Front strike signal</span>
+            <span class="key"><span class="swatch" style="background:#f8fafc;border:1px solid #94a3b8"></span> Observer or passenger</span>
+          </div>
+          <div id="liveNote" class="live-note">Run the animation to compare what each observer concludes.</div>
+          <p class="small">Receiving a flash first is not the whole argument. The key idea is that each frame assigns times to distant events differently after accounting for light travelling at the same speed in that frame.</p>
+        </section>
+
+        <section class="card">
+          <h2>Event Timeline</h2>
+          <p>The timeline compares how the same pair of lightning events is assigned a time in each frame.</p>
+          <div class="canvas-wrap"><canvas id="timelineCanvas" width="900" height="250"></canvas></div>
+        </section>
+      </div>
+
+      <section class="card wide">
+        <h2>Student Prediction</h2>
+        <p>Before running the simulation, choose the statement you think is most correct.</p>
+        <div class="prediction-box">
+          <label><input type="radio" name="prediction" value="same"> If two flashes happen at the same time for the platform observer, all observers must agree they happened at the same time.</label>
+          <label><input type="radio" name="prediction" value="correct"> Observers in relative motion can disagree about whether distant events happened at the same time.</label>
+          <label><input type="radio" name="prediction" value="sound"> The effect happens because light behaves like sound and needs air to travel.</label>
+          <label><input type="radio" name="prediction" value="speed"> The passenger only disagrees because the train is slower than light.</label>
+          <button id="checkPredictionBtn" class="button-secondary">Check prediction</button>
+          <div id="predictionFeedback" class="feedback">Choose a prediction, then check it.</div>
+        </div>
+      </section>
+
+      <section class="card wide">
+        <h2>Class Data Table</h2>
+        <p>Change the train speed and record rows. Look for the relationship between speed and disagreement about simultaneity.</p>
+        <table><thead><tr><th>Train speed</th><th>Lorentz factor</th><th>Platform timing</th><th>Train-frame timing difference</th><th>Train judgement</th></tr></thead><tbody id="dataBody"></tbody></table>
+      </section>
+
+      <section class="card wide challenge">
+        <h2>Student Challenge</h2>
+        <ol>
+          <li>Set the timing offset to <strong>0.0</strong>. What does the platform observer conclude?</li>
+          <li>Increase the train speed from <strong>0.20c</strong> to <strong>0.80c</strong>. How does the train passenger's judgement change?</li>
+          <li>Use the timeline to explain why simultaneity is not absolute.</li>
+          <li>Find a timing offset where the train passenger judges the events as simultaneous. What does the platform observer judge?</li>
+        </ol>
+      </section>
+
+      <section class="card wide teacher">
+        <h2>Teacher Notes</h2>
+        <p>This simulator models Einstein's train thought experiment as a conceptual introduction to the relativity of simultaneity.</p>
+        <ul>
+          <li><strong>Key idea:</strong> simultaneity depends on the observer's frame of reference when events are separated in space.</li>
+          <li><strong>Platform frame:</strong> two distant lightning strikes can be set to occur at the same time.</li>
+          <li><strong>Train frame:</strong> the train passenger assigns different times to the distant strikes because their frame is moving relative to the platform frame.</li>
+          <li><strong>Formula used:</strong> Δt′ = γ(Δt − vΔx/c²), using c = 1 simulation units.</li>
+          <li><strong>Teaching caution:</strong> this is a simplified visual model. The wavefronts and spacing are exaggerated so students can see the logic of the thought experiment.</li>
+        </ul>
+        <h3>Sources</h3>
+        <ul>
+          <li>Einstein Online, Relativity of simultaneity: https://www.einstein-online.info/en/spotlight/simultaneity/</li>
+          <li>OpenStax University Physics Volume 3, Relativity of Simultaneity: https://openstax.org/books/university-physics-volume-3/pages/5-5-the-lorentz-transformation</li>
+          <li>UNSW EinsteinLight, Relativity of simultaneity: https://www.phys.unsw.edu.au/einsteinlight/jw/module4_simultaneity.htm</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const simCanvas=document.getElementById('simCanvas'),ctx=simCanvas.getContext('2d');
+    const timelineCanvas=document.getElementById('timelineCanvas'),tctx=timelineCanvas.getContext('2d');
+    const speedSlider=document.getElementById('speedSlider'),offsetSlider=document.getElementById('offsetSlider'),speedText=document.getElementById('speedText'),offsetText=document.getElementById('offsetText'),viewMode=document.getElementById('viewMode'),showWavefronts=document.getElementById('showWavefronts'),showCalculations=document.getElementById('showCalculations');
+    const betaOut=document.getElementById('betaOut'),gammaOut=document.getElementById('gammaOut'),platformOut=document.getElementById('platformOut'),trainOut=document.getElementById('trainOut'),dataBody=document.getElementById('dataBody'),liveNote=document.getElementById('liveNote');
+    const pauseBtn=document.getElementById('pauseBtn'),stepBackBtn=document.getElementById('stepBackBtn'),stepForwardBtn=document.getElementById('stepForwardBtn'),replayBtn=document.getElementById('replayBtn'),recordBtn=document.getElementById('recordBtn'),exportBtn=document.getElementById('exportBtn'),resetBtn=document.getElementById('resetBtn'),checkPredictionBtn=document.getElementById('checkPredictionBtn'),predictionFeedback=document.getElementById('predictionFeedback');
+    let running=true,simTime=0,rows=[];
+    const cycleEnd=16;
+    const stepSize=0.6;
+    const separation=10;
+    const rearColour='#f59e0b';
+    const frontColour='#2563eb';
+
+    function values(){
+      const beta=Number(speedSlider.value)/100;
+      const gamma=1/Math.sqrt(1-beta*beta);
+      const offset=Number(offsetSlider.value);
+      const deltaTPlatform=offset;
+      const deltaX=separation;
+      const deltaTTrain=gamma*(deltaTPlatform-beta*deltaX);
+      return{beta,gamma,offset,deltaTPlatform,deltaX,deltaTTrain};
+    }
+    function n(v,p=2){return Number(v).toFixed(p);}
+    function timingLabel(delta){if(Math.abs(delta)<0.08)return 'simultaneous';return delta>0?'front strike later':'front strike earlier';}
+    function firstLabel(delta){if(Math.abs(delta)<0.08)return 'simultaneous';return delta>0?'rear strike first':'front strike first';}
+    function platformTimingText(v){if(Math.abs(v.offset)<0.05)return 'Simultaneous on platform';if(v.offset>0)return `Front strike ${n(v.offset,1)} light-seconds later on platform`;return `Front strike ${n(Math.abs(v.offset),1)} light-seconds earlier on platform`;}
+    function updateReadouts(){const v=values();speedText.textContent=`${n(v.beta,2)}c`;offsetText.textContent=platformTimingText(v);betaOut.textContent=`${n(v.beta,2)}c`;gammaOut.textContent=n(v.gamma,2);platformOut.textContent=firstLabel(v.deltaTPlatform);trainOut.textContent=firstLabel(v.deltaTTrain);updateLiveNote(v);drawTimeline();}
+    function updateLiveNote(v){let sentence;if(Math.abs(v.deltaTPlatform)<0.08){sentence='Platform frame: the two lightning strikes are simultaneous.';}else{sentence=`Platform frame: ${firstLabel(v.deltaTPlatform)}.`;}sentence+=` Train frame: ${firstLabel(v.deltaTTrain)}.`;sentence+=' The disagreement is about assigned event times, not just about when light reaches an eye.';liveNote.textContent=sentence;}
+
+    function roundedRect(g,x,y,w,h,r,fill,stroke){g.beginPath();g.moveTo(x+r,y);g.lineTo(x+w-r,y);g.quadraticCurveTo(x+w,y,x+w,y+r);g.lineTo(x+w,y+h-r);g.quadraticCurveTo(x+w,y+h,x+w-r,y+h);g.lineTo(x+r,y+h);g.quadraticCurveTo(x,y+h,x,y+h-r);g.lineTo(x,y+r);g.quadraticCurveTo(x,y,x+r,y);g.closePath();g.fillStyle=fill;g.fill();if(stroke){g.strokeStyle=stroke;g.lineWidth=2;g.stroke();}}
+    function xFromWorld(x,panel){return panel.x+panel.w/2+x*panel.scale;}
+    function drawStars(g,w,h){g.fillStyle='#020617';g.fillRect(0,0,w,h);for(let i=0;i<130;i++){const x=(i*83)%w,y=(i*47)%h,size=(i%3)+1;g.fillStyle=i%4===0?'#dbeafe':'#94a3b8';g.fillRect(x,y,size,size);}}
+    function drawLightning(g,x,y,colour){g.strokeStyle=colour;g.lineWidth=4;g.beginPath();g.moveTo(x,y-32);g.lineTo(x-10,y-8);g.lineTo(x+4,y-8);g.lineTo(x-8,y+28);g.lineTo(x+14,y-2);g.lineTo(x+2,y-2);g.lineTo(x,y-32);g.stroke();}
+    function drawArrow(g,x1,y,x2,colour,label){g.strokeStyle=colour;g.fillStyle=colour;g.lineWidth=3;g.beginPath();g.moveTo(x1,y);g.lineTo(x2,y);g.stroke();const dir=x2>x1?1:-1;g.beginPath();g.moveTo(x2,y);g.lineTo(x2-14*dir,y-8);g.lineTo(x2-14*dir,y+8);g.closePath();g.fill();g.font='12px Arial';g.fillText(label,Math.min(x1,x2)+10,y-10);}
+    function drawTrain(g,x,y,w,h,label){roundedRect(g,x,y,w,h,18,'#172554','#60a5fa');g.fillStyle='#93c5fd';for(let i=0;i<4;i++){roundedRect(g,x+28+i*(w-80)/4,y+22,(w-110)/5,34,7,'#bfdbfe',null);}g.fillStyle='#dbeafe';g.font='bold 14px Arial';g.fillText(label,x+18,y+18);g.fillStyle='#f8fafc';g.beginPath();g.arc(x+w/2,y+h/2+8,9,0,Math.PI*2);g.fill();g.font='12px Arial';g.fillText('passenger',x+w/2-30,y+h/2+32);g.fillStyle='#bfdbfe';g.font='bold 12px Arial';g.fillText('rear',x+16,y+h-12);g.fillText('front',x+w-48,y+h-12);}
+    function drawHitBadge(g,x,y,text,colour){roundedRect(g,x-64,y-18,128,26,13,'rgba(15,23,42,.9)',colour);g.fillStyle='#f8fafc';g.font='bold 12px Arial';g.textAlign='center';g.fillText(text,x,y);g.textAlign='left';}
+
+    function drawFrame(panel,title,frameType,v){
+      roundedRect(ctx,panel.x,panel.y,panel.w,panel.h,18,'#0f172a','#60a5fa');ctx.save();ctx.beginPath();ctx.rect(panel.x,panel.y,panel.w,panel.h);ctx.clip();ctx.fillStyle='#dbeafe';ctx.font='bold 18px Arial';ctx.fillText(title,panel.x+18,panel.y+26);
+      const leftStrike=-separation/2,rightStrike=separation/2;const strikeY=panel.y+82;const trackY=panel.y+panel.h-72;const centreX=xFromWorld(0,panel);const leftX=xFromWorld(leftStrike,panel),rightX=xFromWorld(rightStrike,panel);
+      ctx.strokeStyle='#334155';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(panel.x+30,trackY);ctx.lineTo(panel.x+panel.w-30,trackY);ctx.stroke();
+      ctx.strokeStyle='#64748b';ctx.lineWidth=2;ctx.setLineDash([4,6]);ctx.beginPath();ctx.moveTo(leftX,panel.y+55);ctx.lineTo(leftX,trackY);ctx.moveTo(rightX,panel.y+55);ctx.lineTo(rightX,trackY);ctx.stroke();ctx.setLineDash([]);
+      drawLightning(ctx,leftX,strikeY,rearColour);drawLightning(ctx,rightX,strikeY,frontColour);
+      ctx.fillStyle='#fbbf24';ctx.font='bold 12px Arial';ctx.fillText('rear strike',leftX-31,panel.y+125);ctx.fillStyle='#93c5fd';ctx.fillText('front strike',rightX-32,panel.y+125);
+      let trainCentre=centreX;if(frameType==='platform')trainCentre=centreX+v.beta*simTime*panel.scale*0.32;const trainW=260,trainH=78;const trainY=panel.y+panel.h-170;drawTrain(ctx,trainCentre-trainW/2,trainY,trainW,trainH,frameType==='platform'?'moving train':'train frame');
+      if(frameType==='platform'&&v.beta>0.01){drawArrow(ctx,trainCentre-85,trainY-22,trainCentre-25,'#60a5fa','train motion');}
+      const passengerX=frameType==='platform'?trainCentre:centreX;const passengerY=trainY+trainH/2+8;
+      ctx.fillStyle='#f8fafc';ctx.beginPath();ctx.arc(passengerX,passengerY,7,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#0f172a';ctx.lineWidth=2;ctx.stroke();
+      ctx.fillStyle='#f8fafc';ctx.beginPath();ctx.arc(centreX,trackY,8,0,Math.PI*2);ctx.fill();ctx.font='12px Arial';ctx.fillText('platform observer',centreX-48,trackY+25);
+
+      const rearTime=simTime;const frontTime=simTime-v.offset;const waveScale=panel.scale*0.42;let rearRadius=rearTime>0?rearTime*waveScale:0;let frontRadius=frontTime>0?frontTime*waveScale:0;
+      const rearDist=Math.hypot(passengerX-leftX,passengerY-strikeY);const frontDist=Math.hypot(passengerX-rightX,passengerY-strikeY);
+      const rearHit=rearRadius>=rearDist&&rearTime>0;const frontHit=frontRadius>=frontDist&&frontTime>0;
+      if(showWavefronts.checked){ctx.lineWidth=3;if(rearTime>0){ctx.strokeStyle='rgba(245,158,11,.88)';ctx.beginPath();ctx.arc(leftX,strikeY,rearRadius,0,Math.PI*2);ctx.stroke();ctx.strokeStyle='rgba(245,158,11,.45)';ctx.beginPath();ctx.moveTo(leftX,strikeY);ctx.lineTo(passengerX,passengerY);ctx.stroke();}if(frontTime>0){ctx.strokeStyle='rgba(37,99,235,.88)';ctx.beginPath();ctx.arc(rightX,strikeY,frontRadius,0,Math.PI*2);ctx.stroke();ctx.strokeStyle='rgba(37,99,235,.45)';ctx.beginPath();ctx.moveTo(rightX,strikeY);ctx.lineTo(passengerX,passengerY);ctx.stroke();}}
+      if(rearHit&&!frontHit)drawHitBadge(ctx,passengerX,passengerY-38,'rear received',rearColour);if(frontHit&&!rearHit)drawHitBadge(ctx,passengerX,passengerY-38,'front received',frontColour);if(frontHit&&rearHit)drawHitBadge(ctx,passengerX,passengerY-38,'both received','#22c55e');
+
+      if(showCalculations.checked){ctx.fillStyle='rgba(15,23,42,.88)';ctx.fillRect(panel.x+22,panel.y+panel.h-40,panel.w-44,26);ctx.fillStyle='#e0f2fe';ctx.font='13px Arial';if(frameType==='platform'){ctx.fillText(`Platform frame: Δt = ${n(v.deltaTPlatform,1)}. ${firstLabel(v.deltaTPlatform)}.`,panel.x+32,panel.y+panel.h-22);}else{ctx.fillText(`Train frame: Δt′ = ${n(v.deltaTTrain,1)}. ${firstLabel(v.deltaTTrain)}.`,panel.x+32,panel.y+panel.h-22);}}
+      ctx.restore();
+    }
+
+    function drawSimulation(){const v=values();updateReadouts();if(running){simTime+=0.035;if(simTime>=cycleEnd){simTime=cycleEnd;running=false;pauseBtn.textContent='Resume';}}drawStars(ctx,simCanvas.width,simCanvas.height);const mode=viewMode.value;if(mode==='both'){const left={x:26,y:42,w:405,h:382,scale:28};const right={x:469,y:42,w:405,h:382,scale:28};drawFrame(left,'Platform frame','platform',v);drawFrame(right,'Train passenger frame','train',v);}else if(mode==='platform'){const panel={x:70,y:42,w:760,h:382,scale:45};drawFrame(panel,'Platform frame','platform',v);}else{const panel={x:70,y:42,w:760,h:382,scale:45};drawFrame(panel,'Train passenger frame','train',v);}requestAnimationFrame(drawSimulation);}
+
+    function drawTimeline(){const v=values(),g=tctx,w=timelineCanvas.width,h=timelineCanvas.height;g.clearRect(0,0,w,h);g.fillStyle='#fff';g.fillRect(0,0,w,h);g.fillStyle='#1f2937';g.font='bold 16px Arial';g.fillText('Event timing comparison',34,28);const x0=145,x1=w-70;const yPlatform=86,yTrain=170;function axis(y,label){g.strokeStyle='#94a3b8';g.lineWidth=2;g.beginPath();g.moveTo(x0,y);g.lineTo(x1,y);g.stroke();g.fillStyle='#1f2937';g.font='bold 13px Arial';g.fillText(label,34,y+5);g.font='12px Arial';g.fillStyle='#5b6472';g.fillText('earlier',x0-8,y+24);g.fillText('later',x1-26,y+24);g.strokeStyle='#e2e8f0';g.beginPath();g.moveTo((x0+x1)/2,y-16);g.lineTo((x0+x1)/2,y+16);g.stroke();}axis(yPlatform,'Platform');axis(yTrain,'Train');function mark(y,delta,label,colour){const centre=(x0+x1)/2;const scale=28;const x=centre+Math.max(-10,Math.min(10,delta))*scale;g.fillStyle=colour;g.beginPath();g.arc(x,y,9,0,Math.PI*2);g.fill();g.font='12px Arial';g.fillStyle='#1f2937';g.fillText(label,x-30,y-16);}mark(yPlatform,0,'rear',rearColour);mark(yPlatform,v.deltaTPlatform,'front',frontColour);mark(yTrain,0,'rear',rearColour);mark(yTrain,v.deltaTTrain,'front',frontColour);g.fillStyle='#1e3a8a';g.font='bold 13px Arial';g.fillText(`Δt on platform = ${n(v.deltaTPlatform,1)}     Δt′ on train = ${n(v.deltaTTrain,1)}     Train judgement: ${firstLabel(v.deltaTTrain)}`,x0,226);}
+
+    function addRow(v){rows.push({speed:`${n(v.beta,2)}c`,gamma:n(v.gamma,2),platform:v.offset===0?'simultaneous':`${n(v.deltaTPlatform,1)} light-seconds`,train:`${n(v.deltaTTrain,1)} light-seconds`,judge:firstLabel(v.deltaTTrain)});renderTable();}
+    function renderTable(){dataBody.innerHTML='';rows.forEach(row=>{const tr=document.createElement('tr');Object.values(row).forEach(value=>{const td=document.createElement('td');td.textContent=value;tr.appendChild(td);});dataBody.appendChild(tr);});}
+    function csvEscape(value){
+      const text=String(value);
+      if(text.indexOf(',')!==-1 || text.indexOf('"')!==-1 || text.indexOf(String.fromCharCode(10))!==-1 || text.indexOf(String.fromCharCode(13))!==-1){
+        return '"' + text.replaceAll('"','""') + '"';
+      }
+      return text;
+    }
+
+    function exportCSV(){
+      const header=['Train speed','Lorentz factor','Platform timing','Train-frame timing difference','Train judgement'];
+      const out=[header.join(',')];
+      rows.forEach(r=>{
+        out.push([r.speed,r.gamma,r.platform,r.train,r.judge].map(csvEscape).join(','));
+      });
+      const csvText=out.join(String.fromCharCode(10));
+      const blob=new Blob([csvText],{type:'text/csv'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url;
+      a.download='einstein-train-simultaneity-data.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+    function reset(){speedSlider.value=60;offsetSlider.value=0;viewMode.value='both';showWavefronts.checked=true;showCalculations.checked=true;simTime=0;rows=[];renderTable();seedRows();predictionFeedback.textContent='Choose a prediction, then check it.';predictionFeedback.style.color='#1f2937';document.querySelectorAll("input[name='prediction']").forEach(i=>i.checked=false);updateReadouts();}
+    function seedRows(){[0.2,0.5,0.8].forEach(beta=>{const gamma=1/Math.sqrt(1-beta*beta);const deltaTTrain=gamma*(0-beta*separation);addRow({beta,gamma,offset:0,deltaTPlatform:0,deltaTTrain});});}
+
+    document.querySelectorAll('.preset-grid button').forEach(b=>b.addEventListener('click',()=>{speedSlider.value=b.dataset.speed;updateReadouts();}));
+    speedSlider.addEventListener('input',updateReadouts);offsetSlider.addEventListener('input',updateReadouts);viewMode.addEventListener('change',updateReadouts);showWavefronts.addEventListener('change',updateReadouts);showCalculations.addEventListener('change',updateReadouts);
+    pauseBtn.addEventListener('click',()=>{if(!running&&simTime>=cycleEnd){simTime=0;}running=!running;pauseBtn.textContent=running?'Pause':'Resume';});
+    stepBackBtn.addEventListener('click',()=>{running=false;pauseBtn.textContent='Resume';simTime=Math.max(0,simTime-stepSize);updateReadouts();});
+    stepForwardBtn.addEventListener('click',()=>{running=false;pauseBtn.textContent='Resume';simTime=Math.min(cycleEnd,simTime+stepSize);updateReadouts();});
+    replayBtn.addEventListener('click',()=>{simTime=0;running=true;pauseBtn.textContent='Pause';});
+    recordBtn.addEventListener('click',()=>addRow(values()));
+    exportBtn.addEventListener('click',exportCSV);
+    resetBtn.addEventListener('click',reset);
+    checkPredictionBtn.addEventListener('click',()=>{const selected=document.querySelector("input[name='prediction']:checked");if(!selected){predictionFeedback.textContent='Choose a prediction first.';predictionFeedback.style.color='#b45309';return;}if(selected.value==='correct'){predictionFeedback.textContent='Correct. Simultaneity is frame-dependent for distant events when observers are moving relative to each other.';predictionFeedback.style.color='#15803d';}else{predictionFeedback.textContent='Not quite. The key idea is that different inertial observers can disagree about the timing order of distant events.';predictionFeedback.style.color='#b45309';}});
+
+    seedRows();updateReadouts();drawSimulation();
+  </script>
+</body>
+</html>
