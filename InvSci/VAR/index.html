@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Accuracy, Reliability and Validity Lab</title>
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --panel:#ffffff;
+      --ink:#172033;
+      --muted:#5d6b82;
+      --line:#d8e0ee;
+      --blue:#2563eb;
+      --blue-soft:#dbeafe;
+      --green:#16865a;
+      --green-soft:#dcfce7;
+      --amber:#b7791f;
+      --amber-soft:#fef3c7;
+      --red:#b91c1c;
+      --red-soft:#fee2e2;
+      --purple:#7c3aed;
+      --purple-soft:#ede9fe;
+      --shadow:0 12px 30px rgba(15,23,42,0.08);
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box;}
+
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:radial-gradient(circle at top left,#e0ecff 0,#f5f7fb 38%,#f7f8fb 100%);
+      color:var(--ink);
+      line-height:1.5;
+    }
+
+    .page{
+      width:min(1260px,calc(100% - 32px));
+      margin:0 auto;
+      padding:24px 0 48px;
+    }
+
+    .home-link{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:18px;
+      color:#1d4ed8;
+      text-decoration:none;
+      font-weight:700;
+      background:rgba(255,255,255,0.82);
+      border:1px solid var(--line);
+      padding:9px 13px;
+      border-radius:999px;
+      box-shadow:0 8px 20px rgba(15,23,42,0.05);
+    }
+
+    header.hero{
+      background:linear-gradient(135deg,#172033,#164e63 52%,#2563eb);
+      color:white;
+      border-radius:28px;
+      padding:30px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+
+    header.hero::after{
+      content:"";
+      position:absolute;
+      width:320px;
+      height:320px;
+      border-radius:50%;
+      background:rgba(255,255,255,0.1);
+      right:-90px;
+      top:-110px;
+    }
+
+    .hero-content{position:relative;z-index:1;max-width:920px;}
+
+    h1{
+      margin:0 0 10px;
+      font-size:clamp(2rem,5vw,4rem);
+      line-height:1.02;
+      letter-spacing:-0.04em;
+    }
+
+    h2,h3{margin:0 0 10px;}
+
+    .subtitle{
+      margin:0;
+      font-size:clamp(1rem,2vw,1.25rem);
+      color:#dbeafe;
+      max-width:830px;
+    }
+
+    .li-sc{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:16px;
+      margin:18px 0 0;
+    }
+
+    .li-sc div{
+      background:rgba(255,255,255,0.1);
+      border:1px solid rgba(255,255,255,0.18);
+      border-radius:16px;
+      padding:14px;
+    }
+
+    .li-sc h2{
+      margin:0 0 6px;
+      font-size:0.95rem;
+      color:#bfdbfe;
+      text-transform:uppercase;
+      letter-spacing:0.06em;
+    }
+
+    .li-sc p{margin:0;color:white;}
+
+    main{
+      display:grid;
+      grid-template-columns:390px 1fr;
+      gap:18px;
+      margin-top:18px;
+      align-items:start;
+    }
+
+    .card{
+      background:rgba(255,255,255,0.92);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+
+    .muted{color:var(--muted);}
+    .small{font-size:0.92rem;}
+
+    label{
+      display:block;
+      font-weight:800;
+      margin:14px 0 6px;
+    }
+
+    select,input[type="range"],input[type="number"],textarea{
+      width:100%;
+      font:inherit;
+    }
+
+    select,input[type="number"],textarea{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px 12px;
+      background:#ffffff;
+      color:var(--ink);
+    }
+
+    textarea{
+      min-height:120px;
+      resize:vertical;
+    }
+
+    .slider-row{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:10px;
+      align-items:center;
+    }
+
+    .slider-value{
+      min-width:72px;
+      text-align:right;
+      font-weight:900;
+      color:#1e3a8a;
+      background:#eff6ff;
+      border:1px solid #bfdbfe;
+      border-radius:999px;
+      padding:4px 8px;
+    }
+
+    .scenario-box{
+      border-radius:16px;
+      padding:14px;
+      background:var(--blue-soft);
+      border:1px solid #bfdbfe;
+      margin:12px 0;
+    }
+
+    .scenario-box h2{font-size:1.1rem;margin-bottom:6px;}
+    .scenario-box p{margin:0 0 8px;}
+    .scenario-box p:last-child{margin-bottom:0;}
+
+    .criteria-box{
+      border-radius:16px;
+      padding:14px;
+      background:#f8fafc;
+      border:1px solid var(--line);
+      margin:12px 0;
+    }
+
+    .criteria-box ul{margin:8px 0 0;padding-left:20px;}
+    .criteria-box li{margin-bottom:4px;}
+
+    .settings-note{
+      display:none;
+      border-radius:14px;
+      padding:10px 12px;
+      background:var(--amber-soft);
+      border:1px solid #fbbf24;
+      color:#92400e;
+      font-weight:800;
+      margin-top:12px;
+    }
+
+    .control-list{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:8px;
+      margin-top:8px;
+    }
+
+    .control-item{
+      display:grid;
+      grid-template-columns:auto 1fr;
+      gap:10px;
+      align-items:start;
+      background:#ffffff;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px;
+      font-weight:700;
+      margin:0;
+    }
+
+    .control-item input{
+      width:18px;
+      height:18px;
+      margin-top:2px;
+    }
+
+    .control-note{
+      display:block;
+      color:var(--muted);
+      font-weight:400;
+      font-size:0.86rem;
+      margin-top:2px;
+    }
+
+    .button-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    button{
+      border:0;
+      border-radius:999px;
+      padding:11px 16px;
+      font-weight:900;
+      cursor:pointer;
+      color:white;
+      background:var(--blue);
+      box-shadow:0 8px 18px rgba(37,99,235,0.22);
+    }
+
+    button.secondary{
+      color:#1e3a8a;
+      background:#dbeafe;
+      box-shadow:none;
+      border:1px solid #bfdbfe;
+    }
+
+    button.ghost{
+      color:var(--ink);
+      background:#ffffff;
+      border:1px solid var(--line);
+      box-shadow:none;
+    }
+
+    button:disabled{opacity:0.55;cursor:not-allowed;}
+
+    .preset-grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    .preset-btn{
+      width:100%;
+      border-radius:12px;
+      text-align:left;
+      color:#0f172a;
+      background:#f8fafc;
+      border:1px solid var(--line);
+      box-shadow:none;
+      padding:10px 12px;
+    }
+
+    .results-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:10px;
+      margin-bottom:14px;
+    }
+
+    .stat{
+      background:#f8fafc;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      text-align:center;
+    }
+
+    .stat .number{
+      display:block;
+      font-size:1.55rem;
+      font-weight:900;
+      color:#1e3a8a;
+      line-height:1.1;
+    }
+
+    .stat .label{
+      color:var(--muted);
+      font-size:0.86rem;
+      font-weight:800;
+    }
+
+    .status-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+      margin:14px 0;
+    }
+
+    .status-card{
+      border-radius:16px;
+      border:1px solid var(--line);
+      padding:14px;
+      background:#ffffff;
+    }
+
+    .status-card.good{background:var(--green-soft);border-color:#86efac;}
+    .status-card.warn{background:var(--amber-soft);border-color:#fbbf24;}
+    .status-card.bad{background:var(--red-soft);border-color:#fca5a5;}
+
+    .status-card h3{
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      align-items:center;
+      margin:0 0 6px;
+      font-size:1rem;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:4px 9px;
+      border-radius:999px;
+      font-size:0.78rem;
+      font-weight:900;
+      background:#eff6ff;
+      color:#1d4ed8;
+      border:1px solid #bfdbfe;
+      white-space:nowrap;
+    }
+
+    .pill.good{background:#dcfce7;color:#166534;border-color:#86efac;}
+    .pill.warn{background:#fef3c7;color:#92400e;border-color:#fbbf24;}
+    .pill.bad{background:#fee2e2;color:#991b1b;border-color:#fca5a5;}
+
+    .graph-wrap{
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#ffffff;
+      padding:12px;
+      overflow:hidden;
+    }
+
+    canvas{
+      width:100%;
+      height:360px;
+      display:block;
+      border-radius:12px;
+      background:linear-gradient(180deg,#ffffff,#f8fafc);
+    }
+
+    .legend{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:10px;
+      color:var(--muted);
+      font-size:0.9rem;
+    }
+
+    .legend-item{display:inline-flex;align-items:center;gap:6px;font-weight:800;}
+    .swatch{width:18px;height:4px;border-radius:999px;background:#1d4ed8;display:inline-block;}
+    .swatch.mean{background:#7c3aed;}
+    .swatch.true{background:#16a34a;}
+    .swatch.points{height:10px;width:10px;border-radius:50%;background:#2563eb;}
+    .swatch.band{height:10px;background:rgba(34,197,94,0.22);border:1px solid rgba(22,163,74,0.35);}
+
+    .two-col{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:18px;
+      margin-top:18px;
+    }
+
+    .feedback-list{margin:8px 0 0;padding-left:20px;}
+    .feedback-list li{margin-bottom:6px;}
+
+    .table-wrap{
+      max-height:330px;
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#ffffff;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:0.9rem;
+    }
+
+    th,td{
+      border-bottom:1px solid var(--line);
+      padding:8px;
+      text-align:left;
+      vertical-align:top;
+    }
+
+    th{
+      position:sticky;
+      top:0;
+      background:#f8fafc;
+      color:#334155;
+      font-size:0.78rem;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+      z-index:1;
+    }
+
+    .concept-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .concept-card{
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:#ffffff;
+      padding:14px;
+    }
+
+    .concept-card strong{color:#1e3a8a;}
+
+    footer{
+      margin-top:18px;
+      color:var(--muted);
+      text-align:center;
+      font-size:0.9rem;
+    }
+
+    @media (max-width:1040px){
+      main{grid-template-columns:1fr;}
+      .li-sc,.two-col,.concept-grid{grid-template-columns:1fr;}
+    }
+
+    @media (max-width:760px){
+      .results-grid,.status-grid{grid-template-columns:1fr 1fr;}
+      canvas{height:300px;}
+    }
+
+    @media (max-width:560px){
+      .results-grid,.status-grid{grid-template-columns:1fr;}
+      header.hero{padding:22px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+
+    <header class="hero">
+      <div class="hero-content">
+        <h1>Accuracy, Reliability and Validity Lab</h1>
+        <p class="subtitle">Generate experimental datasets by adjusting sample size, equipment precision, random error, systematic error and controlled variables. Analyse when results are accurate, reliable or valid.</p>
+        <section class="li-sc" aria-label="Learning intention and success criteria">
+          <div>
+            <h2>Learning Intention</h2>
+            <p>Students will understand that accuracy, reliability and validity describe different qualities of scientific data and experimental design.</p>
+          </div>
+          <div>
+            <h2>Success Criteria</h2>
+            <p>Students can interpret datasets and graphs to decide whether results are accurate, reliable and valid, then justify their judgement using evidence.</p>
+          </div>
+        </section>
+      </div>
+    </header>
+
+    <main>
+      <aside class="card">
+        <h2>1. Set up the investigation</h2>
+        <p class="muted small">Run repeated trials, then compare the results with the known true value. Change the settings to test different data quality problems.</p>
+
+        <label for="scenarioSelect">Investigation context</label>
+        <select id="scenarioSelect"></select>
+
+        <div class="scenario-box">
+          <h2 id="scenarioTitle">Scenario</h2>
+          <p id="scenarioQuestion" class="muted">Question</p>
+          <p><strong>Known true value:</strong> <span id="trueValueLabel"></span></p>
+        </div>
+
+        <div class="criteria-box small">
+          <strong>How the sim judges the data</strong>
+          <ul>
+            <li><strong>Accurate:</strong> mean is within 5% of the true value.</li>
+            <li><strong>Reliable:</strong> relative standard deviation is 5% or less.</li>
+            <li><strong>Valid:</strong> at least 70% of major controls are kept constant.</li>
+          </ul>
+        </div>
+
+        <label for="sampleSize">Sample size / repeated trials</label>
+        <div class="slider-row">
+          <input id="sampleSize" type="range" min="3" max="50" value="10" step="1" />
+          <span id="sampleSizeValue" class="slider-value">10</span>
+        </div>
+
+        <label for="precision">Equipment precision</label>
+        <select id="precision"></select>
+
+        <label for="randomError">Random error</label>
+        <div class="slider-row">
+          <input id="randomError" type="range" min="0" max="20" value="5" step="1" />
+          <span id="randomErrorValue" class="slider-value">5%</span>
+        </div>
+
+        <label for="systematicError">Systematic error</label>
+        <div class="slider-row">
+          <input id="systematicError" type="range" min="-20" max="20" value="0" step="1" />
+          <span id="systematicErrorValue" class="slider-value">0%</span>
+        </div>
+
+        <label>Major controlled variables</label>
+        <p class="muted small" style="margin-bottom:8px;">Untick controls to model a weaker experimental design.</p>
+        <div id="controlList" class="control-list"></div>
+        <p class="small"><strong>Controls kept:</strong> <span id="controlQualityValue">0/0</span></p>
+
+        <div id="settingsNote" class="settings-note">Settings changed. The previous dataset was cleared so the results do not mix different methods.</div>
+
+        <div class="button-row">
+          <button id="runBtn">Run trials</button>
+          <button id="addRunBtn" class="secondary">Add another run</button>
+          <button id="resetBtn" class="ghost">Reset</button>
+        </div>
+
+        <h2 style="margin-top:18px;">Quick presets</h2>
+        <div class="preset-grid">
+          <button class="preset-btn" data-preset="accurateNotReliable">Accurate but not reliable</button>
+          <button class="preset-btn" data-preset="reliableNotAccurate">Reliable but not accurate</button>
+          <button class="preset-btn" data-preset="invalidDesign">Invalid due to poor design</button>
+          <button class="preset-btn" data-preset="highQuality">Accurate, reliable and valid</button>
+        </div>
+      </aside>
+
+      <section>
+        <section class="card">
+          <h2>2. Results and graph</h2>
+          <div class="results-grid">
+            <div class="stat"><span id="meanStat" class="number">--</span><span class="label">Mean</span></div>
+            <div class="stat"><span id="sdStat" class="number">--</span><span class="label">Standard deviation</span></div>
+            <div class="stat"><span id="rangeStat" class="number">--</span><span class="label">Range</span></div>
+            <div class="stat"><span id="errorStat" class="number">--</span><span class="label">Percentage error</span></div>
+          </div>
+
+          <div class="graph-wrap">
+            <canvas id="resultsCanvas" width="1000" height="420" aria-label="Experimental trial graph"></canvas>
+            <div class="legend">
+              <span class="legend-item"><span class="swatch points"></span> Trial result</span>
+              <span class="legend-item"><span class="swatch true"></span> True value</span>
+              <span class="legend-item"><span class="swatch mean"></span> Mean result</span>
+              <span class="legend-item"><span class="swatch band"></span> Accurate zone, within 5%</span>
+            </div>
+          </div>
+
+          <div class="status-grid">
+            <div id="accuracyCard" class="status-card">
+              <h3>Accuracy <span id="accuracyPill" class="pill">Not run</span></h3>
+              <p id="accuracyText" class="small muted">Run trials to assess closeness to the true value.</p>
+            </div>
+            <div id="reliabilityCard" class="status-card">
+              <h3>Reliability <span id="reliabilityPill" class="pill">Not run</span></h3>
+              <p id="reliabilityText" class="small muted">Run trials to assess consistency across repeated trials.</p>
+            </div>
+            <div id="validityCard" class="status-card">
+              <h3>Validity <span id="validityPill" class="pill">Not run</span></h3>
+              <p id="validityText" class="small muted">Run trials to assess whether the design tests the question fairly.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="two-col">
+          <section class="card">
+            <h2>3. Data table</h2>
+            <p class="muted small">The measured value includes random error, systematic error, equipment rounding and any bias from poorly controlled variables.</p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Run</th>
+                    <th>Trial</th>
+                    <th>Measured value</th>
+                    <th>Difference from true value</th>
+                    <th>Controls</th>
+                  </tr>
+                </thead>
+                <tbody id="dataBody">
+                  <tr><td colspan="5" class="muted">No data yet. Press Run trials.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="button-row">
+              <button id="exportBtn" class="secondary" disabled>Export CSV</button>
+            </div>
+          </section>
+
+          <section class="card">
+            <h2>4. Interpretation feedback</h2>
+            <p id="classificationText" class="scenario-box">Run trials to classify the dataset.</p>
+            <ul id="feedbackList" class="feedback-list"></ul>
+            <label for="studentClaim">Student claim</label>
+            <textarea id="studentClaim" placeholder="Use the graph and data table to explain whether this dataset is accurate, reliable and valid..."></textarea>
+            <div class="button-row">
+              <button id="scaffoldBtn" class="secondary">Add writing scaffold</button>
+              <button id="clearWritingBtn" class="ghost">Clear writing</button>
+            </div>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <section class="concept-grid">
+      <section class="concept-card">
+        <h2>Accuracy</h2>
+        <p><strong>Accuracy</strong> describes how close a result is to the true or accepted value. A small percentage error usually means the result is more accurate.</p>
+      </section>
+      <section class="concept-card">
+        <h2>Reliability</h2>
+        <p><strong>Reliability</strong> describes how consistent the repeated trials are. A small spread, range or standard deviation usually means the results are more reliable.</p>
+      </section>
+      <section class="concept-card">
+        <h2>Validity</h2>
+        <p><strong>Validity</strong> describes whether the method actually tests the scientific question. Poorly controlled variables can make an investigation invalid even if the numbers look neat.</p>
+      </section>
+    </section>
+
+    <section class="two-col">
+      <section class="card">
+        <h2>Student challenge</h2>
+        <p>Use the quick presets to create three different datasets:</p>
+        <ul>
+          <li>accurate but not reliable</li>
+          <li>reliable but not accurate</li>
+          <li>invalid because of poor controlled variables</li>
+        </ul>
+        <p>For each dataset, use the graph, mean, standard deviation and percentage error to justify your judgement.</p>
+      </section>
+
+      <section class="card">
+        <h2>Teacher notes</h2>
+        <ul>
+          <li><strong>Accuracy focus:</strong> look at the distance between the mean and the true value.</li>
+          <li><strong>Reliability focus:</strong> look at the spread of repeated trials, not whether the results are correct.</li>
+          <li><strong>Validity focus:</strong> look at experimental design. A dataset can appear reliable but still be invalid if variables were not controlled.</li>
+          <li><strong>Extension:</strong> students can export the CSV and calculate mean, range, standard deviation and percentage error in a spreadsheet.</li>
+        </ul>
+      </section>
+    </section>
+
+    <footer>
+      SciSims Accuracy, Reliability and Validity Lab | Experimental datasets and scientific judgement
+    </footer>
+  </div>
+
+  <script>
+    const scenarios = [
+      {
+        id:"density",
+        title:"Density of a metal block",
+        question:"How close is the measured density of the block to the accepted density?",
+        trueValue:7.8,
+        unit:"g/cm³",
+        precisionOptions:[
+          {value:0.01,label:"Very precise: nearest 0.01 g/cm³"},
+          {value:0.05,label:"Precise: nearest 0.05 g/cm³"},
+          {value:0.1,label:"Moderate: nearest 0.1 g/cm³"},
+          {value:0.5,label:"Low precision: nearest 0.5 g/cm³"}
+        ],
+        controls:[
+          {id:"sameBlock",name:"Same metal block",note:"Changing the object changes the accepted density."},
+          {id:"zeroBalance",name:"Balance zeroed before measuring",note:"A balance offset creates systematic error."},
+          {id:"volumeMethod",name:"Same volume measurement method",note:"Different methods may produce different volumes."},
+          {id:"temperature",name:"Same block temperature",note:"Temperature can slightly change volume."},
+          {id:"dryObject",name:"Block dried before measuring",note:"Extra water changes the measured mass."}
+        ]
+      },
+      {
+        id:"pendulum",
+        title:"Pendulum period",
+        question:"How close is the measured period of a pendulum to its accepted period?",
+        trueValue:1.42,
+        unit:"s",
+        precisionOptions:[
+          {value:0.01,label:"Very precise: nearest 0.01 s"},
+          {value:0.05,label:"Precise: nearest 0.05 s"},
+          {value:0.1,label:"Moderate: nearest 0.1 s"},
+          {value:0.2,label:"Low precision: nearest 0.2 s"}
+        ],
+        controls:[
+          {id:"length",name:"Same string length",note:"Pendulum length strongly affects period."},
+          {id:"angle",name:"Same release angle",note:"Different release angles can change the motion."},
+          {id:"bob",name:"Same pendulum bob",note:"Keeps the physical system consistent."},
+          {id:"pivot",name:"Same pivot point",note:"A different pivot can change friction and length."},
+          {id:"timing",name:"Same timing method",note:"Human timing choices affect measured period."}
+        ]
+      },
+      {
+        id:"reaction",
+        title:"Reaction time test",
+        question:"How close is the measured reaction time to the accepted reference value?",
+        trueValue:245,
+        unit:"ms",
+        precisionOptions:[
+          {value:1,label:"Very precise: nearest 1 ms"},
+          {value:5,label:"Precise: nearest 5 ms"},
+          {value:10,label:"Moderate: nearest 10 ms"},
+          {value:20,label:"Low precision: nearest 20 ms"}
+        ],
+        controls:[
+          {id:"participant",name:"Same participant",note:"Different people have different reaction times."},
+          {id:"hand",name:"Same hand used",note:"Dominant and non-dominant hands can differ."},
+          {id:"starting",name:"Same starting position",note:"The ruler or button must start consistently."},
+          {id:"cue",name:"Same visual cue",note:"Different cues can change response time."},
+          {id:"practice",name:"Same number of practice trials",note:"Practice can improve performance."}
+        ]
+      },
+      {
+        id:"dissolving",
+        title:"Dissolving time",
+        question:"How close is the measured dissolving time to the accepted time under standard conditions?",
+        trueValue:38,
+        unit:"s",
+        precisionOptions:[
+          {value:0.1,label:"Very precise: nearest 0.1 s"},
+          {value:0.5,label:"Precise: nearest 0.5 s"},
+          {value:1,label:"Moderate: nearest 1 s"},
+          {value:2,label:"Low precision: nearest 2 s"}
+        ],
+        controls:[
+          {id:"temperature",name:"Same water temperature",note:"Temperature affects dissolving rate."},
+          {id:"soluteMass",name:"Same mass of sugar",note:"More solute usually takes longer to dissolve."},
+          {id:"particleSize",name:"Same particle size",note:"Smaller particles dissolve faster."},
+          {id:"stirring",name:"Same stirring rate",note:"Stirring affects dissolving time."},
+          {id:"waterVolume",name:"Same volume of water",note:"Water volume changes dissolving conditions."}
+        ]
+      }
+    ];
+
+    const presets = {
+      accurateNotReliable:{sampleSize:12,precisionIndex:1,randomError:16,systematicError:0,checkedControls:5,target:"accurateNotReliable"},
+      reliableNotAccurate:{sampleSize:12,precisionIndex:1,randomError:2,systematicError:14,checkedControls:5,target:"reliableNotAccurate"},
+      invalidDesign:{sampleSize:12,precisionIndex:1,randomError:2,systematicError:0,checkedControls:2,target:"invalidDesign"},
+      highQuality:{sampleSize:20,precisionIndex:0,randomError:2,systematicError:0,checkedControls:5,target:"highQuality"}
+    };
+
+    const scenarioSelect = document.getElementById("scenarioSelect");
+    const scenarioTitle = document.getElementById("scenarioTitle");
+    const scenarioQuestion = document.getElementById("scenarioQuestion");
+    const trueValueLabel = document.getElementById("trueValueLabel");
+    const sampleSize = document.getElementById("sampleSize");
+    const precision = document.getElementById("precision");
+    const randomError = document.getElementById("randomError");
+    const systematicError = document.getElementById("systematicError");
+    const controlList = document.getElementById("controlList");
+    const sampleSizeValue = document.getElementById("sampleSizeValue");
+    const randomErrorValue = document.getElementById("randomErrorValue");
+    const systematicErrorValue = document.getElementById("systematicErrorValue");
+    const controlQualityValue = document.getElementById("controlQualityValue");
+    const settingsNote = document.getElementById("settingsNote");
+    const canvas = document.getElementById("resultsCanvas");
+    const ctx = canvas.getContext("2d");
+    const meanStat = document.getElementById("meanStat");
+    const sdStat = document.getElementById("sdStat");
+    const rangeStat = document.getElementById("rangeStat");
+    const errorStat = document.getElementById("errorStat");
+    const dataBody = document.getElementById("dataBody");
+    const exportBtn = document.getElementById("exportBtn");
+    const classificationText = document.getElementById("classificationText");
+    const feedbackList = document.getElementById("feedbackList");
+    const studentClaim = document.getElementById("studentClaim");
+
+    const status = {
+      accuracy:{card:document.getElementById("accuracyCard"),pill:document.getElementById("accuracyPill"),text:document.getElementById("accuracyText")},
+      reliability:{card:document.getElementById("reliabilityCard"),pill:document.getElementById("reliabilityPill"),text:document.getElementById("reliabilityText")},
+      validity:{card:document.getElementById("validityCard"),pill:document.getElementById("validityPill"),text:document.getElementById("validityText")}
+    };
+
+    let currentScenario = scenarios[0];
+    let allData = [];
+    let runNumber = 0;
+    let latestSummary = null;
+
+    function formatValue(value, decimals = 2){
+      if(!Number.isFinite(value)) return "--";
+      return Number(value).toFixed(decimals);
+    }
+
+    function normalRandom(){
+      let u = 0;
+      let v = 0;
+      while(u === 0) u = Math.random();
+      while(v === 0) v = Math.random();
+      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    }
+
+    function roundToPrecision(value, step){
+      const rounded = Math.round(value / step) * step;
+      const decimals = step < 0.1 ? 2 : step < 1 ? 1 : 0;
+      return Number(rounded.toFixed(decimals));
+    }
+
+    function mean(values){
+      return values.reduce((sum,value) => sum + value,0) / values.length;
+    }
+
+    function standardDeviation(values){
+      if(values.length < 2) return 0;
+      const m = mean(values);
+      const variance = values.reduce((sum,value) => sum + Math.pow(value - m,2),0) / (values.length - 1);
+      return Math.sqrt(variance);
+    }
+
+    function getCheckedControls(){
+      return Array.from(document.querySelectorAll(".control-check:checked")).map(item => item.value);
+    }
+
+    function getControlScore(){
+      if(!currentScenario.controls.length) return 100;
+      return Math.round((getCheckedControls().length / currentScenario.controls.length) * 100);
+    }
+
+    function updateLabels(){
+      sampleSizeValue.textContent = sampleSize.value;
+      randomErrorValue.textContent = `${randomError.value}%`;
+      systematicErrorValue.textContent = `${systematicError.value}%`;
+      controlQualityValue.textContent = `${getCheckedControls().length}/${currentScenario.controls.length} (${getControlScore()}%)`;
+    }
+
+    function populatePrecisionOptions(){
+      precision.innerHTML = currentScenario.precisionOptions.map((option,index) => `<option value="${option.value}" data-index="${index}">${option.label}</option>`).join("");
+    }
+
+    function populateControls(checkedCount){
+      const count = typeof checkedCount === "number" ? checkedCount : currentScenario.controls.length;
+      controlList.innerHTML = currentScenario.controls.map((control,index) => {
+        const checked = index < count ? "checked" : "";
+        return `
+          <label class="control-item">
+            <input class="control-check" type="checkbox" value="${control.id}" ${checked} />
+            <span>${control.name}<span class="control-note">${control.note}</span></span>
+          </label>
+        `;
+      }).join("");
+      document.querySelectorAll(".control-check").forEach(item => {
+        item.addEventListener("change", () => {
+          updateLabels();
+          clearDataBecauseSettingsChanged();
+        });
+      });
+      updateLabels();
+    }
+
+    function loadScenario(){
+      currentScenario = scenarios.find(s => s.id === scenarioSelect.value) || scenarios[0];
+      scenarioTitle.textContent = currentScenario.title;
+      scenarioQuestion.textContent = currentScenario.question;
+      trueValueLabel.textContent = `${currentScenario.trueValue} ${currentScenario.unit}`;
+      populatePrecisionOptions();
+      populateControls(currentScenario.controls.length);
+      resetData(false);
+    }
+
+    function populateScenarios(){
+      scenarioSelect.innerHTML = scenarios.map(s => `<option value="${s.id}">${s.title}</option>`).join("");
+      loadScenario();
+    }
+
+    function buildDeterministicOffsets(target,n){
+      const spreadOffsets = [-0.18,0.18,-0.14,0.14,-0.10,0.10,-0.08,0.08,-0.06,0.06,-0.04,0.04];
+      const smallOffsets = [-0.012,0.012,-0.009,0.009,-0.006,0.006,-0.004,0.004,-0.002,0.002,0,0];
+      const offsets = [];
+      for(let i = 0; i < n; i += 1){
+        if(target === "accurateNotReliable") offsets.push(spreadOffsets[i % spreadOffsets.length]);
+        else if(target === "reliableNotAccurate") offsets.push(0.12 + smallOffsets[i % smallOffsets.length]);
+        else if(target === "invalidDesign") offsets.push(smallOffsets[i % smallOffsets.length]);
+        else if(target === "highQuality") offsets.push(smallOffsets[i % smallOffsets.length]);
+        else offsets.push(null);
+      }
+      return offsets;
+    }
+
+    function generateRun(target){
+      runNumber += 1;
+      const n = Number(sampleSize.value);
+      const precisionStep = Number(precision.value);
+      const randomPct = Number(randomError.value) / 100;
+      const systematicPct = Number(systematicError.value) / 100;
+      const controlScore = getControlScore();
+      const uncontrolledStrength = Math.max(0, (100 - controlScore) / 100);
+      const deterministicOffsets = buildDeterministicOffsets(target,n);
+      const newData = [];
+
+      for(let i = 1; i <= n; i += 1){
+        let rawValue;
+        if(deterministicOffsets[i - 1] !== null){
+          rawValue = currentScenario.trueValue * (1 + deterministicOffsets[i - 1]);
+        }else{
+          const randomShift = normalRandom() * currentScenario.trueValue * randomPct;
+          const systematicShift = currentScenario.trueValue * systematicPct;
+          const uncontrolledDirection = i % 2 === 0 ? 1 : -1;
+          const uncontrolledDrift = uncontrolledDirection * currentScenario.trueValue * uncontrolledStrength * (0.03 + Math.random() * 0.09);
+          const uncontrolledBias = currentScenario.trueValue * uncontrolledStrength * 0.07;
+          rawValue = currentScenario.trueValue + systematicShift + randomShift + uncontrolledDrift + uncontrolledBias;
+        }
+        const measured = roundToPrecision(rawValue, precisionStep);
+        newData.push({
+          run:runNumber,
+          trial:i,
+          measured,
+          difference:measured - currentScenario.trueValue,
+          controls:`${getCheckedControls().length}/${currentScenario.controls.length}`
+        });
+      }
+
+      allData = allData.concat(newData);
+      latestSummary = analyseData(allData);
+      settingsNote.style.display = "none";
+      renderAll();
+    }
+
+    function analyseData(data){
+      const values = data.map(d => d.measured);
+      const m = mean(values);
+      const sd = standardDeviation(values);
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const range = max - min;
+      const percentageError = Math.abs((m - currentScenario.trueValue) / currentScenario.trueValue) * 100;
+      const relativeSd = (sd / currentScenario.trueValue) * 100;
+      const controlScore = getControlScore();
+      const accurate = percentageError <= 5;
+      const reliable = relativeSd <= 5;
+      const valid = controlScore >= 70;
+      return {m,sd,min,max,range,percentageError,relativeSd,controlScore,accurate,reliable,valid};
+    }
+
+    function setStatus(which, result, goodText, badText, detail){
+      const item = status[which];
+      item.card.classList.remove("good","warn","bad");
+      item.pill.className = "pill";
+      if(result){
+        item.card.classList.add("good");
+        item.pill.classList.add("good");
+        item.pill.textContent = "Yes";
+        item.text.textContent = goodText;
+      }else{
+        item.card.classList.add("bad");
+        item.pill.classList.add("bad");
+        item.pill.textContent = "No";
+        item.text.textContent = `${badText} ${detail}`;
+      }
+    }
+
+    function classify(summary){
+      if(!summary.valid) return "Invalid design: important controlled variables were not kept constant, so the investigation does not fairly test the question.";
+      if(summary.accurate && summary.reliable) return "High quality dataset: the results are accurate, reliable and valid.";
+      if(summary.accurate && !summary.reliable) return "Accurate but not reliable: the mean is close to the true value, but the repeated trials are too spread out.";
+      if(!summary.accurate && summary.reliable) return "Reliable but not accurate: the trials are consistent, but they are consistently away from the true value.";
+      return "Low quality dataset: the results are not close to the true value and the repeated trials are not consistent.";
+    }
+
+    function renderSummary(){
+      if(!latestSummary){
+        meanStat.textContent = "--";
+        sdStat.textContent = "--";
+        rangeStat.textContent = "--";
+        errorStat.textContent = "--";
+        return;
+      }
+
+      meanStat.textContent = `${formatValue(latestSummary.m)} ${currentScenario.unit}`;
+      sdStat.textContent = `${formatValue(latestSummary.sd)} ${currentScenario.unit}`;
+      rangeStat.textContent = `${formatValue(latestSummary.range)} ${currentScenario.unit}`;
+      errorStat.textContent = `${formatValue(latestSummary.percentageError)}%`;
+
+      setStatus(
+        "accuracy",
+        latestSummary.accurate,
+        `The mean is close to the true value, with ${formatValue(latestSummary.percentageError)}% error.`,
+        "The mean is not close enough to the true value.",
+        `Percentage error is ${formatValue(latestSummary.percentageError)}%.`
+      );
+
+      setStatus(
+        "reliability",
+        latestSummary.reliable,
+        `The repeated trials are consistent, with relative standard deviation of ${formatValue(latestSummary.relativeSd)}%.`,
+        "The repeated trials are too spread out.",
+        `Relative standard deviation is ${formatValue(latestSummary.relativeSd)}%.`
+      );
+
+      setStatus(
+        "validity",
+        latestSummary.valid,
+        `Most major controls were kept constant: ${getCheckedControls().length}/${currentScenario.controls.length}.`,
+        "The experimental design is weak because important controlled variables are not controlled.",
+        `Only ${getCheckedControls().length}/${currentScenario.controls.length} major controls were kept constant.`
+      );
+
+      const missedControls = currentScenario.controls.filter(control => !getCheckedControls().includes(control.id)).map(control => control.name);
+      const missedText = missedControls.length ? missedControls.join(", ") : "none";
+
+      classificationText.textContent = classify(latestSummary);
+      feedbackList.innerHTML = [
+        `Mean result: ${formatValue(latestSummary.m)} ${currentScenario.unit}, compared with the true value of ${currentScenario.trueValue} ${currentScenario.unit}.`,
+        `Spread of data: standard deviation is ${formatValue(latestSummary.sd)} ${currentScenario.unit} and range is ${formatValue(latestSummary.range)} ${currentScenario.unit}.`,
+        `Systematic error shifts results in one direction, making them less accurate even when they are reliable.`,
+        `Random error increases spread, making repeated trials less reliable.`,
+        `Missing controls: ${missedText}.`
+      ].map(text => `<li>${text}</li>`).join("");
+    }
+
+    function renderTable(){
+      if(allData.length === 0){
+        dataBody.innerHTML = `<tr><td colspan="5" class="muted">No data yet. Press Run trials.</td></tr>`;
+        exportBtn.disabled = true;
+        return;
+      }
+      dataBody.innerHTML = allData.map(d => `
+        <tr>
+          <td>${d.run}</td>
+          <td>${d.trial}</td>
+          <td>${formatValue(d.measured)} ${currentScenario.unit}</td>
+          <td>${formatValue(d.difference)} ${currentScenario.unit}</td>
+          <td>${d.controls}</td>
+        </tr>
+      `).join("");
+      exportBtn.disabled = false;
+    }
+
+    function drawGraph(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      const padding = {left:72,right:28,top:24,bottom:58};
+      const w = canvas.width - padding.left - padding.right;
+      const h = canvas.height - padding.top - padding.bottom;
+
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+
+      ctx.strokeStyle = "#e2e8f0";
+      ctx.lineWidth = 1;
+      for(let i = 0; i <= 5; i += 1){
+        const y = padding.top + (h / 5) * i;
+        ctx.beginPath();
+        ctx.moveTo(padding.left,y);
+        ctx.lineTo(padding.left + w,y);
+        ctx.stroke();
+      }
+
+      ctx.strokeStyle = "#334155";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(padding.left,padding.top);
+      ctx.lineTo(padding.left,padding.top + h);
+      ctx.lineTo(padding.left + w,padding.top + h);
+      ctx.stroke();
+
+      ctx.fillStyle = "#334155";
+      ctx.font = "16px Arial";
+      ctx.fillText("Trial number", padding.left + w / 2 - 42, canvas.height - 16);
+      ctx.save();
+      ctx.translate(22, padding.top + h / 2 + 56);
+      ctx.rotate(-Math.PI / 2);
