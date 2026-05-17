@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fair Test Builder</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --ink: #172033;
+      --muted: #5d6b82;
+      --line: #d8e0ee;
+      --blue: #2563eb;
+      --blue-soft: #dbeafe;
+      --green: #16865a;
+      --green-soft: #dcfce7;
+      --amber: #b7791f;
+      --amber-soft: #fef3c7;
+      --red: #b91c1c;
+      --red-soft: #fee2e2;
+      --purple: #7c3aed;
+      --purple-soft: #ede9fe;
+      --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: radial-gradient(circle at top left, #e0ecff 0, #f5f7fb 38%, #f7f8fb 100%);
+      color: var(--ink);
+      line-height: 1.5;
+    }
+
+    .page {
+      width: min(1220px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 48px;
+    }
+
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+      color: #1d4ed8;
+      text-decoration: none;
+      font-weight: 700;
+      background: rgba(255,255,255,0.8);
+      border: 1px solid var(--line);
+      padding: 9px 13px;
+      border-radius: 999px;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+    }
+
+    header.hero {
+      background: linear-gradient(135deg, #172033, #1e3a8a 52%, #2563eb);
+      color: white;
+      border-radius: 28px;
+      padding: 30px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    header.hero::after {
+      content: "";
+      position: absolute;
+      width: 310px;
+      height: 310px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      right: -90px;
+      top: -100px;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 850px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      margin: 0;
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: #dbeafe;
+      max-width: 760px;
+    }
+
+    .li-sc {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 18px 0 0;
+    }
+
+    .li-sc div {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .li-sc h2 {
+      margin: 0 0 6px;
+      font-size: 0.95rem;
+      color: #bfdbfe;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .li-sc p {
+      margin: 0;
+      color: #ffffff;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 390px 1fr;
+      gap: 18px;
+      margin-top: 18px;
+      align-items: start;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.9);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .card h2, .card h3 {
+      margin: 0 0 10px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin: 14px 0 6px;
+    }
+
+    select, textarea, input[type="text"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 11px 12px;
+      background: #ffffff;
+      color: var(--ink);
+      font-size: 1rem;
+      font-family: inherit;
+    }
+
+    select:focus, textarea:focus, input[type="text"]:focus {
+      outline: 3px solid rgba(37, 99, 235, 0.18);
+      border-color: var(--blue);
+    }
+
+    textarea {
+      min-height: 126px;
+      resize: vertical;
+    }
+
+    .scenario-box {
+      border-radius: 16px;
+      padding: 16px;
+      background: var(--blue-soft);
+      border: 1px solid #bfdbfe;
+      margin: 12px 0;
+    }
+
+    .scenario-box h2 {
+      font-size: 1.15rem;
+      margin-bottom: 6px;
+    }
+
+    .question {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin: 8px 0 0;
+      color: #1e3a8a;
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .builder-area {
+      display: grid;
+      gap: 18px;
+    }
+
+    .variables-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .variable-card {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: start;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      padding: 12px;
+      border-radius: 14px;
+      min-height: 76px;
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .variable-card:hover {
+      transform: translateY(-1px);
+      border-color: #93c5fd;
+    }
+
+    .variable-card input {
+      margin-top: 4px;
+      width: 18px;
+      height: 18px;
+    }
+
+    .variable-name {
+      font-weight: 800;
+    }
+
+    .variable-note {
+      display: none;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .checked-correct {
+      border-color: #86efac;
+      background: var(--green-soft);
+    }
+
+    .checked-warning {
+      border-color: #fbbf24;
+      background: var(--amber-soft);
+    }
+
+    .checked-error {
+      border-color: #fca5a5;
+      background: var(--red-soft);
+    }
+
+    .show-feedback .variable-note {
+      display: block;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 11px 16px;
+      font-weight: 800;
+      cursor: pointer;
+      color: white;
+      background: var(--blue);
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
+    }
+
+    button.secondary {
+      color: #1e3a8a;
+      background: #dbeafe;
+      box-shadow: none;
+      border: 1px solid #bfdbfe;
+    }
+
+    button.ghost {
+      color: var(--ink);
+      background: #ffffff;
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .feedback-panel {
+      display: none;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      padding: 16px;
+      background: #ffffff;
+    }
+
+    .feedback-panel.visible {
+      display: block;
+    }
+
+    .feedback-panel.valid {
+      border-color: #86efac;
+      background: var(--green-soft);
+    }
+
+    .feedback-panel.nearly {
+      border-color: #fbbf24;
+      background: var(--amber-soft);
+    }
+
+    .feedback-panel.invalid {
+      border-color: #fca5a5;
+      background: var(--red-soft);
+    }
+
+    .feedback-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+      white-space: nowrap;
+    }
+
+    .pill.good {
+      background: #dcfce7;
+      color: #166534;
+      border-color: #86efac;
+    }
+
+    .pill.warn {
+      background: #fef3c7;
+      color: #92400e;
+      border-color: #fbbf24;
+    }
+
+    .pill.bad {
+      background: #fee2e2;
+      color: #991b1b;
+      border-color: #fca5a5;
+    }
+
+    .meter-wrap {
+      margin: 10px 0 12px;
+    }
+
+    .meter-label {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+    }
+
+    .meter {
+      width: 100%;
+      height: 16px;
+      background: rgba(255,255,255,0.75);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .meter-fill {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #ef4444, #f59e0b, #22c55e);
+      transition: width 0.35s ease;
+    }
+
+    .feedback-list {
+      margin: 10px 0 0;
+      padding-left: 20px;
+    }
+
+    .feedback-list li {
+      margin-bottom: 6px;
+    }
+
+    .method-card {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 12px;
+    }
+
+    .method-card strong {
+      color: #1e3a8a;
+    }
+
+    .mini-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .stat {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .stat .number {
+      display: block;
+      font-size: 1.7rem;
+      font-weight: 900;
+      color: #1e3a8a;
+      line-height: 1;
+    }
+
+    .stat .label {
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 9px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #334155;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .table-wrap {
+      max-height: 260px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .challenge-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .hint-box {
+      background: var(--purple-soft);
+      border: 1px solid #c4b5fd;
+      border-radius: 14px;
+      padding: 12px;
+      color: #4c1d95;
+    }
+
+    .small {
+      font-size: 0.92rem;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 980px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      .li-sc, .challenge-grid, .grid-two {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .variables-grid, .mini-stats {
+        grid-template-columns: 1fr;
+      }
+
+      header.hero {
+        padding: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+
+    <header class="hero">
+      <div class="hero-content">
+        <h1>Fair Test Builder</h1>
+        <p class="subtitle">Build a valid investigation by choosing the independent variable, dependent variable and controlled variables for different scientific questions.</p>
+        <section class="li-sc" aria-label="Learning intention and success criteria">
+          <div>
+            <h2>Learning Intention</h2>
+            <p>Students will understand that a fair test changes one independent variable, measures one dependent variable and controls other important variables.</p>
+          </div>
+          <div>
+            <h2>Success Criteria</h2>
+            <p>Students can identify variables, justify controls and decide whether an investigation is valid enough to test a scientific question.</p>
+          </div>
+        </section>
+      </div>
+    </header>
+
+    <main>
+      <aside class="card">
+        <h2>1. Choose a scenario</h2>
+        <p class="muted small">Each scenario has a different scientific question. Your job is to turn it into a fair test.</p>
+
+        <label for="scenarioSelect">Scenario</label>
+        <select id="scenarioSelect"></select>
+
+        <div class="scenario-box">
+          <h2 id="scenarioTitle">Scenario title</h2>
+          <p id="scenarioContext" class="muted">Scenario context</p>
+          <p class="question" id="scenarioQuestion">Scientific question</p>
+        </div>
+
+        <h2>2. Pick the variables</h2>
+        <label for="ivSelect">Independent variable</label>
+        <select id="ivSelect"></select>
+
+        <label for="dvSelect">Dependent variable</label>
+        <select id="dvSelect"></select>
+
+        <div class="button-row">
+          <button id="checkBtn">Check my fair test</button>
+          <button class="secondary" id="hintBtn">Show hint</button>
+          <button class="ghost" id="resetBtn">Reset</button>
+        </div>
+
+        <div id="hintBox" class="hint-box small" style="display:none; margin-top: 14px;"></div>
+      </aside>
+
+      <section class="builder-area">
+        <section class="card">
+          <h2>3. Choose what must be controlled</h2>
+          <p class="muted small">Tick the variables that should be kept the same so the test is fair. Do not control the thing you are deliberately changing.</p>
+          <div id="variablesGrid" class="variables-grid" aria-live="polite"></div>
+        </section>
+
+        <section id="feedbackPanel" class="feedback-panel" aria-live="polite">
+          <div class="feedback-title">
+            <h2 id="feedbackHeading">Feedback</h2>
+            <span id="validityPill" class="pill">Not checked</span>
+          </div>
+
+          <div class="meter-wrap">
+            <div class="meter-label">
+              <span>Fair test strength</span>
+              <span id="scoreLabel">0%</span>
+            </div>
+            <div class="meter"><div id="meterFill" class="meter-fill"></div></div>
+          </div>
+
+          <div class="mini-stats">
+            <div class="stat"><span id="ivStat" class="number">?</span><span class="label">IV</span></div>
+            <div class="stat"><span id="dvStat" class="number">?</span><span class="label">DV</span></div>
+            <div class="stat"><span id="controlStat" class="number">0/0</span><span class="label">Key controls</span></div>
+          </div>
+
+          <ul id="feedbackList" class="feedback-list"></ul>
+
+          <div class="method-card">
+            <h3>Fair test sentence</h3>
+            <p id="fairTestSentence">Check your investigation to generate a sentence.</p>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Attempt log</h2>
+          <p class="muted small">Use this to compare attempts across scenarios or export evidence of student progress.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Scenario</th>
+                  <th>IV</th>
+                  <th>DV</th>
+                  <th>Key controls</th>
+                  <th>Valid?</th>
+                  <th>Score</th>
+                </tr>
+              </thead>
+              <tbody id="attemptBody">
+                <tr><td colspan="7" class="muted">No attempts yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="button-row">
+            <button class="secondary" id="exportBtn" disabled>Export CSV</button>
+            <button class="ghost" id="clearLogBtn" disabled>Clear log</button>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <section class="challenge-grid">
+      <section class="card">
+        <h2>Student challenge</h2>
+        <p class="muted small">Write a short method using the feedback above. Include what you will change, what you will measure, what you will control, and how you will make the results reliable.</p>
+        <label for="methodText">My improved method</label>
+        <textarea id="methodText" placeholder="Example: The amount of fertiliser was changed. The height of each plant was measured after 14 days. The type of plant, amount of water, light exposure and soil type were kept the same..."></textarea>
+        <div class="button-row">
+          <button class="secondary" id="scaffoldBtn">Add scaffold</button>
+          <button class="ghost" id="clearMethodBtn">Clear writing</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Teacher notes</h2>
+        <p>This sim is designed for explicit teaching, retrieval practice or quick formative assessment on experimental design.</p>
+        <ul>
+          <li><strong>Common misconception:</strong> students often choose the variable they measure as the independent variable.</li>
+          <li><strong>Validity focus:</strong> a test is only useful when one planned factor is changed and major confounding variables are controlled.</li>
+          <li><strong>Reliability extension:</strong> ask students to add repeats, sample size, averaging and consistent measurement technique to their written method.</li>
+          <li><strong>Challenge:</strong> after students complete the presets, ask them to write their own scientific question and swap it with a partner.</li>
+        </ul>
+      </section>
+    </section>
+
+    <footer>
+      SciSims Fair Test Builder | Experimental design, variables and fair testing
+    </footer>
+  </div>
+
+  <script>
+    const scenarios = [
+      {
+        id: "plant",
+        title: "Plant growth",
+        context: "A class wants to test whether fertiliser helps bean plants grow taller over two weeks.",
+        question: "How does the amount of fertiliser affect the height of bean plants after 14 days?",
+        hint: "Look for the factor deliberately changed by the student. The measured result should be plant height after the same time period.",
+        iv: "Amount of fertiliser",
+        dv: "Plant height after 14 days",
+        minControls: 5,
+        variables: [
+          { name: "Amount of fertiliser", role: "iv", reason: "This is the variable being deliberately changed." },
+          { name: "Plant height after 14 days", role: "dv", reason: "This is the measured outcome." },
+          { name: "Type of plant", role: "control", required: true, reason: "Different plant species may grow at different rates." },
+          { name: "Amount of water", role: "control", required: true, reason: "Water affects growth and could confound the results." },
+          { name: "Light exposure", role: "control", required: true, reason: "Plants need light, so light must be kept consistent." },
+          { name: "Soil type", role: "control", required: true, reason: "Different soils can change nutrient and water availability." },
+          { name: "Pot size", role: "control", required: true, reason: "Pot size can limit root growth and water retention." },
+          { name: "Starting plant age", role: "control", required: true, reason: "Older seedlings may already be more developed." },
+          { name: "Colour of the pot", role: "optional", reason: "This is usually less important unless it changes heat absorption strongly." },
+          { name: "Day of the week measured", role: "irrelevant", reason: "The exact weekday is not the scientific factor. The time interval matters more." }
+        ]
+      },
+      {
+        id: "pendulum",
+        title: "Pendulum motion",
+        context: "Students are timing a pendulum to see what changes how long it takes to swing back and forth.",
+        question: "How does the length of a pendulum affect its period?",
+        hint: "The length is the planned change. The period is the time for a complete swing cycle.",
+        iv: "Length of the pendulum string",
+        dv: "Time for one complete swing",
+        minControls: 4,
+        variables: [
+          { name: "Length of the pendulum string", role: "iv", reason: "This is the variable being deliberately changed." },
+          { name: "Time for one complete swing", role: "dv", reason: "This is the measured period of the pendulum." },
+          { name: "Mass of the bob", role: "control", required: true, reason: "Using the same bob keeps the system consistent." },
+          { name: "Release angle", role: "control", required: true, reason: "A different starting angle can change the motion and timing." },
+          { name: "Number of swings timed", role: "control", required: true, reason: "Timing the same number of swings improves comparison." },
+          { name: "Measurement method", role: "control", required: true, reason: "The same timing method reduces inconsistent human error." },
+          { name: "Pivot point", role: "control", required: true, reason: "Changing the pivot can change friction and effective length." },
+          { name: "Colour of the string", role: "irrelevant", reason: "The colour does not usually affect pendulum period." },
+          { name: "Room decorations", role: "irrelevant", reason: "This is not a relevant scientific variable for the test." },
+          { name: "Person recording the data", role: "optional", reason: "Keeping the same person can help consistency, but method matters more." }
+        ]
+      },
+      {
+        id: "friction",
+        title: "Friction",
+        context: "A class is comparing surfaces by pulling the same block across them with a force meter.",
+        question: "How does surface type affect the force needed to start moving a block?",
+        hint: "The surface type is changed. The measured result is the force needed to start movement.",
+        iv: "Surface type",
+        dv: "Force needed to start movement",
+        minControls: 5,
+        variables: [
+          { name: "Surface type", role: "iv", reason: "This is the variable being deliberately changed." },
+          { name: "Force needed to start movement", role: "dv", reason: "This is the measured outcome from the force meter." },
+          { name: "Mass of the block", role: "control", required: true, reason: "A heavier block usually creates a larger normal force and more friction." },
+          { name: "Shape of the block", role: "control", required: true, reason: "The same contact conditions should be used for each trial." },
+          { name: "Pulling angle", role: "control", required: true, reason: "Pulling upward or downward changes the contact force." },
+          { name: "Force meter used", role: "control", required: true, reason: "Using the same equipment improves consistency." },
+          { name: "Starting method", role: "control", required: true, reason: "The same procedure is needed to compare the start of movement." },
+          { name: "Distance pulled", role: "optional", reason: "This matters more if measuring sliding force over a distance." },
+          { name: "Student's shoe size", role: "irrelevant", reason: "This is not part of the block and surface system." },
+          { name: "Colour of the block", role: "irrelevant", reason: "Colour does not normally affect friction in this test." }
+        ]
+      },
+      {
+        id: "reaction",
+        title: "Reaction time",
+        context: "Students are using a ruler-drop test to compare how quickly a person responds under different conditions.",
+        question: "How does background noise affect reaction time in a ruler-drop test?",
+        hint: "Noise is the condition being changed. The measured result is reaction time or ruler distance converted to time.",
+        iv: "Background noise level",
+        dv: "Reaction time",
+        minControls: 5,
+        variables: [
+          { name: "Background noise level", role: "iv", reason: "This is the variable being deliberately changed." },
+          { name: "Reaction time", role: "dv", reason: "This is the measured response time." },
+          { name: "Same ruler", role: "control", required: true, reason: "The same measuring tool should be used for each trial." },
+          { name: "Same hand used", role: "control", required: true, reason: "Dominant and non-dominant hands can differ in response." },
+          { name: "Starting position of ruler", role: "control", required: true, reason: "The ruler must start from the same position each time." },
+          { name: "Same participant", role: "control", required: true, reason: "Different people have different reaction times." },
+          { name: "Number of practice trials", role: "control", required: true, reason: "Practice can improve performance and affect fairness." },
+          { name: "Visual cue", role: "control", required: true, reason: "The way the drop starts must stay consistent." },
+          { name: "Colour of the ruler", role: "optional", reason: "This is usually minor, unless visibility changes greatly." },
+          { name: "Brand of shoes worn", role: "irrelevant", reason: "This is not relevant to a seated ruler-drop test." }
+        ]
+      },
+      {
+        id: "dissolving",
+        title: "Dissolving rate",
+        context: "A class is investigating how quickly sugar dissolves in water under different conditions.",
+        question: "How does water temperature affect the time taken for sugar to dissolve?",
+        hint: "Temperature is the changed factor. The measured result is how long dissolving takes.",
+        iv: "Water temperature",
+        dv: "Time taken for sugar to dissolve",
+        minControls: 5,
+        variables: [
+          { name: "Water temperature", role: "iv", reason: "This is the variable being deliberately changed." },
+          { name: "Time taken for sugar to dissolve", role: "dv", reason: "This is the measured outcome." },
+          { name: "Mass of sugar", role: "control", required: true, reason: "More sugar usually takes longer to dissolve." },
+          { name: "Volume of water", role: "control", required: true, reason: "More water can dissolve solute differently and affect time." },
+          { name: "Particle size of sugar", role: "control", required: true, reason: "Smaller particles dissolve faster due to greater surface area." },
+          { name: "Stirring rate", role: "control", required: true, reason: "Stirring affects how quickly sugar dissolves." },
+          { name: "Type of sugar", role: "control", required: true, reason: "Different sugars or grains may dissolve differently." },
+          { name: "Container shape", role: "control", required: true, reason: "Container shape can affect stirring and heat loss." },
+          { name: "Colour of stopwatch", role: "irrelevant", reason: "This does not affect dissolving rate." },
+          { name: "Music playing in the room", role: "irrelevant", reason: "This is not relevant unless it changes the stirring procedure." }
+        ]
+      }
+    ];
+
+    const scenarioSelect = document.getElementById("scenarioSelect");
+    const scenarioTitle = document.getElementById("scenarioTitle");
+    const scenarioContext = document.getElementById("scenarioContext");
+    const scenarioQuestion = document.getElementById("scenarioQuestion");
+    const ivSelect = document.getElementById("ivSelect");
+    const dvSelect = document.getElementById("dvSelect");
+    const variablesGrid = document.getElementById("variablesGrid");
+    const feedbackPanel = document.getElementById("feedbackPanel");
+    const feedbackHeading = document.getElementById("feedbackHeading");
+    const validityPill = document.getElementById("validityPill");
+    const scoreLabel = document.getElementById("scoreLabel");
+    const meterFill = document.getElementById("meterFill");
+    const ivStat = document.getElementById("ivStat");
+    const dvStat = document.getElementById("dvStat");
+    const controlStat = document.getElementById("controlStat");
+    const feedbackList = document.getElementById("feedbackList");
+    const fairTestSentence = document.getElementById("fairTestSentence");
+    const attemptBody = document.getElementById("attemptBody");
+    const exportBtn = document.getElementById("exportBtn");
+    const clearLogBtn = document.getElementById("clearLogBtn");
+    const hintBox = document.getElementById("hintBox");
+    const methodText = document.getElementById("methodText");
+
+    let currentScenario = scenarios[0];
+    let attempts = [];
+
+    function shuffleCopy(array) {
+      return array.map(value => ({ value, sort: Math.random() })).sort((a, b) => a.sort - b.sort).map(item => item.value);
+    }
+
+    function populateScenarioSelect() {
+      scenarioSelect.innerHTML = scenarios.map(s => `<option value="${s.id}">${s.title}</option>`).join("");
+    }
+
+    function optionHtml(text, placeholder = false) {
+      const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      return `<option value="${placeholder ? "" : escaped}">${escaped}</option>`;
+    }
+
+    function loadScenario(id) {
+      currentScenario = scenarios.find(s => s.id === id) || scenarios[0];
+      scenarioTitle.textContent = currentScenario.title;
+      scenarioContext.textContent = currentScenario.context;
+      scenarioQuestion.textContent = currentScenario.question;
+      hintBox.style.display = "none";
+      hintBox.textContent = "";
+
+      const names = currentScenario.variables.map(v => v.name);
+      const dropdownOptions = [optionHtml("Select a variable", true), ...names.map(name => optionHtml(name))].join("");
+      ivSelect.innerHTML = dropdownOptions;
+      dvSelect.innerHTML = dropdownOptions;
+
+      variablesGrid.classList.remove("show-feedback");
+      const shuffledVars = shuffleCopy(currentScenario.variables);
+      variablesGrid.innerHTML = shuffledVars.map((v, index) => `
+        <label class="variable-card" data-name="${v.name.replace(/"/g, "&quot;")}" data-role="${v.role}" data-required="${v.required ? "true" : "false"}">
+          <input type="checkbox" class="controlCheck" value="${v.name.replace(/"/g, "&quot;")}" />
+          <span>
+            <span class="variable-name">${v.name}</span>
+            <span class="variable-note">${v.reason}</span>
+          </span>
+        </label>
+      `).join("");
+
+      feedbackPanel.className = "feedback-panel";
+      feedbackPanel.classList.remove("visible", "valid", "nearly", "invalid");
+      feedbackList.innerHTML = "";
+      feedbackHeading.textContent = "Feedback";
+      validityPill.textContent = "Not checked";
+      validityPill.className = "pill";
+      scoreLabel.textContent = "0%";
+      meterFill.style.width = "0%";
+      ivStat.textContent = "?";
+      dvStat.textContent = "?";
+      controlStat.textContent = "0/0";
+      fairTestSentence.textContent = "Check your investigation to generate a sentence.";
+    }
+
+    function getSelectedControls() {
+      return Array.from(document.querySelectorAll(".controlCheck:checked")).map(cb => cb.value);
+    }
+
+    function getVariable(name) {
+      return currentScenario.variables.find(v => v.name === name);
+    }
+
+    function classifyControlCards() {
+      const cards = Array.from(document.querySelectorAll(".variable-card"));
+      cards.forEach(card => {
+        card.classList.remove("checked-correct", "checked-warning", "checked-error");
+        const check = card.querySelector("input");
+        if (!check.checked) return;
+        const role = card.dataset.role;
+        const required = card.dataset.required === "true";
+        if (role === "control" && required) card.classList.add("checked-correct");
+        if (role === "control" && !required) card.classList.add("checked-warning");
+        if (role === "optional") card.classList.add("checked-warning");
+        if (role === "irrelevant" || role === "iv" || role === "dv") card.classList.add("checked-error");
+      });
+      variablesGrid.classList.add("show-feedback");
+    }
+
+    function calculateAttempt() {
+      const selectedIV = ivSelect.value;
+      const selectedDV = dvSelect.value;
+      const selectedControls = getSelectedControls();
+      const requiredControls = currentScenario.variables.filter(v => v.role === "control" && v.required);
+      const selectedRequired = selectedControls.filter(name => {
+        const variable = getVariable(name);
+        return variable && variable.role === "control" && variable.required;
+      });
+      const missedRequired = requiredControls.filter(v => !selectedControls.includes(v.name));
+      const dangerous = selectedControls.filter(name => {
+        const variable = getVariable(name);
+        return variable && (variable.role === "iv" || variable.role === "dv");
+      });
+      const irrelevant = selectedControls.filter(name => {
+        const variable = getVariable(name);
+        return variable && variable.role === "irrelevant";
+      });
+      const optional = selectedControls.filter(name => {
+        const variable = getVariable(name);
+        return variable && variable.role === "optional";
+      });
+
+      const ivOK = selectedIV === currentScenario.iv;
+      const dvOK = selectedDV === currentScenario.dv;
+      const enoughControls = selectedRequired.length >= currentScenario.minControls;
+      const valid = ivOK && dvOK && enoughControls && dangerous.length === 0;
+
+      let score = 0;
+      if (ivOK) score += 25;
+      if (dvOK) score += 25;
+      score += Math.round((selectedRequired.length / requiredControls.length) * 40);
+      if (enoughControls) score += 10;
+      score -= dangerous.length * 12;
+      score -= irrelevant.length * 4;
+      score = Math.max(0, Math.min(100, score));
+
+      return {
+        selectedIV,
+        selectedDV,
+        selectedControls,
+        requiredControls,
+        selectedRequired,
+        missedRequired,
+        dangerous,
+        irrelevant,
+        optional,
+        ivOK,
+        dvOK,
+        enoughControls,
+        valid,
+        score
+      };
+    }
+
+    function renderFeedback(result) {
+      classifyControlCards();
+      feedbackPanel.classList.add("visible");
+      feedbackPanel.classList.remove("valid", "nearly", "invalid");
+
+      const messages = [];
+      if (result.ivOK) {
+        messages.push("Correct independent variable: you identified the factor that is deliberately changed.");
+      } else {
+        messages.push(`Check the independent variable. It should be: ${currentScenario.iv}.`);
+      }
+
+      if (result.dvOK) {
+        messages.push("Correct dependent variable: you identified the outcome that is measured.");
+      } else {
+        messages.push(`Check the dependent variable. It should be: ${currentScenario.dv}.`);
+      }
+
+      if (result.enoughControls) {
+        messages.push(`Good control of variables: ${result.selectedRequired.length} key controls were selected.`);
+      } else {
+        messages.push(`More controls are needed. You selected ${result.selectedRequired.length} key controls, but this scenario needs at least ${currentScenario.minControls}.`);
+      }
+
+      if (result.dangerous.length > 0) {
+        messages.push(`Do not control the variable being changed or measured: ${result.dangerous.join(", ")}.`);
+      }
+
+      if (result.irrelevant.length > 0) {
+        messages.push(`Some selected controls are not useful for this question: ${result.irrelevant.join(", ")}.`);
+      }
+
+      if (result.optional.length > 0) {
+        messages.push(`Optional or minor controls selected: ${result.optional.join(", ")}. These may help consistency but are not the main controls.`);
+      }
+
+      if (result.missedRequired.length > 0) {
+        const missedNames = result.missedRequired.map(v => v.name).slice(0, 4).join(", ");
+        messages.push(`Important controls to consider: ${missedNames}${result.missedRequired.length > 4 ? ", ..." : ""}.`);
+      }
+
+      let panelClass = "invalid";
+      let pillClass = "pill bad";
+      let heading = "Investigation not valid yet";
+      let pillText = "Needs fixing";
+
+      if (result.valid) {
+        panelClass = "valid";
+        pillClass = "pill good";
+        heading = "Valid fair test";
+        pillText = "Valid";
+      } else if (result.score >= 65) {
+        panelClass = "nearly";
+        pillClass = "pill warn";
+        heading = "Nearly a fair test";
+        pillText = "Nearly";
+      }
+
+      feedbackPanel.classList.add(panelClass);
+      feedbackHeading.textContent = heading;
+      validityPill.className = pillClass;
+      validityPill.textContent = pillText;
+      scoreLabel.textContent = `${result.score}%`;
+      meterFill.style.width = `${result.score}%`;
+      ivStat.textContent = result.ivOK ? "✓" : "×";
+      dvStat.textContent = result.dvOK ? "✓" : "×";
+      controlStat.textContent = `${result.selectedRequired.length}/${result.requiredControls.length}`;
+      feedbackList.innerHTML = messages.map(m => `<li>${m}</li>`).join("");
+
+      const controlsText = result.selectedRequired.length > 0
+        ? result.selectedRequired.join(", ")
+        : "the important controlled variables";
+
+      fairTestSentence.innerHTML = `To investigate <strong>${currentScenario.question}</strong>, change <strong>${currentScenario.iv}</strong>, measure <strong>${currentScenario.dv}</strong>, and keep <strong>${controlsText}</strong> the same.`;
+    }
+
+    function addAttempt(result) {
+      attempts.push({
+        number: attempts.length + 1,
+        scenario: currentScenario.title,
+        iv: result.selectedIV || "Not selected",
+        dv: result.selectedDV || "Not selected",
+        controls: `${result.selectedRequired.length}/${result.requiredControls.length}`,
+        valid: result.valid ? "Yes" : "No",
+        score: result.score
+      });
+      renderAttemptTable();
+    }
+
+    function renderAttemptTable() {
+      if (attempts.length === 0) {
+        attemptBody.innerHTML = `<tr><td colspan="7" class="muted">No attempts yet.</td></tr>`;
+        exportBtn.disabled = true;
+        clearLogBtn.disabled = true;
+        return;
+      }
+
+      attemptBody.innerHTML = attempts.map(a => `
+        <tr>
+          <td>${a.number}</td>
+          <td>${a.scenario}</td>
+          <td>${a.iv}</td>
+          <td>${a.dv}</td>
+          <td>${a.controls}</td>
+          <td>${a.valid}</td>
+          <td>${a.score}%</td>
+        </tr>
+      `).join("");
+      exportBtn.disabled = false;
+      clearLogBtn.disabled = false;
+    }
+
+    function csvEscape(value) {
+      const text = String(value ?? "");
+      if (text.includes(",") || text.includes("\n") || text.includes("\r") || text.includes('"')) {
+        return `"${text.replace(/"/g, '""')}"`;
+      }
+      return text;
+    }
+
+    function exportCsv() {
+      if (attempts.length === 0) return;
+      const headers = ["Attempt", "Scenario", "Independent variable", "Dependent variable", "Key controls", "Valid", "Score"];
+      const rows = attempts.map(a => [a.number, a.scenario, a.iv, a.dv, a.controls, a.valid, `${a.score}%`]);
+      const csv = [headers, ...rows].map(row => row.map(csvEscape).join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "fair-test-builder-attempts.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("checkBtn").addEventListener("click", () => {
+      const result = calculateAttempt();
+      renderFeedback(result);
+      addAttempt(result);
+    });
+
+    document.getElementById("hintBtn").addEventListener("click", () => {
+      hintBox.style.display = hintBox.style.display === "none" ? "block" : "none";
+      hintBox.textContent = currentScenario.hint;
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      loadScenario(currentScenario.id);
+    });
+
+    document.getElementById("exportBtn").addEventListener("click", exportCsv);
+
+    document.getElementById("clearLogBtn").addEventListener("click", () => {
+      attempts = [];
+      renderAttemptTable();
+    });
+
+    document.getElementById("scaffoldBtn").addEventListener("click", () => {
+      const scaffold = `The scientific question was: ${currentScenario.question}\n\nThe independent variable was __________________ because it was deliberately changed.\n\nThe dependent variable was __________________ because it was measured.\n\nThe controlled variables were __________________ because they needed to stay the same to make the test fair.\n\nTo improve reliability, the investigation would use repeated trials and calculate a mean.`;
+      methodText.value = scaffold;
+      methodText.focus();
+    });
+
+    document.getElementById("clearMethodBtn").addEventListener("click", () => {
+      methodText.value = "";
+    });
+
+    scenarioSelect.addEventListener("change", () => loadScenario(scenarioSelect.value));
+
+    populateScenarioSelect();
+    loadScenario(scenarios[0].id);
+  </script>
+</body>
+</html>
