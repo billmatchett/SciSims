@@ -11,7 +11,6 @@
       --text:#1f2937;
       --muted:#64748b;
       --line:#dbe3ef;
-      --header:#e9eef8;
       --button:#2563eb;
       --button-hover:#1d4ed8;
       --soft-blue:#e0ecff;
@@ -19,6 +18,7 @@
       --soft-purple:#ede9fe;
       --soft-orange:#ffedd5;
       --soft-slate:#f1f5f9;
+      --soft-teal:#ccfbf1;
       --shadow:0 4px 14px rgba(0,0,0,0.08);
       --radius:16px;
     }
@@ -57,9 +57,18 @@
     }
 
     p{line-height:1.5;}
+    a{color:inherit;}
 
-    a{
-      color:inherit;
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
     }
 
     .hero{
@@ -174,9 +183,7 @@
       color:#0f172a;
     }
 
-    .filter-button.secondary:hover{
-      background:#cbd5e1;
-    }
+    .filter-button.secondary:hover{background:#cbd5e1;}
 
     .filter-button.active{
       background:#0f172a;
@@ -290,6 +297,7 @@
     .tag.earth{background:var(--soft-orange);border-color:#fed7aa;color:#9a3412;}
     .tag.physics{background:var(--soft-blue);border-color:#bfdbfe;color:#1d4ed8;}
     .tag.working{background:#fef3c7;border-color:#fde68a;color:#92400e;}
+    .tag.invsci{background:var(--soft-teal);border-color:#99f6e4;color:#115e59;}
     .tag.interesting{background:#e2e8f0;border-color:#cbd5e1;color:#334155;}
 
     .open-link{
@@ -333,25 +341,11 @@
         padding:14px;
       }
 
-      .hero-top{
-        grid-template-columns:1fr;
-      }
-
-      .hero-image{
-        height:170px;
-      }
-
-      .toolbar-grid{
-        grid-template-columns:1fr;
-      }
-
-      .counter{
-        justify-self:start;
-      }
-
-      .cards{
-        grid-template-columns:1fr;
-      }
+      .hero-top{grid-template-columns:1fr;}
+      .hero-image{height:170px;}
+      .toolbar-grid{grid-template-columns:1fr;}
+      .counter{justify-self:start;}
+      .cards{grid-template-columns:1fr;}
     }
 
     @media (max-width:560px){
@@ -389,7 +383,7 @@
 
   <main id="catalogue"></main>
 
-  <div id="emptyMessage" class="empty-message">No simulations matched your search. Try a broader keyword such as genetics, forces, data, reaction, disease or light.</div>
+  <div id="emptyMessage" class="empty-message">No simulations matched your search. Try a broader keyword such as genetics, forces, data, claims, fair test, reaction, disease or light.</div>
 
   <p class="footer-note"><strong>Adding a new sim:</strong> add one new object to the <code>SIMS</code> list in the script, including its section, subgroup, title, description, path and tags. The page will automatically place it in the correct section and make it searchable.</p>
 
@@ -403,6 +397,13 @@
       intro:'Inquiry and practical investigation simulations for fair testing, variables, data collection and experimental design.',
       banner:'WS.png',
       tagClass:'working'
+    },
+    {
+      id:'invsci',
+      title:'Investigating Science',
+      intro:'HSC Investigating Science simulations for evidence, claims, data analysis, modelling, validity, reliability and scientific argumentation.',
+      banner:'invsci.png',
+      tagClass:'invsci'
     },
     {
       id:'biosims',
@@ -448,7 +449,15 @@
       title:'Experimental Variables Sorter',
       description:'Identify independent variables, dependent variables, controlled variables and irrelevant factors using a drag-and-drop fair testing activity.',
       path:'WorkingScientifically/Variables/',
-      tags:['Working Scientifically','Variables','Fair testing','Drag and drop']
+      tags:['Variables','Fair testing','Drag and drop']
+    },
+    {
+      section:'invsci',
+      group:'Module 1: Scientific Thinking and Inquiry',
+      title:'Fair Test Builder',
+      description:'Build valid investigations by identifying independent, dependent and controlled variables across plant growth, pendulum motion, friction, reaction time and dissolving rate scenarios.',
+      path:'InvSci/FairTest/',
+      tags:['Fair testing','Variables','Validity','Reliability','Experimental design']
     },
     {
       section:'biosims',
@@ -456,7 +465,7 @@
       title:'Pandemic Simulation',
       description:'Model how an infectious disease can spread through a population.',
       path:'BioSims/Pandemic/',
-      tags:['Biology','Disease','Pandemic','Population model']
+      tags:['Disease','Pandemic','Population model']
     },
     {
       section:'biosims',
@@ -464,7 +473,7 @@
       title:'Petri Dish Bacterial Growth Simulator',
       description:'Explore how bacteria grow in a petri dish under different conditions.',
       path:'BioSims/PetriBacteria/',
-      tags:['Biology','Bacteria','Growth','Microbes']
+      tags:['Bacteria','Growth','Microbes']
     },
     {
       section:'biosims',
@@ -472,7 +481,7 @@
       title:'Drag-and-Drop Punnett Square',
       description:'Build simple genetic crosses and compare predicted genotype and phenotype ratios with simulated offspring data.',
       path:'BioSims/PunnettSq/',
-      tags:['Biology','Genetics','Punnett squares','Inheritance']
+      tags:['Genetics','Punnett squares','Inheritance']
     },
     {
       section:'biosims',
@@ -480,7 +489,7 @@
       title:'Punnett Square Simulator',
       description:'Practise completing Punnett squares by dragging allele tiles into the correct offspring boxes.',
       path:'BioSims/PunnettSq2/',
-      tags:['Biology','Genetics','Alleles','Inheritance']
+      tags:['Genetics','Alleles','Inheritance']
     },
     {
       section:'biosims',
@@ -488,7 +497,7 @@
       title:'Pedigree Simulator',
       description:'Explore family pedigrees to identify affected individuals, carriers and likely inheritance patterns.',
       path:'BioSims/Pedigree/',
-      tags:['Biology','Genetics','Pedigree','Inheritance']
+      tags:['Genetics','Pedigree','Inheritance']
     },
     {
       section:'biosims',
@@ -496,7 +505,7 @@
       title:'DNA Profiling Gel Electrophoresis Simulator',
       description:'Compare DNA banding patterns from a mother, child and possible fathers to identify the biological father.',
       path:'BioSims/DNAProfiling/',
-      tags:['Biology','DNA','Gel electrophoresis','Genetics']
+      tags:['DNA','Gel electrophoresis','Genetics']
     },
     {
       section:'biosims',
@@ -504,7 +513,7 @@
       title:'Evolution Timeline Table',
       description:'Complete a table showing how life on Earth has changed in complexity and diversity over geological time.',
       path:'BioSims/EvolutionTimeline/',
-      tags:['Biology','Evolution','Geological time','Timeline']
+      tags:['Evolution','Geological time','Timeline']
     },
     {
       section:'biosims',
@@ -512,7 +521,7 @@
       title:'Peppered Moth Evolution Simulator',
       description:'Model natural selection as the environment changes from clean to polluted, and back again.',
       path:'BioSims/Moths/',
-      tags:['Biology','Evolution','Natural selection','Data']
+      tags:['Evolution','Natural selection','Data']
     },
     {
       section:'biosims',
@@ -520,7 +529,7 @@
       title:'Measuring Abundance Simulator',
       description:'Compare quadrat sampling and capture-mark-recapture methods for estimating population size.',
       path:'BioSims/Abundance/',
-      tags:['Biology','Ecology','Abundance','Sampling']
+      tags:['Ecology','Abundance','Sampling']
     },
     {
       section:'biosims',
@@ -528,7 +537,7 @@
       title:'Negative Feedback System Challenge',
       description:'Respond to random events and maintain homeostasis in temperature, glucose and water balance systems.',
       path:'BioSims/NegativeFeedback/',
-      tags:['Biology','Homeostasis','Negative feedback','Human body']
+      tags:['Homeostasis','Negative feedback','Human body']
     },
     {
       section:'biosims',
@@ -536,7 +545,7 @@
       title:'Reaction Time Challenge',
       description:'Measure and compare student reaction times across repeated trials, including false starts, mean reaction time, best time, range and CSV export.',
       path:'BioSims/ReactionTime/',
-      tags:['Biology','Reaction time','Nervous system','Data']
+      tags:['Reaction time','Nervous system','Data']
     },
     {
       section:'chemsims',
@@ -544,7 +553,7 @@
       title:'Element Symbol and Name Matching Game',
       description:'Match chemical symbols to their correct element names.',
       path:'ChemSims/Element_Game/',
-      tags:['Chemistry','Elements','Symbols','Matching']
+      tags:['Elements','Symbols','Matching']
     },
     {
       section:'chemsims',
@@ -552,7 +561,7 @@
       title:'Cations and Anions Simulator',
       description:'Model how atoms gain or lose electrons to form positive and negative ions.',
       path:'ChemSims/CationsAnions/',
-      tags:['Chemistry','Ions','Electrons','Cations','Anions']
+      tags:['Ions','Electrons','Cations','Anions']
     },
     {
       section:'chemsims',
@@ -560,7 +569,7 @@
       title:'Bonding Simulator',
       description:'Explore how atoms interact through ionic and covalent bonding.',
       path:'ChemSims/Bonding/',
-      tags:['Chemistry','Bonding','Ionic','Covalent']
+      tags:['Bonding','Ionic','Covalent']
     },
     {
       section:'earthsims',
@@ -568,7 +577,7 @@
       title:'Greenhouse Effect Energy Balance Simulator',
       description:'Model how incoming sunlight, reflected energy, outgoing infrared radiation and greenhouse gases affect Earth’s surface temperature.',
       path:'EarthSims/GreenHouse/',
-      tags:['Earth Science','Climate','Greenhouse effect','Energy balance']
+      tags:['Climate','Greenhouse effect','Energy balance']
     },
     {
       section:'physicssims',
@@ -576,7 +585,7 @@
       title:'Parachute Drop Parameter Simulator',
       description:'Change mass, drop height, parachute size, air density and gravity to investigate drag force, terminal velocity and impact speed.',
       path:'PhySims/Parachute/',
-      tags:['Physics','Forces','Motion','Drag']
+      tags:['Forces','Motion','Drag']
     },
     {
       section:'physicssims',
@@ -584,7 +593,7 @@
       title:'Spectrometer Simulator',
       description:'Explore continuous, emission and absorption spectra by measuring wavelengths, comparing spectral lines and identifying unknown elements.',
       path:'PhySims/Spectrometer/',
-      tags:['Physics','Light','Spectra','Waves']
+      tags:['Light','Spectra','Waves']
     },
     {
       section:'physicssims',
@@ -592,7 +601,7 @@
       title:'Photoelectric Effect Simulator',
       description:'Change metal threshold frequency, light intensity and stopping potential to investigate photoelectron emission.',
       path:'PhySims/PhotoElectric/',
-      tags:['Physics','Light','Photoelectric effect','Modern physics']
+      tags:['Light','Photoelectric effect','Modern physics']
     },
     {
       section:'physicssims',
@@ -600,39 +609,39 @@
       title:'Ohm’s Law Simulator',
       description:'Investigate voltage, current and resistance by comparing ohmic and non-ohmic components, including resistors, filament lamps, diodes, thermistors, LEDs and unknown challenge components.',
       path:'PhySims/Ohm/',
-      tags:['Physics','Electricity','Ohm’s law','Circuits']
+      tags:['Electricity','Ohm’s law','Circuits']
     },
     {
-  section: 'physicssims',
-  group: 'Light and Waves',
-  title: 'Special Relativity Light Clock Simulator',
-  description: 'Explore time dilation using a moving light clock by comparing the traveller frame with a stationary observer frame and graphing the Lorentz factor.',
-  path: 'PhySims/SpecRel/',
-  tags: ['Physics', 'Light', 'Relativity', 'Time dilation', 'Modern physics']
-},
+      section:'physicssims',
+      group:'Light and Waves',
+      title:'Special Relativity Light Clock Simulator',
+      description:'Explore time dilation using a moving light clock by comparing the traveller frame with a stationary observer frame and graphing the Lorentz factor.',
+      path:'PhySims/SpecRel/',
+      tags:['Light','Relativity','Time dilation','Modern physics']
+    },
     {
-  section: 'physicssims',
-  group: 'Light and Waves',
-  title: 'Einstein Train Thought Experiment Simulator',
-  description: 'Explore the relativity of simultaneity using a moving train, two lightning strikes, observer frames, wavefronts and an event timeline.',
-  path: 'PhySims/RelTrain/',
-  tags: ['Physics', 'Relativity', 'Simultaneity', 'Modern physics', 'Light']
-},
-      {
-  section: 'physicssims',
-  group: 'Forces and Motion',
-  title: 'Air Flow Around Objects Simulator',
-  description: 'Explore how object shape, size, angle and flow speed affect particle paths, wake patterns and visible flow disruption.',
-  path: 'PhySims/AirFlow/',
-  tags: ['Physics', 'Motion']
-},
+      section:'physicssims',
+      group:'Light and Waves',
+      title:'Einstein Train Thought Experiment Simulator',
+      description:'Explore the relativity of simultaneity using a moving train, two lightning strikes, observer frames, wavefronts and an event timeline.',
+      path:'PhySims/RelTrain/',
+      tags:['Relativity','Simultaneity','Modern physics','Light']
+    },
+    {
+      section:'physicssims',
+      group:'Forces and Motion',
+      title:'Air Flow Around Objects Simulator',
+      description:'Explore how object shape, size, angle and flow speed affect particle paths, wake patterns and visible flow disruption.',
+      path:'PhySims/AirFlow/',
+      tags:['Forces','Motion','Air flow']
+    },
     {
       section:'physicssims',
       group:'Light and Waves',
       title:'Optics Ray Diagram Simulator',
       description:'Explore convex, concave and bifocal lenses by moving an object, changing focal length, tracing ray diagrams and identifying real, virtual, upright, inverted, enlarged and reduced images.',
       path:'PhySims/Optics/',
-      tags:['Physics','Optics','Lenses','Ray diagrams']
+      tags:['Optics','Lenses','Ray diagrams']
     },
     {
       section:'interestingsims',
@@ -694,10 +703,13 @@
     const tagRow = document.createElement('div');
     tagRow.className = 'tag-row';
 
+    if(section){
+      const sectionTag = createTextElement('span',`tag ${section.tagClass}`,section.title);
+      tagRow.appendChild(sectionTag);
+    }
+
     sim.tags.forEach(tagText => {
       const tag = createTextElement('span','tag',tagText);
-      if(section && tagText === section.title) tag.classList.add(section.tagClass);
-      if(section && sim.section === section.id && tagText.includes(section.title.split(' ')[0])) tag.classList.add(section.tagClass);
       tagRow.appendChild(tag);
     });
 
