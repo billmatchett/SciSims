@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Colour-Word Interference Challenge</title>
+  <link rel="icon" type="image/png" href="/SciSims/favicon.png">
+
+  <style>
+    :root {
+      --bg: #eaf2fb;
+      --panel: #ffffff;
+      --panel-soft: #f7fbff;
+      --line: #cddcf0;
+      --text: #172033;
+      --muted: #4b5870;
+      --blue: #2f63e6;
+      --blue-dark: #173a9e;
+      --green: #16a34a;
+      --orange: #f97316;
+      --red: #dc2626;
+      --radius: 18px;
+      --shadow: 0 12px 28px rgba(22, 40, 70, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      width: min(1260px, calc(100% - 32px));
+      margin: 14px auto 40px;
+    }
+
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      margin-bottom: 18px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #123ca6;
+      text-decoration: none;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(22, 40, 70, 0.08);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      padding: 28px;
+      min-height: 176px;
+      background:
+        radial-gradient(circle at 95% 80%, rgba(72, 180, 115, 0.65) 0 19%, transparent 20%),
+        linear-gradient(120deg, #14254d 0%, #263c91 46%, #155f55 100%);
+      box-shadow: var(--shadow);
+      color: white;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2.1rem, 5vw, 4rem);
+      line-height: 1;
+      letter-spacing: -1.5px;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 930px;
+      font-size: 1.08rem;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    .li-sc {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .info-box {
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .info-box h3 {
+      margin: 0 0 6px;
+      color: var(--blue-dark);
+      font-size: 1rem;
+    }
+
+    .info-box p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.55fr 0.95fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 1.5rem;
+    }
+
+    .game-area {
+      min-height: 430px;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      background:
+        linear-gradient(rgba(47, 99, 230, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(47, 99, 230, 0.055) 1px, transparent 1px),
+        #f8fbff;
+      background-size: 32px 32px;
+      padding: 22px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 18px;
+    }
+
+    .prompt-card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      min-height: 210px;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      box-shadow: inset 0 0 0 1px rgba(47, 99, 230, 0.04);
+    }
+
+    #stimulusWord {
+      font-size: clamp(4rem, 11vw, 8rem);
+      font-weight: 950;
+      letter-spacing: -3px;
+      text-align: center;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .instruction {
+      margin: 0;
+      color: var(--muted);
+      font-weight: 800;
+      line-height: 1.4;
+      text-align: center;
+    }
+
+    .answer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .answer-button {
+      min-height: 58px;
+      border: 0;
+      border-radius: 15px;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 900;
+      cursor: pointer;
+      color: white;
+      box-shadow: 0 8px 18px rgba(22, 40, 70, 0.12);
+    }
+
+    .answer-button:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+
+    .answer-button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .message {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #f5f8ff;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    label {
+      display: block;
+      font-weight: 800;
+      color: var(--blue-dark);
+      margin-bottom: 6px;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 13px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--text);
+      font-weight: 700;
+      margin-bottom: 14px;
+      font: inherit;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 13px;
+      padding: 12px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      color: white;
+      background: var(--blue);
+      font: inherit;
+    }
+
+    button:hover {
+      filter: brightness(1.05);
+    }
+
+    .secondary {
+      background: #eaf2ff;
+      color: var(--blue-dark);
+      border: 1px solid #bfd3ff;
+    }
+
+    .success {
+      background: var(--green);
+    }
+
+    .warning {
+      background: #fff3e6;
+      color: #9a3412;
+      border: 1px solid #fed7aa;
+    }
+
+    .danger {
+      background: #fff1f1;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .stat {
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 2rem;
+      color: var(--blue-dark);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 800;
+    }
+
+    .below-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 14px;
+      font-size: 0.95rem;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background: #edf4ff;
+      color: var(--blue-dark);
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .challenge-list {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .teacher-notes {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .key-box {
+      margin-top: 12px;
+      background: #f5f8ff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      color: var(--muted);
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 900px) {
+      .grid,
+      .below-grid,
+      .li-sc {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .answer-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .page {
+        width: min(100% - 20px, 1260px);
+      }
+
+      .hero {
+        padding: 22px;
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .answer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .game-area {
+        min-height: 360px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+
+    <section class="hero">
+      <h1>Colour-Word Interference Challenge</h1>
+      <p>
+        Name the colour of the word, not the word itself. Collect repeated trial data to investigate focus, reaction time,
+        errors, interference and the effect of practice.
+      </p>
+    </section>
+
+    <section class="li-sc">
+      <div class="info-box">
+        <h3>Learning Intention</h3>
+        <p>Students will understand that attention and response speed can be investigated using repeated trials and controlled conditions.</p>
+      </div>
+
+      <div class="info-box">
+        <h3>Success Criteria</h3>
+        <p>Students can collect accuracy and response-time data, calculate simple averages and explain how interference may affect performance.</p>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <h2>Stroop-style challenge</h2>
+
+        <div class="game-area">
+          <p class="instruction">
+            Click the button that matches the <strong>ink colour</strong> of the word. Ignore what the word says.
+          </p>
+
+          <div class="prompt-card">
+            <div id="stimulusWord">READY?</div>
+          </div>
+
+          <div class="answer-grid">
+            <button class="answer-button" id="redButton" style="background:#dc2626;" onclick="chooseColour('Red')" disabled>Red</button>
+            <button class="answer-button" id="blueButton" style="background:#2563eb;" onclick="chooseColour('Blue')" disabled>Blue</button>
+            <button class="answer-button" id="greenButton" style="background:#16a34a;" onclick="chooseColour('Green')" disabled>Green</button>
+            <button class="answer-button" id="yellowButton" style="background:#d97706;" onclick="chooseColour('Yellow')" disabled>Yellow</button>
+          </div>
+        </div>
+
+        <div class="message" id="message">
+          Choose a mode and number of questions, then press Start game.
+        </div>
+
+        <div class="key-box">
+          Keyboard controls: <strong>R</strong> = Red, <strong>B</strong> = Blue, <strong>G</strong> = Green, <strong>Y</strong> = Yellow.
+        </div>
+      </div>
+
+      <aside class="panel">
+        <h2>Controls</h2>
+
+        <label for="mode">Mode</label>
+        <select id="mode">
+          <option value="mixed" selected>Mixed colours and words</option>
+          <option value="matching">Matching only</option>
+          <option value="interference">Interference only</option>
+        </select>
+
+        <label for="questionCount">Questions per round</label>
+        <select id="questionCount">
+          <option value="8">8 questions</option>
+          <option value="12" selected>12 questions</option>
+          <option value="16">16 questions</option>
+          <option value="20">20 questions</option>
+        </select>
+
+        <div class="controls">
+          <button onclick="startGame()">Start game</button>
+          <button class="secondary" onclick="resetCurrent()">Reset round</button>
+          <button class="success" onclick="saveTrial()">Save trial</button>
+          <button class="warning" onclick="downloadCSV()">Download CSV</button>
+          <button class="danger" onclick="clearHistory()">Clear history</button>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <strong id="score">0</strong>
+            <span>Correct</span>
+          </div>
+
+          <div class="stat">
+            <strong id="errors">0</strong>
+            <span>Errors</span>
+          </div>
+
+          <div class="stat">
+            <strong id="progress">0/12</strong>
+            <span>Progress</span>
+          </div>
+
+          <div class="stat">
+            <strong id="accuracy">0%</strong>
+            <span>Accuracy</span>
+          </div>
+
+          <div class="stat">
+            <strong id="meanResponse">0</strong>
+            <span>Mean response</span>
+          </div>
+
+          <div class="stat">
+            <strong id="attempts">0</strong>
+            <span>Saved trials</span>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="below-grid">
+      <div class="panel">
+        <h2>Trial history</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Trial</th>
+              <th>Mode</th>
+              <th>Score</th>
+              <th>Accuracy</th>
+              <th>Mean response</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+            <tr>
+              <td colspan="5" class="empty">No saved trials yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h2>Student challenge</h2>
+
+        <ul class="challenge-list">
+          <li>Complete three trials using the matching-only mode.</li>
+          <li>Complete three trials using the interference-only mode.</li>
+          <li>Compare accuracy and mean response time for both modes.</li>
+          <li>Identify the independent variable, dependent variable and controlled variables.</li>
+          <li>Explain whether the word meaning interfered with your response.</li>
+          <li>Evaluate whether repeated trials made the results more reliable.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top: 18px;">
+      <h2>Teacher notes</h2>
+
+      <div class="teacher-notes">
+        <p>
+          This game is based on the colour-word interference effect, commonly associated with the Stroop task. Students must respond
+          to the ink colour rather than the written word. When these conflict, many people become slower or make more errors.
+        </p>
+
+        <p>
+          Suggested investigation question: <strong>How does colour-word interference affect response time and accuracy?</strong>
+          The independent variable is the mode or level of interference. Dependent variables include accuracy, number of errors
+          and mean response time. Controlled variables include number of questions, device, screen size, player, button layout,
+          lighting, distractions and practice time.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const stimulusWord = document.getElementById("stimulusWord");
+    const message = document.getElementById("message");
+    const modeSelect = document.getElementById("mode");
+    const questionCountSelect = document.getElementById("questionCount");
+    const historyBody = document.getElementById("historyBody");
+
+    const scoreDisplay = document.getElementById("score");
+    const errorsDisplay = document.getElementById("errors");
+    const progressDisplay = document.getElementById("progress");
+    const accuracyDisplay = document.getElementById("accuracy");
+    const meanResponseDisplay = document.getElementById("meanResponse");
+    const attemptsDisplay = document.getElementById("attempts");
+
+    const answerButtons = [
+      document.getElementById("redButton"),
+      document.getElementById("blueButton"),
+      document.getElementById("greenButton"),
+      document.getElementById("yellowButton")
+    ];
+
+    const colours = [
+      { name: "Red", css: "#dc2626" },
+      { name: "Blue", css: "#2563eb" },
+      { name: "Green", css: "#16a34a" },
+      { name: "Yellow", css: "#d97706" }
+    ];
+
+    let gameRunning = false;
+    let roundFinished = false;
+    let currentQuestion = null;
+    let questionStartTime = 0;
+    let totalQuestions = 12;
+    let questionNumber = 0;
+    let correct = 0;
+    let errors = 0;
+    let responseTimes = [];
+    let currentModeLabel = "Mixed colours and words";
+    let trials = [];
+
+    function startGame() {
+      totalQuestions = Number(questionCountSelect.value);
+      questionNumber = 0;
+      correct = 0;
+      errors = 0;
+      responseTimes = [];
+      gameRunning = true;
+      roundFinished = false;
+      currentModeLabel = modeSelect.options[modeSelect.selectedIndex].text;
+
+      setButtonsEnabled(true);
+      updateDisplays();
+      nextQuestion();
+
+      message.textContent = "Round started. Choose the ink colour, not the word.";
+    }
+
+    function resetCurrent() {
+      gameRunning = false;
+      roundFinished = false;
+      currentQuestion = null;
+      questionNumber = 0;
+      correct = 0;
+      errors = 0;
+      responseTimes = [];
+
+      stimulusWord.textContent = "READY?";
+      stimulusWord.style.color = "#173a9e";
+
+      setButtonsEnabled(false);
+      updateDisplays();
+
+      message.textContent = "Round reset. Press Start game to try again.";
+    }
+
+    function nextQuestion() {
+      if (questionNumber >= totalQuestions) {
+        finishRound();
+        return;
+      }
+
+      currentQuestion = makeQuestion();
+      questionNumber++;
+
+      stimulusWord.textContent = currentQuestion.word.toUpperCase();
+      stimulusWord.style.color = currentQuestion.inkCss;
+      questionStartTime = performance.now();
+
+      updateDisplays();
+    }
+
+    function makeQuestion() {
+      const mode = modeSelect.value;
+      let wordColour = randomItem(colours);
+      let inkColour = randomItem(colours);
+
+      if (mode === "matching") {
+        inkColour = wordColour;
+      }
+
+      if (mode === "interference") {
+        while (inkColour.name === wordColour.name) {
+          inkColour = randomItem(colours);
+        }
+      }
+
+      return {
+        word: wordColour.name,
+        ink: inkColour.name,
+        inkCss: inkColour.css,
+        isInterference: wordColour.name !== inkColour.name
+      };
+    }
+
+    function chooseColour(choice) {
+      if (!gameRunning || !currentQuestion) return;
+
+      const responseTime = performance.now() - questionStartTime;
+      responseTimes.push(responseTime);
+
+      if (choice === currentQuestion.ink) {
+        correct++;
+        message.textContent = "Correct. Keep going.";
+      } else {
+        errors++;
+        message.textContent = "Incorrect. The ink colour was " + currentQuestion.ink + ".";
+      }
+
+      updateDisplays();
+
+      setTimeout(() => {
+        if (gameRunning) {
+          nextQuestion();
+        }
+      }, 280);
+    }
+
+    function finishRound() {
+      gameRunning = false;
+      roundFinished = true;
+      currentQuestion = null;
+      setButtonsEnabled(false);
+
+      stimulusWord.textContent = "FINISHED";
+      stimulusWord.style.color = "#173a9e";
+
+      updateDisplays();
+      message.textContent = "Round finished. Press Save trial to record this result, or Start game to try again.";
+    }
+
+    function saveTrial() {
+      if (gameRunning) {
+        message.textContent = "Finish the round before saving the trial.";
+        return;
+      }
+
+      if (!roundFinished) {
+        message.textContent = "Start and finish a round before saving a trial.";
+        return;
+      }
+
+      const totalAnswered = correct + errors;
+      const accuracy = totalAnswered > 0 ? (correct / totalAnswered) * 100 : 0;
+      const meanResponse = calculateMeanResponse();
+
+      trials.push({
+        trial: trials.length + 1,
+        mode: currentModeLabel,
+        questions: totalQuestions,
+        correct: correct,
+        errors: errors,
+        accuracy: accuracy,
+        meanResponse: meanResponse
+      });
+
+      renderHistory();
+      updateDisplays();
+
+      message.textContent = "Trial saved. Start another round to collect more data.";
+    }
+
+    function renderHistory() {
+      historyBody.innerHTML = "";
+
+      if (trials.length === 0) {
+        const row = document.createElement("tr");
+        row.innerHTML = '<td colspan="5" class="empty">No saved trials yet.</td>';
+        historyBody.appendChild(row);
+        return;
+      }
+
+      trials.forEach(trial => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td>${trial.trial}</td>
+          <td>${trial.mode}</td>
+          <td>${trial.correct}/${trial.questions}</td>
+          <td>${trial.accuracy.toFixed(0)}%</td>
+          <td>${trial.meanResponse.toFixed(0)} ms</td>
+        `;
+
+        historyBody.appendChild(row);
+      });
+    }
+
+    function updateDisplays() {
+      const totalAnswered = correct + errors;
+      const accuracy = totalAnswered > 0 ? Math.round((correct / totalAnswered) * 100) : 0;
+      const meanResponse = calculateMeanResponse();
+
+      scoreDisplay.textContent = correct;
+      errorsDisplay.textContent = errors;
+      progressDisplay.textContent = questionNumber + "/" + totalQuestions;
+      accuracyDisplay.textContent = accuracy + "%";
+      meanResponseDisplay.textContent = meanResponse > 0 ? Math.round(meanResponse) + " ms" : "0";
+      attemptsDisplay.textContent = trials.length;
+    }
+
+    function calculateMeanResponse() {
+      if (responseTimes.length === 0) return 0;
+      const total = responseTimes.reduce((sum, time) => sum + time, 0);
+      return total / responseTimes.length;
+    }
+
+    function downloadCSV() {
+      if (trials.length === 0) {
+        message.textContent = "There is no data to download yet.";
+        return;
+      }
+
+      const rows = [
+        ["Trial", "Mode", "Questions", "Correct", "Errors", "Accuracy (%)", "Mean response time (ms)"]
+      ];
+
+      trials.forEach(trial => {
+        rows.push([
+          trial.trial,
+          trial.mode,
+          trial.questions,
+          trial.correct,
+          trial.errors,
+          trial.accuracy.toFixed(1),
+          trial.meanResponse.toFixed(0)
+        ]);
+      });
+
+      const csvContent = rows
+        .map(row => row.map(csvEscape).join(","))
+        .join("\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "colour_word_interference_challenge_data.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(url);
+    }
+
+    function clearHistory() {
+      trials = [];
+      renderHistory();
+      updateDisplays();
+      message.textContent = "Trial history cleared.";
+    }
+
+    function setButtonsEnabled(enabled) {
+      answerButtons.forEach(button => {
+        button.disabled = !enabled;
+      });
+    }
+
+    function randomItem(array) {
+      return array[Math.floor(Math.random() * array.length)];
+    }
+
+    function csvEscape(value) {
+      const text = String(value);
+
+      if (text.includes(",") || text.includes('"') || text.includes("\n")) {
+        return '"' + text.replace(/"/g, '""') + '"';
+      }
+
+      return text;
+    }
+
+    document.addEventListener("keydown", event => {
+      if (!gameRunning) return;
+
+      const key = event.key.toLowerCase();
+
+      if (key === "r") chooseColour("Red");
+      if (key === "b") chooseColour("Blue");
+      if (key === "g") chooseColour("Green");
+      if (key === "y") chooseColour("Yellow");
+    });
+
+    totalQuestions = Number(questionCountSelect.value);
+    setButtonsEnabled(false);
+    updateDisplays();
+  </script>
+</body>
+</html>
