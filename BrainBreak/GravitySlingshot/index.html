@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Gravity Slingshot Challenge</title>
+  <link rel="icon" type="image/png" href="/SciSims/favicon.png">
+
+  <style>
+    :root {
+      --bg: #eaf2fb;
+      --panel: #ffffff;
+      --panel-soft: #f7fbff;
+      --line: #cddcf0;
+      --text: #172033;
+      --muted: #4b5870;
+      --blue: #2f63e6;
+      --blue-dark: #173a9e;
+      --green: #16a34a;
+      --orange: #f97316;
+      --red: #dc2626;
+      --radius: 18px;
+      --shadow: 0 12px 28px rgba(22, 40, 70, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      width: min(1260px, calc(100% - 32px));
+      margin: 14px auto 40px;
+    }
+
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      margin-bottom: 18px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #123ca6;
+      text-decoration: none;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(22, 40, 70, 0.08);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      padding: 28px;
+      min-height: 176px;
+      background:
+        radial-gradient(circle at 92% 76%, rgba(72, 180, 115, 0.65) 0 18%, transparent 19%),
+        linear-gradient(120deg, #14254d 0%, #263c91 46%, #155f55 100%);
+      box-shadow: var(--shadow);
+      color: white;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2.1rem, 5vw, 4rem);
+      line-height: 1;
+      letter-spacing: -1.5px;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 940px;
+      font-size: 1.08rem;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    .li-sc {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .info-box {
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .info-box h3 {
+      margin: 0 0 6px;
+      color: var(--blue-dark);
+      font-size: 1rem;
+    }
+
+    .info-box p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.55fr 0.95fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 1.5rem;
+    }
+
+    .game-holder {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background:
+        linear-gradient(rgba(47, 99, 230, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(47, 99, 230, 0.055) 1px, transparent 1px),
+        #f8fbff;
+      background-size: 32px 32px;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    canvas {
+      width: min(100%, 760px);
+      height: auto;
+      aspect-ratio: 16 / 10;
+      background: #050b18;
+      border-radius: 16px;
+      border: 4px solid #1f3b82;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+    }
+
+    .message,
+    .key-box {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #f5f8ff;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    label {
+      display: block;
+      font-weight: 800;
+      color: var(--blue-dark);
+      margin: 12px 0 6px;
+    }
+
+    input[type="range"],
+    select {
+      width: 100%;
+      margin-bottom: 8px;
+    }
+
+    select {
+      padding: 12px;
+      border-radius: 13px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--text);
+      font-weight: 700;
+      font: inherit;
+    }
+
+    .readout {
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 0.92rem;
+      margin-bottom: 8px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    button {
+      border: 0;
+      border-radius: 13px;
+      padding: 12px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      color: white;
+      background: var(--blue);
+      font: inherit;
+    }
+
+    button:hover {
+      filter: brightness(1.05);
+    }
+
+    .secondary {
+      background: #eaf2ff;
+      color: var(--blue-dark);
+      border: 1px solid #bfd3ff;
+    }
+
+    .success {
+      background: var(--green);
+    }
+
+    .warning {
+      background: #fff3e6;
+      color: #9a3412;
+      border: 1px solid #fed7aa;
+    }
+
+    .danger {
+      background: #fff1f1;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .stat {
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.75rem;
+      color: var(--blue-dark);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 800;
+    }
+
+    .below-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 14px;
+      font-size: 0.95rem;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background: #edf4ff;
+      color: var(--blue-dark);
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .challenge-list,
+    .teacher-notes {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .challenge-list {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .grid,
+      .below-grid,
+      .li-sc {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .page {
+        width: min(100% - 20px, 1260px);
+      }
+
+      .hero {
+        padding: 22px;
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+
+    <section class="hero">
+      <h1>Gravity Slingshot Challenge</h1>
+      <p>
+        Launch a probe past a planet and try to reach the target zone. Adjust launch angle, launch speed and gravity strength
+        to investigate how gravitational force changes the path of a moving object.
+      </p>
+    </section>
+
+    <section class="li-sc">
+      <div class="info-box">
+        <h3>Learning Intention</h3>
+        <p>Students will understand that gravity can change the direction and speed of a moving object.</p>
+      </div>
+
+      <div class="info-box">
+        <h3>Success Criteria</h3>
+        <p>Students can adjust launch variables, collect trial data and explain how gravity affects a probe’s trajectory.</p>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <h2>Slingshot flight path</h2>
+
+        <div class="game-holder">
+          <canvas id="game" width="760" height="475"></canvas>
+        </div>
+
+        <div class="message" id="message">
+          Adjust the launch settings, then press Launch probe. Try to guide the probe into the green target zone.
+        </div>
+
+        <div class="key-box">
+          Model note: This is a simplified 2D gravitational deflection model. The planet is fixed in place, so the probe’s path is bent by gravity. A real gravity assist also depends on the planet’s motion through space and can change the spacecraft’s speed relative to the Sun.
+        </div>
+      </div>
+
+      <aside class="panel">
+        <h2>Controls</h2>
+
+        <label for="scenario">Scenario</label>
+        <select id="scenario">
+          <option value="earth" selected>Earth-like planet: medium gravity</option>
+          <option value="giant">Gas giant: strong gravity</option>
+          <option value="small">Small moon: weak gravity</option>
+        </select>
+
+        <label for="angle">Launch angle</label>
+        <input id="angle" type="range" min="-55" max="55" value="-12" step="1">
+        <div class="readout" id="angleReadout">-12°</div>
+
+        <label for="speed">Launch speed</label>
+        <input id="speed" type="range" min="3" max="10" value="6.2" step="0.1">
+        <div class="readout" id="speedReadout">6.2 units</div>
+
+        <label for="gravity">Gravity strength</label>
+        <input id="gravity" type="range" min="0.2" max="2.8" value="1.1" step="0.1">
+        <div class="readout" id="gravityReadout">1.1</div>
+
+        <div class="controls">
+          <button onclick="launchProbe()">Launch probe</button>
+          <button class="secondary" onclick="resetFlight()">Reset flight</button>
+          <button class="success" onclick="saveTrial()">Save trial</button>
+          <button class="warning" onclick="downloadCSV()">Download CSV</button>
+          <button class="danger" onclick="clearHistory()">Clear history</button>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <strong id="attempts">0</strong>
+            <span>Saved trials</span>
+          </div>
+
+          <div class="stat">
+            <strong id="result">Ready</strong>
+            <span>Result</span>
+          </div>
+
+          <div class="stat">
+            <strong id="closest">0</strong>
+            <span>Closest to target</span>
+          </div>
+
+          <div class="stat">
+            <strong id="flightTime">0</strong>
+            <span>Flight time</span>
+          </div>
+
+          <div class="stat">
+            <strong id="maxSpeed">0</strong>
+            <span>Max speed</span>
+          </div>
+
+          <div class="stat">
+            <strong id="bestDistance">0</strong>
+            <span>Best closest distance</span>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="below-grid">
+      <div class="panel">
+        <h2>Trial history</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Trial</th>
+              <th>Scenario</th>
+              <th>Angle</th>
+              <th>Speed</th>
+              <th>Closest</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+            <tr>
+              <td colspan="6" class="empty">No saved trials yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h2>Student challenge</h2>
+
+        <ul class="challenge-list">
+          <li>Complete five launches using the Earth-like planet scenario.</li>
+          <li>Change only one variable at a time: angle, speed or gravity strength.</li>
+          <li>Record which settings produce the closest approach to the target.</li>
+          <li>Identify the independent variable, dependent variable and controlled variables.</li>
+          <li>Explain how the planet’s gravity changed the probe’s path.</li>
+          <li>Evaluate one strength and one limitation of this model.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top: 18px;">
+      <h2>Teacher notes</h2>
+
+      <div class="teacher-notes">
+        <p>
+          This game models how gravity can curve the path of a moving object. Students adjust launch angle, speed and gravity
+          strength, then observe how the probe’s trajectory changes.
+        </p>
+
+        <p>
+          Suggested investigation question: <strong>How do launch angle and launch speed affect the path of a probe near a planet?</strong>
+          The independent variable could be launch angle, launch speed or gravity strength. Dependent variables include closest distance
+          to the target, success or failure, flight time and maximum speed. Controlled variables include scenario, target position,
+          starting position and number of trials.
+        </p>
+
+        <p>
+          This is a simplified gravitational deflection model. A real gravity assist involves a moving planet and can transfer energy
+          between the planet and spacecraft. Real trajectories also involve three-dimensional motion, changing planetary positions,
+          orbital speed, mass, distance and conservation of momentum.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    const scenarioSelect = document.getElementById("scenario");
+    const angleSlider = document.getElementById("angle");
+    const speedSlider = document.getElementById("speed");
+    const gravitySlider = document.getElementById("gravity");
+
+    const angleReadout = document.getElementById("angleReadout");
+    const speedReadout = document.getElementById("speedReadout");
+    const gravityReadout = document.getElementById("gravityReadout");
+
+    const message = document.getElementById("message");
+    const historyBody = document.getElementById("historyBody");
+
+    const attemptsDisplay = document.getElementById("attempts");
+    const resultDisplay = document.getElementById("result");
+    const closestDisplay = document.getElementById("closest");
+    const flightTimeDisplay = document.getElementById("flightTime");
+    const maxSpeedDisplay = document.getElementById("maxSpeed");
+    const bestDistanceDisplay = document.getElementById("bestDistance");
+
+    const scenarios = {
+      earth: {
+        label: "Earth-like planet: medium gravity",
+        planetRadius: 36,
+        defaultGravity: 1.1,
+        colour: "#38bdf8"
+      },
+      giant: {
+        label: "Gas giant: strong gravity",
+        planetRadius: 54,
+        defaultGravity: 1.8,
+        colour: "#f97316"
+      },
+      small: {
+        label: "Small moon: weak gravity",
+        planetRadius: 25,
+        defaultGravity: 0.6,
+        colour: "#cbd5e1"
+      }
+    };
+
+    const start = { x: 42, y: 365 };
+    const planet = { x: 380, y: 238 };
+    const target = { x: 690, y: 130, radius: 42 };
+
+    let probe = null;
+    let trail = [];
+    let animationId = null;
+    let launched = false;
+    let flightFinished = false;
+    let currentResult = "Ready";
+    let currentClosest = 0;
+    let currentFlightTime = 0;
+    let currentMaxSpeed = 0;
+    let currentScenarioLabel = "Earth-like planet: medium gravity";
+    let trials = [];
+
+    function updateReadouts() {
+      angleReadout.textContent = Number(angleSlider.value).toFixed(0) + "°";
+      speedReadout.textContent = Number(speedSlider.value).toFixed(1) + " units";
+      gravityReadout.textContent = Number(gravitySlider.value).toFixed(1);
+
+      if (!launched) {
+        drawStartScreen();
+      }
+    }
+
+    function launchProbe() {
+      cancelAnimationFrame(animationId);
+
+      const scenario = scenarios[scenarioSelect.value];
+      currentScenarioLabel = scenario.label;
+
+      const angleDegrees = Number(angleSlider.value);
+      const angleRadians = angleDegrees * Math.PI / 180;
+      const speed = Number(speedSlider.value);
+
+      probe = {
+        x: start.x,
+        y: start.y,
+        vx: Math.cos(angleRadians) * speed,
+        vy: Math.sin(angleRadians) * speed,
+        radius: 6
+      };
+
+      trail = [];
+      launched = true;
+      flightFinished = false;
+      currentResult = "Flying";
+      currentClosest = getDistance(probe.x, probe.y, target.x, target.y);
+      currentFlightTime = 0;
+      currentMaxSpeed = speed;
+
+      message.textContent = "Probe launched. Watch how gravity bends the flight path.";
+      updateDisplays();
+
+      animationId = requestAnimationFrame(gameLoop);
+    }
+
+    function resetFlight() {
+      cancelAnimationFrame(animationId);
+      probe = null;
+      trail = [];
+      launched = false;
+      flightFinished = false;
+      currentResult = "Ready";
+      currentClosest = 0;
+      currentFlightTime = 0;
+      currentMaxSpeed = 0;
+
+      updateDisplays();
+      drawStartScreen();
+      message.textContent = "Flight reset. Adjust the settings and launch again.";
+    }
+
+    function gameLoop() {
+      if (!launched || flightFinished) return;
+
+      for (let i = 0; i < 2; i++) {
+        updateProbe();
+      }
+
+      draw();
+
+      if (!flightFinished) {
+        animationId = requestAnimationFrame(gameLoop);
+      }
+    }
+
+    function updateProbe() {
+      const scenario = scenarios[scenarioSelect.value];
+      const gravityStrength = Number(gravitySlider.value);
+
+      const dx = planet.x - probe.x;
+      const dy = planet.y - probe.y;
+      const distanceSquared = dx * dx + dy * dy;
+      const distance = Math.sqrt(distanceSquared);
+
+      const safeDistanceSquared = Math.max(distanceSquared, 700);
+      const force = (gravityStrength * 42) / safeDistanceSquared;
+
+      probe.vx += (dx / distance) * force;
+      probe.vy += (dy / distance) * force;
+
+      probe.x += probe.vx;
+      probe.y += probe.vy;
+
+      const speed = Math.sqrt(probe.vx * probe.vx + probe.vy * probe.vy);
+      currentMaxSpeed = Math.max(currentMaxSpeed, speed);
+
+      trail.push({ x: probe.x, y: probe.y });
+      if (trail.length > 420) trail.shift();
+
+      currentFlightTime += 1 / 60;
+
+      const targetDistance = getDistance(probe.x, probe.y, target.x, target.y);
+      currentClosest = Math.min(currentClosest, targetDistance);
+
+      if (targetDistance <= target.radius) {
+        finishFlight("Hit target", "Success! The probe reached the target zone.");
+        return;
+      }
+
+      if (distance <= scenario.planetRadius + probe.radius) {
+        finishFlight("Crashed", "The probe crashed into the planet. Try a different angle or speed.");
+        return;
+      }
+
+      if (
+        probe.x < -60 ||
+        probe.x > canvas.width + 80 ||
+        probe.y < -80 ||
+        probe.y > canvas.height + 80 ||
+        currentFlightTime > 16
+      ) {
+        finishFlight("Missed", "The probe missed the target. Save the trial or adjust the launch settings.");
+      }
+
+      updateDisplays();
+    }
+
+    function finishFlight(result, text) {
+      flightFinished = true;
+      launched = false;
+      currentResult = result;
+      message.textContent = text;
+      updateDisplays();
+      draw();
+    }
+
+    function draw() {
+      ctx.fillStyle = "#050b18";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      drawStars();
+      drawTarget();
+      drawPlanet();
+      drawStartLauncher();
+      drawTrail();
+      drawProbe();
+      drawHUD();
+    }
+
+    function drawStartScreen() {
+      ctx.fillStyle = "#050b18";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      drawStars();
+      drawTarget();
+      drawPlanet();
+      drawStartLauncher();
+      drawAimLine();
+
+      ctx.fillStyle = "rgba(255,255,255,0.92)";
+      ctx.font = "32px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Gravity Slingshot", canvas.width / 2, canvas.height / 2 + 122);
+
+      ctx.font = "18px Arial";
+      ctx.fillText("Adjust the launch settings and press Launch probe", canvas.width / 2, canvas.height / 2 + 154);
+    }
+
+    function drawStars() {
+      ctx.fillStyle = "rgba(255,255,255,0.52)";
+
+      for (let i = 0; i < 65; i++) {
+        const x = (i * 97) % canvas.width;
+        const y = (i * 53) % canvas.height;
+        const r = (i % 3) + 0.7;
+
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function drawTarget() {
+      ctx.strokeStyle = "rgba(34, 197, 94, 0.88)";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(target.x, target.y, target.radius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.fillStyle = "rgba(34, 197, 94, 0.13)";
+      ctx.beginPath();
+      ctx.arc(target.x, target.y, target.radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "rgba(255,255,255,0.84)";
+      ctx.font = "14px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("TARGET", target.x, target.y - target.radius - 8);
+    }
+
+    function drawPlanet() {
+      const scenario = scenarios[scenarioSelect.value];
+
+      ctx.shadowColor = scenario.colour;
+      ctx.shadowBlur = 22;
+      ctx.fillStyle = scenario.colour;
+      ctx.beginPath();
+      ctx.arc(planet.x, planet.y, scenario.planetRadius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      ctx.strokeStyle = "rgba(255,255,255,0.35)";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      ctx.strokeStyle = "rgba(255,255,255,0.12)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(planet.x, planet.y, scenario.planetRadius + 35, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(planet.x, planet.y, scenario.planetRadius + 70, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    function drawStartLauncher() {
+      ctx.fillStyle = "#facc15";
+      ctx.beginPath();
+      ctx.arc(start.x, start.y, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = "rgba(255,255,255,0.7)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    function drawAimLine() {
+      const angleRadians = Number(angleSlider.value) * Math.PI / 180;
+      const speed = Number(speedSlider.value);
+      const lineLength = speed * 22;
+
+      ctx.strokeStyle = "rgba(250, 204, 21, 0.75)";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(start.x, start.y);
+      ctx.lineTo(
+        start.x + Math.cos(angleRadians) * lineLength,
+        start.y + Math.sin(angleRadians) * lineLength
+      );
+      ctx.stroke();
+    }
+
+    function drawTrail() {
+      if (trail.length < 2) return;
+
+      ctx.strokeStyle = "rgba(250, 204, 21, 0.82)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(trail[0].x, trail[0].y);
+
+      for (let i = 1; i < trail.length; i++) {
+        ctx.lineTo(trail[i].x, trail[i].y);
+      }
+
+      ctx.stroke();
+    }
+
+    function drawProbe() {
+      if (!probe) return;
+
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(probe.x, probe.y, probe.radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = "#facc15";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    function drawHUD() {
+      ctx.fillStyle = "rgba(255,255,255,0.88)";
+      ctx.font = "16px Arial";
+      ctx.textAlign = "left";
+      ctx.fillText("Closest: " + Math.round(currentClosest) + " px", 18, 28);
+
+      ctx.textAlign = "right";
+      ctx.fillText("Result: " + currentResult, canvas.width - 18, 28);
+    }
+
+    function saveTrial() {
+      if (launched && !flightFinished) {
+        message.textContent = "Wait for the flight to finish before saving the trial.";
+        return;
+      }
+
+      if (currentResult === "Ready") {
+        message.textContent = "Launch a probe before saving a trial.";
+        return;
+      }
+
+      trials.push({
+        trial: trials.length + 1,
+        scenario: currentScenarioLabel,
+        angle: Number(angleSlider.value),
+        speed: Number(speedSlider.value),
+        gravity: Number(gravitySlider.value),
+        closest: currentClosest,
+        flightTime: currentFlightTime,
+        maxSpeed: currentMaxSpeed,
+        result: currentResult
+      });
+
+      renderHistory();
+      updateDisplays();
+      message.textContent = "Trial saved. Adjust one variable and try another launch.";
+    }
+
+    function renderHistory() {
+      historyBody.innerHTML = "";
+
+      if (trials.length === 0) {
+        const row = document.createElement("tr");
+        row.innerHTML = '<td colspan="6" class="empty">No saved trials yet.</td>';
+        historyBody.appendChild(row);
+        return;
+      }
+
+      trials.forEach(trial => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td>${trial.trial}</td>
+          <td>${trial.scenario}</td>
+          <td>${trial.angle}°</td>
+          <td>${trial.speed.toFixed(1)}</td>
+          <td>${Math.round(trial.closest)} px</td>
+          <td>${trial.result}</td>
+        `;
+
+        historyBody.appendChild(row);
+      });
+    }
+
+    function updateDisplays() {
+      attemptsDisplay.textContent = trials.length;
+      resultDisplay.textContent = currentResult;
+      closestDisplay.textContent = currentClosest ? Math.round(currentClosest) + " px" : "0";
+      flightTimeDisplay.textContent = currentFlightTime.toFixed(1) + " s";
+      maxSpeedDisplay.textContent = currentMaxSpeed.toFixed(1);
+
+      if (trials.length === 0) {
+        bestDistanceDisplay.textContent = "0";
+        return;
+      }
+
+      const bestDistance = Math.min(...trials.map(trial => trial.closest));
+      bestDistanceDisplay.textContent = Math.round(bestDistance) + " px";
+    }
+
+    function downloadCSV() {
+      if (trials.length === 0) {
+        message.textContent = "There is no data to download yet.";
+        return;
+      }
+
+      const rows = [
+        ["Trial", "Scenario", "Launch angle (degrees)", "Launch speed", "Gravity strength", "Closest distance to target (px)", "Flight time (s)", "Maximum speed", "Result"]
+      ];
+
+      trials.forEach(trial => {
+        rows.push([
+          trial.trial,
+          trial.scenario,
+          trial.angle,
+          trial.speed.toFixed(1),
+          trial.gravity.toFixed(1),
+          Math.round(trial.closest),
+          trial.flightTime.toFixed(2),
+          trial.maxSpeed.toFixed(2),
+          trial.result
+        ]);
+      });
+
+      const csvContent = rows
+        .map(row => row.map(csvEscape).join(","))
+        .join("\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "gravity_slingshot_challenge_data.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(url);
+    }
+
+    function clearHistory() {
+      trials = [];
+      renderHistory();
+      updateDisplays();
+      message.textContent = "Trial history cleared.";
+    }
+
+    function getDistance(x1, y1, x2, y2) {
+      const dx = x1 - x2;
+      const dy = y1 - y2;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function csvEscape(value) {
+      const text = String(value);
+
+      if (text.includes(",") || text.includes('"') || text.includes("\n")) {
+        return '"' + text.replace(/"/g, '""') + '"';
+      }
+
+      return text;
+    }
+
+    angleSlider.addEventListener("input", updateReadouts);
+    speedSlider.addEventListener("input", updateReadouts);
+    gravitySlider.addEventListener("input", updateReadouts);
+
+    scenarioSelect.addEventListener("change", () => {
+      const scenario = scenarios[scenarioSelect.value];
+
+      if (!launched) {
+        gravitySlider.value = scenario.defaultGravity.toFixed(1);
+        currentScenarioLabel = scenario.label;
+      }
+
+      updateReadouts();
+    });
+
+    updateReadouts();
+    updateDisplays();
+    drawStartScreen();
+  </script>
+</body>
+</html>
