@@ -1,152 +1,596 @@
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Click the Target</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Reaction and Accuracy Target Lab</title>
+  <link rel="icon" type="image/png" href="/SciSims/favicon.png">
 
   <style>
+    :root {
+      --bg: #eaf2fb;
+      --panel: #ffffff;
+      --panel-soft: #f7fbff;
+      --line: #cddcf0;
+      --text: #172033;
+      --muted: #4b5870;
+      --blue: #2f63e6;
+      --blue-dark: #173a9e;
+      --green: #16a34a;
+      --orange: #f97316;
+      --red: #dc2626;
+      --radius: 18px;
+      --shadow: 0 12px 28px rgba(22, 40, 70, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      min-height: 100vh;
-      font-family: Arial, sans-serif;
-      background: #101820;
-      color: white;
-      display: flex;
-      flex-direction: column;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      width: min(1260px, calc(100% - 32px));
+      margin: 14px auto 40px;
+    }
+
+    .home-link {
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      user-select: none;
+      gap: 8px;
+      padding: 10px 16px;
+      margin-bottom: 18px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #123ca6;
+      text-decoration: none;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(22, 40, 70, 0.08);
     }
 
-    h1 {
-      margin-bottom: 5px;
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      padding: 28px;
+      min-height: 176px;
+      background:
+        radial-gradient(circle at 95% 80%, rgba(72, 180, 115, 0.65) 0 19%, transparent 20%),
+        linear-gradient(120deg, #14254d 0%, #263c91 46%, #155f55 100%);
+      box-shadow: var(--shadow);
+      color: white;
+      margin-bottom: 18px;
     }
 
-    #info {
-      display: flex;
-      gap: 25px;
-      margin-bottom: 15px;
-      font-size: 1.2rem;
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2.1rem, 5vw, 4rem);
+      line-height: 1;
+      letter-spacing: -1.5px;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 900px;
+      font-size: 1.08rem;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.55fr 0.95fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 1.5rem;
+    }
+
+    .li-sc {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .info-box {
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .info-box h3 {
+      margin: 0 0 6px;
+      color: var(--blue-dark);
+      font-size: 1rem;
+    }
+
+    .info-box p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .game-wrap {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
     }
 
     #gameArea {
-      width: 600px;
-      height: 400px;
-      background: #f5f5f5;
-      border: 4px solid #35d07f;
-      border-radius: 12px;
       position: relative;
+      width: 100%;
+      height: 440px;
       overflow: hidden;
-      box-shadow: 0 0 20px rgba(53, 208, 127, 0.4);
+      border-radius: 18px;
+      border: 2px solid var(--line);
+      background:
+        linear-gradient(rgba(47, 99, 230, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(47, 99, 230, 0.055) 1px, transparent 1px),
+        #f8fbff;
+      background-size: 32px 32px;
+      cursor: crosshair;
     }
 
     #target {
-      width: 50px;
-      height: 50px;
-      background: #e63946;
-      border-radius: 50%;
       position: absolute;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--red);
       cursor: pointer;
       display: none;
-      box-shadow: 0 0 12px rgba(230, 57, 70, 0.7);
+      box-shadow: 0 8px 20px rgba(220, 38, 38, 0.32);
+      transition: transform 0.08s ease;
+    }
+
+    #target:hover {
+      transform: scale(1.05);
     }
 
     #target::after {
       content: "";
       position: absolute;
-      width: 24px;
-      height: 24px;
-      background: white;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
-      top: 13px;
+      background: white;
       left: 13px;
+      top: 13px;
     }
 
     #target::before {
       content: "";
       position: absolute;
-      width: 10px;
-      height: 10px;
-      background: #e63946;
-      border-radius: 50%;
-      top: 20px;
-      left: 20px;
       z-index: 2;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--red);
+      left: 22px;
+      top: 22px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    button,
+    select,
+    input {
+      font: inherit;
     }
 
     button {
-      margin-top: 15px;
-      padding: 10px 18px;
-      border: none;
-      border-radius: 8px;
-      background: #35d07f;
-      color: #101820;
-      font-weight: bold;
+      border: 0;
+      border-radius: 13px;
+      padding: 12px 14px;
+      font-weight: 800;
       cursor: pointer;
+      color: white;
+      background: var(--blue);
     }
 
     button:hover {
-      background: #57e99b;
+      filter: brightness(1.05);
     }
 
-    #message {
-      margin-top: 12px;
-      font-size: 1.1rem;
-      min-height: 25px;
+    .secondary {
+      background: #eaf2ff;
+      color: var(--blue-dark);
+      border: 1px solid #bfd3ff;
+    }
+
+    .success {
+      background: var(--green);
+    }
+
+    .warning {
+      background: #fff3e6;
+      color: #9a3412;
+      border: 1px solid #fed7aa;
+    }
+
+    .danger {
+      background: #fff1f1;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    label {
+      display: block;
+      font-weight: 800;
+      color: var(--blue-dark);
+      margin-bottom: 6px;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 13px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--text);
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .stat {
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 2rem;
+      color: var(--blue-dark);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 800;
+    }
+
+    .message {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #f5f8ff;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .below-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 14px;
+      font-size: 0.95rem;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background: #edf4ff;
+      color: var(--blue-dark);
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .challenge-list {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .teacher-notes {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    @media (max-width: 900px) {
+      .grid,
+      .below-grid,
+      .li-sc {
+        grid-template-columns: 1fr;
+      }
+
+      #gameArea {
+        height: 360px;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .page {
+        width: min(100% - 20px, 1260px);
+      }
+
+      .hero {
+        padding: 22px;
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      #gameArea {
+        height: 320px;
+      }
     }
   </style>
 </head>
-<a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+
 <body>
-  <h1>Click the Target</h1>
+  <main class="page">
+    <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
 
-  <div id="info">
-    <div>Score: <span id="score">0</span></div>
-    <div>Time: <span id="time">30</span>s</div>
-  </div>
+    <section class="hero">
+      <h1>Reaction and Accuracy Target Lab</h1>
+      <p>
+        Click the target as many times as possible before the timer runs out. Use your results to investigate reaction time,
+        focus, repeated trials and whether practice improves performance.
+      </p>
+    </section>
 
-  <div id="gameArea">
-    <div id="target"></div>
-  </div>
+    <section class="li-sc">
+      <div class="info-box">
+        <h3>Learning Intention</h3>
+        <p>Students will understand that reaction speed and accuracy can be investigated by collecting repeated trial data.</p>
+      </div>
 
-  <button onclick="startGame()">Start Game</button>
+      <div class="info-box">
+        <h3>Success Criteria</h3>
+        <p>Students can collect score data, calculate simple averages, identify patterns and explain how variables may affect performance.</p>
+      </div>
+    </section>
 
-  <div id="message">Click the target as many times as you can in 30 seconds.</div>
+    <section class="grid">
+      <div class="panel">
+        <h2>Target game</h2>
+
+        <div class="game-wrap">
+          <div id="gameArea" aria-label="Click the target game area">
+            <div id="target" title="Click me"></div>
+          </div>
+
+          <div class="message" id="message">
+            Choose a game length, press Start, then click the target as many times as you can.
+          </div>
+        </div>
+      </div>
+
+      <aside class="panel">
+        <h2>Controls</h2>
+
+        <label for="duration">Game length</label>
+        <select id="duration">
+          <option value="15">15 seconds</option>
+          <option value="30" selected>30 seconds</option>
+          <option value="45">45 seconds</option>
+          <option value="60">60 seconds</option>
+        </select>
+
+        <div class="controls">
+          <button onclick="startGame()">Start game</button>
+          <button class="secondary" onclick="resetCurrent()">Reset round</button>
+          <button class="success" onclick="saveTrial()">Save trial</button>
+          <button class="warning" onclick="downloadCSV()">Download CSV</button>
+          <button class="danger" onclick="clearHistory()">Clear history</button>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <strong id="score">0</strong>
+            <span>Current score</span>
+          </div>
+
+          <div class="stat">
+            <strong id="time">30</strong>
+            <span>Time left</span>
+          </div>
+
+          <div class="stat">
+            <strong id="best">0</strong>
+            <span>Best score</span>
+          </div>
+
+          <div class="stat">
+            <strong id="attempts">0</strong>
+            <span>Saved trials</span>
+          </div>
+
+          <div class="stat">
+            <strong id="mean">0</strong>
+            <span>Mean score</span>
+          </div>
+
+          <div class="stat">
+            <strong id="hitsPerSecond">0</strong>
+            <span>Hits per second</span>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="below-grid">
+      <div class="panel">
+        <h2>Trial history</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Trial</th>
+              <th>Length</th>
+              <th>Score</th>
+              <th>Hits/s</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+            <tr>
+              <td colspan="4" class="empty">No saved trials yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h2>Student challenge</h2>
+
+        <ul class="challenge-list">
+          <li>Complete five trials using the same game length.</li>
+          <li>Record whether your score improves, decreases or stays about the same.</li>
+          <li>Calculate your mean score.</li>
+          <li>Identify one variable that could affect the results, such as practice, tiredness, distractions or device type.</li>
+          <li>Explain whether this is a fair test and how it could be improved.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top: 18px;">
+      <h2>Teacher notes</h2>
+
+      <div class="teacher-notes">
+        <p>
+          This simulation can be used as a short Working Scientifically activity. Students can investigate whether repeated
+          practice improves performance, whether distractions reduce accuracy, or whether different input devices affect
+          scores. It supports discussion of independent variables, dependent variables, controlled variables, repeated trials,
+          mean results, reliability and fair testing.
+        </p>
+
+        <p>
+          Suggested investigation question: <strong>How does practice affect the number of targets clicked in 30 seconds?</strong>
+          The independent variable could be trial number or practice condition. The dependent variable is the score or hits per
+          second. Controlled variables include game length, device, target size, screen size, sitting position and level of distraction.
+        </p>
+      </div>
+    </section>
+  </main>
 
   <script>
     const gameArea = document.getElementById("gameArea");
     const target = document.getElementById("target");
     const scoreDisplay = document.getElementById("score");
     const timeDisplay = document.getElementById("time");
+    const bestDisplay = document.getElementById("best");
+    const attemptsDisplay = document.getElementById("attempts");
+    const meanDisplay = document.getElementById("mean");
+    const hitsPerSecondDisplay = document.getElementById("hitsPerSecond");
     const message = document.getElementById("message");
+    const durationSelect = document.getElementById("duration");
+    const historyBody = document.getElementById("historyBody");
 
     let score = 0;
     let timeLeft = 30;
+    let selectedDuration = 30;
     let gameRunning = false;
-    let timer;
+    let timer = null;
+    let trials = [];
 
     function startGame() {
+      selectedDuration = Number(durationSelect.value);
       score = 0;
-      timeLeft = 30;
+      timeLeft = selectedDuration;
       gameRunning = true;
 
-      scoreDisplay.textContent = score;
-      timeDisplay.textContent = timeLeft;
-      message.textContent = "Go!";
+      updateDisplays();
+      message.textContent = "Go! Click the target as many times as you can.";
       target.style.display = "block";
-
       moveTarget();
 
       clearInterval(timer);
+
       timer = setInterval(() => {
         timeLeft--;
-        timeDisplay.textContent = timeLeft;
+        updateDisplays();
 
         if (timeLeft <= 0) {
           endGame();
         }
       }, 1000);
+    }
+
+    function resetCurrent() {
+      clearInterval(timer);
+      score = 0;
+      selectedDuration = Number(durationSelect.value);
+      timeLeft = selectedDuration;
+      gameRunning = false;
+      target.style.display = "none";
+      message.textContent = "Round reset. Press Start game to try again.";
+      updateDisplays();
+    }
+
+    function endGame() {
+      clearInterval(timer);
+      gameRunning = false;
+      target.style.display = "none";
+
+      message.textContent = "Round finished. Press Save trial to record this result, or Start game to try again.";
+      updateDisplays();
     }
 
     function moveTarget() {
@@ -165,17 +609,151 @@
       if (!gameRunning) return;
 
       score++;
-      scoreDisplay.textContent = score;
       moveTarget();
+      updateDisplays();
     });
 
-    function endGame() {
-      gameRunning = false;
-      clearInterval(timer);
-      target.style.display = "none";
+    function saveTrial() {
+      if (gameRunning) {
+        message.textContent = "Finish the round before saving the trial.";
+        return;
+      }
 
-      message.textContent = "Game over! Final score: " + score;
+      if (score === 0 && timeLeft === Number(durationSelect.value)) {
+        message.textContent = "Start and finish a round before saving a trial.";
+        return;
+      }
+
+      const hitsPerSecond = score / selectedDuration;
+
+      trials.push({
+        trial: trials.length + 1,
+        duration: selectedDuration,
+        score: score,
+        hitsPerSecond: hitsPerSecond
+      });
+
+      renderHistory();
+      updateSummary();
+      message.textContent = "Trial saved. Start another game to collect more data.";
     }
+
+    function renderHistory() {
+      historyBody.innerHTML = "";
+
+      if (trials.length === 0) {
+        const row = document.createElement("tr");
+        row.innerHTML = '<td colspan="4" class="empty">No saved trials yet.</td>';
+        historyBody.appendChild(row);
+        return;
+      }
+
+      trials.forEach(trial => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td>${trial.trial}</td>
+          <td>${trial.duration} s</td>
+          <td>${trial.score}</td>
+          <td>${trial.hitsPerSecond.toFixed(2)}</td>
+        `;
+
+        historyBody.appendChild(row);
+      });
+    }
+
+    function updateDisplays() {
+      scoreDisplay.textContent = score;
+      timeDisplay.textContent = timeLeft;
+      hitsPerSecondDisplay.textContent = selectedDuration > 0
+        ? (score / selectedDuration).toFixed(2)
+        : "0";
+
+      updateSummary();
+    }
+
+    function updateSummary() {
+      attemptsDisplay.textContent = trials.length;
+
+      if (trials.length === 0) {
+        bestDisplay.textContent = "0";
+        meanDisplay.textContent = "0";
+        return;
+      }
+
+      const scores = trials.map(trial => trial.score);
+      const best = Math.max(...scores);
+      const total = scores.reduce((sum, value) => sum + value, 0);
+      const mean = total / scores.length;
+
+      bestDisplay.textContent = best;
+      meanDisplay.textContent = mean.toFixed(1);
+    }
+
+    function downloadCSV() {
+      if (trials.length === 0) {
+        message.textContent = "There is no data to download yet.";
+        return;
+      }
+
+      const rows = [
+        ["Trial", "Game length (s)", "Score", "Hits per second"]
+      ];
+
+      trials.forEach(trial => {
+        rows.push([
+          trial.trial,
+          trial.duration,
+          trial.score,
+          trial.hitsPerSecond.toFixed(2)
+        ]);
+      });
+
+      const csvContent = rows
+        .map(row => row.map(csvEscape).join(","))
+        .join("\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "reaction_accuracy_target_lab_data.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(url);
+    }
+
+    function csvEscape(value) {
+      const text = String(value);
+
+      if (text.includes(",") || text.includes('"') || text.includes("\n")) {
+        return '"' + text.replace(/"/g, '""') + '"';
+      }
+
+      return text;
+    }
+
+    function clearHistory() {
+      trials = [];
+      renderHistory();
+      updateSummary();
+      message.textContent = "Trial history cleared.";
+    }
+
+    durationSelect.addEventListener("change", () => {
+      if (!gameRunning) {
+        selectedDuration = Number(durationSelect.value);
+        timeLeft = selectedDuration;
+        updateDisplays();
+      }
+    });
+
+    selectedDuration = Number(durationSelect.value);
+    timeLeft = selectedDuration;
+    updateDisplays();
   </script>
 </body>
 </html>
