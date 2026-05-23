@@ -20,6 +20,7 @@
       --soft-orange:#ffedd5;
       --soft-slate:#f1f5f9;
       --soft-teal:#ccfbf1;
+      --soft-pink:#fce7f3;
       --shadow:0 4px 14px rgba(0,0,0,0.08);
       --radius:16px;
     }
@@ -300,6 +301,7 @@
     .tag.working{background:#fef3c7;border-color:#fde68a;color:#92400e;}
     .tag.invsci{background:var(--soft-teal);border-color:#99f6e4;color:#115e59;}
     .tag.interesting{background:#e2e8f0;border-color:#cbd5e1;color:#334155;}
+    .tag.brainbreak{background:var(--soft-pink);border-color:#fbcfe8;color:#9d174d;}
 
     .open-link{
       align-self:flex-start;
@@ -435,6 +437,13 @@
       tagClass:'physics'
     },
     {
+      id:'brainbreak',
+      title:'Brain Break',
+      intro:'Simple classroom-friendly games for short breaks, focus activities, quick data collection and informal skill challenges.',
+      banner:'brainbreak.png',
+      tagClass:'brainbreak'
+    },
+    {
       id:'interestingsims',
       title:'Interesting Sims',
       intro:'Cross-topic, unusual or experimental simulations that do not fit neatly into one science area.',
@@ -452,22 +461,22 @@
       path:'WorkingScientifically/Variables/',
       tags:['Variables','Fair testing','Drag and drop']
     },
- {
-  section:'invsci',
-  group:'Module 5: Scientific Investigations',
-  title:'Fair Test Builder',
-  description:'Build valid investigations by identifying independent, dependent and controlled variables across plant growth, pendulum motion, friction, reaction time and dissolving rate scenarios.',
-  path:'InvSci/FairTest/',
-  tags:['Fair testing','Variables','Validity','Reliability','Experimental design']
-},
-{
-  section:'invsci',
-  group:'Module 5: Scientific Investigations',
-  title:'Accuracy, Reliability and Validity Lab',
-  description:'Generate experimental datasets by adjusting sample size, equipment precision, random error, systematic error and controlled variables, then interpret graphs and data tables to judge accuracy, reliability and validity.',
-  path:'InvSci/VAR/',
-  tags:['Accuracy','Reliability','Validity','Experimental design','Data analysis','Scientific investigations']
-},
+    {
+      section:'invsci',
+      group:'Module 5: Scientific Investigations',
+      title:'Fair Test Builder',
+      description:'Build valid investigations by identifying independent, dependent and controlled variables across plant growth, pendulum motion, friction, reaction time and dissolving rate scenarios.',
+      path:'InvSci/FairTest/',
+      tags:['Fair testing','Variables','Validity','Reliability','Experimental design']
+    },
+    {
+      section:'invsci',
+      group:'Module 5: Scientific Investigations',
+      title:'Accuracy, Reliability and Validity Lab',
+      description:'Generate experimental datasets by adjusting sample size, equipment precision, random error, systematic error and controlled variables, then interpret graphs and data tables to judge accuracy, reliability and validity.',
+      path:'InvSci/VAR/',
+      tags:['Accuracy','Reliability','Validity','Experimental design','Data analysis','Scientific investigations']
+    },
     {
       section:'biosims',
       group:'Disease and Microbes',
@@ -651,6 +660,22 @@
       description:'Explore convex, concave and bifocal lenses by moving an object, changing focal length, tracing ray diagrams and identifying real, virtual, upright, inverted, enlarged and reduced images.',
       path:'PhySims/Optics/',
       tags:['Optics','Lenses','Ray diagrams']
+    },
+    {
+      section:'brainbreak',
+      group:'Reaction and Focus Games',
+      title:'Reaction and Accuracy Target Lab',
+      description:'Click targets under timed conditions, collect repeated trial data and compare scores, hits per second, best score and mean performance.',
+      path:'BrainBreak/Target/',
+      tags:['Reaction time','Accuracy','Focus','Data']
+    },
+    {
+      section:'brainbreak',
+      group:'Reaction and Focus Games',
+      title:'Snake Decision-Time Challenge',
+      description:'Guide the snake, collect food and record score and survival time to investigate practice, attention, decision-making and repeated trial data.',
+      path:'BrainBreak/Snake/',
+      tags:['Decision-making','Reaction time','Practice','Data']
     },
     {
       section:'interestingsims',
