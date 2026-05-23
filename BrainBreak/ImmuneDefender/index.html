@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Immune Defender: Pathogen Chase</title>
+  <link rel="icon" type="image/png" href="/SciSims/favicon.png">
+
+  <style>
+    :root {
+      --bg: #eaf2fb;
+      --panel: #ffffff;
+      --panel-soft: #f7fbff;
+      --line: #cddcf0;
+      --text: #172033;
+      --muted: #4b5870;
+      --blue: #2f63e6;
+      --blue-dark: #173a9e;
+      --green: #16a34a;
+      --orange: #f97316;
+      --red: #dc2626;
+      --purple: #9333ea;
+      --radius: 18px;
+      --shadow: 0 12px 28px rgba(22, 40, 70, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      width: min(1260px, calc(100% - 32px));
+      margin: 14px auto 40px;
+    }
+
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      margin-bottom: 18px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #123ca6;
+      text-decoration: none;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(22, 40, 70, 0.08);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      padding: 28px;
+      min-height: 176px;
+      background:
+        radial-gradient(circle at 95% 80%, rgba(72, 180, 115, 0.65) 0 19%, transparent 20%),
+        linear-gradient(120deg, #14254d 0%, #263c91 46%, #155f55 100%);
+      box-shadow: var(--shadow);
+      color: white;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2.1rem, 5vw, 4rem);
+      line-height: 1;
+      letter-spacing: -1.5px;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 930px;
+      font-size: 1.08rem;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    .li-sc {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .info-box {
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .info-box h3 {
+      margin: 0 0 6px;
+      color: var(--blue-dark);
+      font-size: 1rem;
+    }
+
+    .info-box p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.55fr 0.95fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 1.5rem;
+    }
+
+    .game-holder {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background:
+        linear-gradient(rgba(47, 99, 230, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(47, 99, 230, 0.055) 1px, transparent 1px),
+        #f8fbff;
+      background-size: 32px 32px;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    canvas {
+      width: min(100%, 760px);
+      height: auto;
+      aspect-ratio: 16 / 10;
+      background: #06131f;
+      border-radius: 16px;
+      border: 4px solid #1f3b82;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+    }
+
+    .message,
+    .key-box {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #f5f8ff;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .key-box {
+      margin-top: 12px;
+    }
+
+    label {
+      display: block;
+      font-weight: 800;
+      color: var(--blue-dark);
+      margin-bottom: 6px;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 13px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--text);
+      font-weight: 700;
+      margin-bottom: 14px;
+      font: inherit;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 13px;
+      padding: 12px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      color: white;
+      background: var(--blue);
+      font: inherit;
+    }
+
+    button:hover {
+      filter: brightness(1.05);
+    }
+
+    .secondary {
+      background: #eaf2ff;
+      color: var(--blue-dark);
+      border: 1px solid #bfd3ff;
+    }
+
+    .success {
+      background: var(--green);
+    }
+
+    .warning {
+      background: #fff3e6;
+      color: #9a3412;
+      border: 1px solid #fed7aa;
+    }
+
+    .danger {
+      background: #fff1f1;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .stat {
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 2rem;
+      color: var(--blue-dark);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 800;
+    }
+
+    .health-bar {
+      width: 100%;
+      height: 14px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      margin: 8px 0 14px;
+    }
+
+    .health-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #dc2626, #f97316, #16a34a);
+      transition: width 0.2s ease;
+    }
+
+    .below-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 14px;
+      font-size: 0.95rem;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background: #edf4ff;
+      color: var(--blue-dark);
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .challenge-list {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .teacher-notes {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    @media (max-width: 900px) {
+      .grid,
+      .below-grid,
+      .li-sc {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .page {
+        width: min(100% - 20px, 1260px);
+      }
+
+      .hero {
+        padding: 22px;
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+
+    <section class="hero">
+      <h1>Immune Defender: Pathogen Chase</h1>
+      <p>
+        Control a white blood cell, remove pathogens and avoid harmful toxin zones. Compare how immune protection mode affects
+        pathogen removal, toxin hits, cell health and survival time.
+      </p>
+    </section>
+
+    <section class="li-sc">
+      <div class="info-box">
+        <h3>Learning Intention</h3>
+        <p>Students will understand that the immune system protects the body by detecting and responding to pathogens.</p>
+      </div>
+
+      <div class="info-box">
+        <h3>Success Criteria</h3>
+        <p>Students can use a model to collect data, compare immune response conditions and explain limitations of the model.</p>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <h2>Immune system game</h2>
+
+        <div class="game-holder">
+          <canvas id="game" width="760" height="475"></canvas>
+        </div>
+
+        <div class="message" id="message">
+          Choose an immune protection mode, press Start game, then use the arrow keys to move your white blood cell.
+        </div>
+
+        <div class="key-box">
+          Controls: Arrow keys to move. Touch green pathogens to remove them. Avoid purple toxin zones.
+        </div>
+
+        <div class="key-box">
+          Model note: This is a simplified game model. Prior immunity or vaccination is represented as faster recognition and response,
+          shown by faster movement and a larger removal radius. Real immune responses involve many cells, antibodies and chemical signals.
+        </div>
+      </div>
+
+      <aside class="panel">
+        <h2>Controls</h2>
+
+        <label for="protection">Immune protection mode</label>
+        <select id="protection">
+          <option value="none">No prior immunity</option>
+          <option value="partial" selected>Partial immunity</option>
+          <option value="strong">Strong vaccine protection</option>
+          <option value="overwhelmed">Overwhelmed immune system</option>
+        </select>
+
+        <label for="roundLength">Round length</label>
+        <select id="roundLength">
+          <option value="20">20 seconds</option>
+          <option value="30" selected>30 seconds</option>
+          <option value="45">45 seconds</option>
+          <option value="60">60 seconds</option>
+        </select>
+
+        <label>Cell health</label>
+        <div class="health-bar">
+          <div id="healthFill" class="health-fill"></div>
+        </div>
+
+        <div class="controls">
+          <button onclick="startGame()">Start game</button>
+          <button class="secondary" onclick="pauseGame()">Pause</button>
+          <button class="secondary" onclick="resetCurrent()">Reset round</button>
+          <button class="success" onclick="saveTrial()">Save trial</button>
+          <button class="warning" onclick="downloadCSV()">Download CSV</button>
+          <button class="danger" onclick="clearHistory()">Clear history</button>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <strong id="removed">0</strong>
+            <span>Pathogens removed</span>
+          </div>
+
+          <div class="stat">
+            <strong id="timeLeft">30</strong>
+            <span>Time left</span>
+          </div>
+
+          <div class="stat">
+            <strong id="toxinHits">0</strong>
+            <span>Toxin hits</span>
+          </div>
+
+          <div class="stat">
+            <strong id="health">5</strong>
+            <span>Health left</span>
+          </div>
+
+          <div class="stat">
+            <strong id="survival">0</strong>
+            <span>Survival time</span>
+          </div>
+
+          <div class="stat">
+            <strong id="meanRemoved">0</strong>
+            <span>Mean removed</span>
+          </div>
+
+          <div class="stat">
+            <strong id="meanToxinHits">0</strong>
+            <span>Mean toxin hits</span>
+          </div>
+
+          <div class="stat">
+            <strong id="attempts">0</strong>
+            <span>Saved trials</span>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="below-grid">
+      <div class="panel">
+        <h2>Trial history</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Trial</th>
+              <th>Protection</th>
+              <th>Removed</th>
+              <th>Toxin hits</th>
+              <th>Health</th>
+              <th>End reason</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+            <tr>
+              <td colspan="6" class="empty">No saved trials yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h2>Student challenge</h2>
+
+        <ul class="challenge-list">
+          <li>Complete three trials with no prior immunity.</li>
+          <li>Complete three trials with strong vaccine protection.</li>
+          <li>Compare pathogens removed, toxin hits, cell health and survival time.</li>
+          <li>Identify the independent variable, dependent variables and controlled variables.</li>
+          <li>Explain how protection mode affected the immune response in the model.</li>
+          <li>Evaluate one strength and one limitation of this model.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top: 18px;">
+      <h2>Teacher notes</h2>
+
+      <div class="teacher-notes">
+        <p>
+          This game links a brain break activity to immune system modelling. The player represents a white blood cell.
+          Green particles represent pathogens. Purple particles represent harmful toxin zones or tissue damage conditions that reduce cell health.
+        </p>
+
+        <p>
+          Suggested investigation question: <strong>How does immune protection mode affect pathogen removal, toxin hits and cell health?</strong>
+          The independent variable is the protection mode. Dependent variables include pathogens removed, toxin hits, health remaining
+          and survival time. Controlled variables include round length, player, device, screen size, control method and number of trials.
+        </p>
+
+        <p>
+          In this model, prior immunity and vaccination are represented by faster response speed and a larger pathogen removal radius.
+          This is intended to represent quicker immune recognition and response, not a physical shield. Real immune responses involve barriers,
+          white blood cell types, antibodies, antigens, memory cells, inflammation and chemical signalling.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    const protectionSelect = document.getElementById("protection");
+    const roundLengthSelect = document.getElementById("roundLength");
+    const message = document.getElementById("message");
+    const historyBody = document.getElementById("historyBody");
+
+    const removedDisplay = document.getElementById("removed");
+    const timeLeftDisplay = document.getElementById("timeLeft");
+    const toxinHitsDisplay = document.getElementById("toxinHits");
+    const survivalDisplay = document.getElementById("survival");
+    const healthDisplay = document.getElementById("health");
+    const healthFill = document.getElementById("healthFill");
+    const attemptsDisplay = document.getElementById("attempts");
+    const meanRemovedDisplay = document.getElementById("meanRemoved");
+    const meanToxinHitsDisplay = document.getElementById("meanToxinHits");
+
+    const startingHealth = 5;
+
+    const settings = {
+      none: {
+        label: "No prior immunity",
+        pathogenCount: 15,
+        pathogenSpeed: 2.4,
+        toxinCount: 7,
+        toxinSpeed: 2.2,
+        playerSpeed: 4.1,
+        removalBonus: 0
+      },
+      partial: {
+        label: "Partial immunity",
+        pathogenCount: 14,
+        pathogenSpeed: 2.4,
+        toxinCount: 7,
+        toxinSpeed: 2.2,
+        playerSpeed: 4.7,
+        removalBonus: 6
+      },
+      strong: {
+        label: "Strong vaccine protection",
+        pathogenCount: 13,
+        pathogenSpeed: 2.4,
+        toxinCount: 7,
+        toxinSpeed: 2.2,
+        playerSpeed: 5.3,
+        removalBonus: 11
+      },
+      overwhelmed: {
+        label: "Overwhelmed immune system",
+        pathogenCount: 19,
+        pathogenSpeed: 2.6,
+        toxinCount: 9,
+        toxinSpeed: 2.4,
+        playerSpeed: 3.7,
+        removalBonus: -2
+      }
+    };
+
+    let player;
+    let pathogens = [];
+    let toxins = [];
+    let removed = 0;
+    let toxinHits = 0;
+    let health = startingHealth;
+    let timeLeft = 30;
+    let survivalTime = 0;
+    let roundLength = 30;
+    let currentProtectionLabel = "Partial immunity";
+    let currentEndReason = "Time completed";
+    let gameRunning = false;
+    let paused = false;
+    let roundFinished = false;
+    let animationId = null;
+    let timerId = null;
+    let invulnerableUntil = 0;
+    let trials = [];
+
+    const keys = {
+      up: false,
+      down: false,
+      left: false,
+      right: false
+    };
+
+    function startGame() {
+      cancelAnimationFrame(animationId);
+      clearInterval(timerId);
+
+      const setting = settings[protectionSelect.value];
+      currentProtectionLabel = setting.label;
+      currentEndReason = "Time completed";
+      roundLength = Number(roundLengthSelect.value);
+      timeLeft = roundLength;
+      survivalTime = 0;
+      removed = 0;
+      toxinHits = 0;
+      health = startingHealth;
+      pathogens = [];
+      toxins = [];
+      gameRunning = true;
+      paused = false;
+      roundFinished = false;
+      invulnerableUntil = 0;
+
+      player = {
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        radius: 14,
+        speed: setting.playerSpeed,
+        removalRadius: 14 + setting.removalBonus
+      };
+
+      createPathogens(setting);
+      createToxins(setting);
+
+      timerId = setInterval(() => {
+        if (!gameRunning || paused) return;
+
+        timeLeft--;
+        survivalTime = roundLength - timeLeft;
+
+        if (timeLeft <= 0) {
+          currentEndReason = "Time completed";
+          finishRound();
+        }
+
+        updateDisplays();
+      }, 1000);
+
+      message.textContent = "Game running. Remove pathogens and avoid toxin zones.";
+      updateDisplays();
+      animationId = requestAnimationFrame(gameLoop);
+    }
+
+    function pauseGame() {
+      if (!gameRunning || roundFinished) return;
+
+      paused = !paused;
+      message.textContent = paused ? "Game paused. Press Pause again to continue." : "Game running. Keep defending.";
+
+      if (!paused) {
+        animationId = requestAnimationFrame(gameLoop);
+      }
+    }
+
+    function resetCurrent() {
+      cancelAnimationFrame(animationId);
+      clearInterval(timerId);
+
+      removed = 0;
+      toxinHits = 0;
+      health = startingHealth;
+      survivalTime = 0;
+      roundLength = Number(roundLengthSelect.value);
+      timeLeft = roundLength;
+      currentEndReason = "Round reset";
+      gameRunning = false;
+      paused = false;
+      roundFinished = false;
+      pathogens = [];
+      toxins = [];
+
+      updateDisplays();
+      drawStartScreen();
+      message.textContent = "Round reset. Press Start game to try again.";
+    }
+
+    function finishRound() {
+      cancelAnimationFrame(animationId);
+      clearInterval(timerId);
+
+      gameRunning = false;
+      paused = false;
+      roundFinished = true;
+      survivalTime = roundLength - Math.max(timeLeft, 0);
+      timeLeft = Math.max(timeLeft, 0);
+
+      updateDisplays();
+      drawEndScreen();
+      message.textContent = "Round finished. Press Save trial to record this result, or Start game to try again.";
+    }
+
+    function createPathogens(setting) {
+      for (let i = 0; i < setting.pathogenCount; i++) {
+        pathogens.push(makeMovingObject(setting.pathogenSpeed, randomBetween(8, 13), "pathogen"));
+      }
+    }
+
+    function createToxins(setting) {
+      for (let i = 0; i < setting.toxinCount; i++) {
+        toxins.push(makeMovingObject(setting.toxinSpeed, randomBetween(7, 11), "toxin"));
+      }
+    }
+
+    function makeMovingObject(speedBase, radius, type) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = speedBase * (0.75 + Math.random() * 0.7);
+
+      return {
+        x: randomBetween(35, canvas.width - 35),
+        y: randomBetween(35, canvas.height - 35),
+        radius: radius,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        type: type,
+        wobble: Math.random() * Math.PI * 2
+      };
+    }
+
+    function gameLoop() {
+      if (!gameRunning || paused || roundFinished) return;
+
+      updateGame();
+      draw();
+      animationId = requestAnimationFrame(gameLoop);
+    }
+
+    function updateGame() {
+      movePlayer();
+      moveObjects(pathogens);
+      moveObjects(toxins);
+      checkPathogenContact();
+      checkToxinContact();
+    }
+
+    function movePlayer() {
+      if (keys.up) player.y -= player.speed;
+      if (keys.down) player.y += player.speed;
+      if (keys.left) player.x -= player.speed;
+      if (keys.right) player.x += player.speed;
+
+      player.x = clamp(player.x, player.radius, canvas.width - player.radius);
+      player.y = clamp(player.y, player.radius, canvas.height - player.radius);
+    }
+
+    function moveObjects(objects) {
+      objects.forEach(object => {
+        object.wobble += 0.04;
+
+        object.x += object.vx + Math.cos(object.wobble) * 0.15;
+        object.y += object.vy + Math.sin(object.wobble) * 0.15;
+
+        if (object.x - object.radius <= 0 || object.x + object.radius >= canvas.width) {
+          object.vx *= -1;
+          object.x = clamp(object.x, object.radius, canvas.width - object.radius);
+        }
+
+        if (object.y - object.radius <= 0 || object.y + object.radius >= canvas.height) {
+          object.vy *= -1;
+          object.y = clamp(object.y, object.radius, canvas.height - object.radius);
+        }
+      });
+    }
+
+    function checkPathogenContact() {
+      const setting = settings[protectionSelect.value];
+
+      for (let i = pathogens.length - 1; i >= 0; i--) {
+        const pathogen = pathogens[i];
+        const distance = getDistance(player.x, player.y, pathogen.x, pathogen.y);
+        const removalDistance = player.radius + pathogen.radius + Math.max(0, player.removalRadius - player.radius);
+
+        if (distance < removalDistance) {
+          removed++;
+          pathogens.splice(i, 1);
+          pathogens.push(makeMovingObject(setting.pathogenSpeed, randomBetween(8, 13), "pathogen"));
+          updateDisplays();
+        }
+      }
+    }
+
+    function checkToxinContact() {
+      const now = performance.now();
+
+      if (now < invulnerableUntil) return;
+
+      for (const toxin of toxins) {
+        const distance = getDistance(player.x, player.y, toxin.x, toxin.y);
+
+        if (distance < player.radius + toxin.radius) {
+          toxinHits++;
+          health--;
+          invulnerableUntil = now + 900;
+
+          player.x = canvas.width / 2;
+          player.y = canvas.height / 2;
+
+          updateDisplays();
+
+          if (health <= 0) {
+            health = 0;
+            currentEndReason = "Cell health depleted";
+            finishRound();
+            return;
+          }
+
+          message.textContent = "Toxin hit! Cell health decreased.";
+          return;
+        }
+      }
+    }
+
+    function draw() {
+      ctx.fillStyle = "#06131f";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      drawBackground();
+      drawObjects(pathogens, "pathogen");
+      drawObjects(toxins, "toxin");
+      drawPlayer();
+      drawTopText();
+    }
+
+    function drawBackground() {
+      ctx.strokeStyle = "rgba(255,255,255,0.045)";
+      ctx.lineWidth = 1;
+
+      for (let x = 0; x <= canvas.width; x += 38) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+
+      for (let y = 0; y <= canvas.height; y += 38) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = "rgba(59, 130, 246, 0.08)";
+      ctx.beginPath();
+      ctx.arc(120, 110, 70, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "rgba(16, 185, 129, 0.07)";
+      ctx.beginPath();
+      ctx.arc(620, 350, 95, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawObjects(objects, type) {
+      objects.forEach(object => {
+        if (type === "pathogen") {
+          drawPathogen(object);
+        } else {
+          drawToxin(object);
+        }
+      });
+    }
+
+    function drawPathogen(object) {
+      ctx.fillStyle = "rgba(34, 197, 94, 0.95)";
+      ctx.beginPath();
+      ctx.arc(object.x, object.y, object.radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = "rgba(255,255,255,0.45)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.strokeStyle = "rgba(187, 247, 208, 0.9)";
+      ctx.lineWidth = 2;
+
+      for (let i = 0; i < 6; i++) {
+        const angle = (Math.PI * 2 / 6) * i + object.wobble * 0.2;
+        ctx.beginPath();
+        ctx.moveTo(object.x, object.y);
+        ctx.lineTo(
+          object.x + Math.cos(angle) * (object.radius + 6),
+          object.y + Math.sin(angle) * (object.radius + 6)
+        );
+        ctx.stroke();
+      }
+    }
+
+    function drawToxin(object) {
+      ctx.fillStyle = "rgba(147, 51, 234, 0.95)";
+      ctx.beginPath();
+      ctx.arc(object.x, object.y, object.radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = "rgba(255,255,255,0.45)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = "rgba(255,255,255,0.7)";
+      ctx.beginPath();
+      ctx.arc(object.x - 3, object.y - 2, 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(object.x + 4, object.y + 3, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawPlayer() {
+      const flashing = performance.now() < invulnerableUntil && Math.floor(performance.now() / 120) % 2 === 0;
+
+      if (flashing) return;
+
+      ctx.fillStyle = "rgba(147, 197, 253, 0.12)";
+      ctx.beginPath();
+      ctx.arc(player.x, player.y, player.removalRadius + 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#f8fafc";
+      ctx.beginPath();
+      ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = "#38bdf8";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      ctx.shadowColor = "#93c5fd";
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      ctx.arc(player.x, player.y, player.radius + 4, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(147, 197, 253, 0.65)";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      ctx.fillStyle = "#1e293b";
+      ctx.beginPath();
+      ctx.arc(player.x - 4, player.y - 3, 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(player.x + 5, player.y - 2, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawTopText() {
+      ctx.fillStyle = "rgba(255,255,255,0.86)";
+      ctx.font = "18px Arial";
+      ctx.textAlign = "left";
+      ctx.fillText("Removed: " + removed + "   Health: " + health, 18, 28);
+
+      ctx.textAlign = "right";
+      ctx.fillText("Toxin hits: " + toxinHits + "   Time: " + timeLeft + " s", canvas.width - 18, 28);
+    }
+
+    function drawStartScreen() {
+      ctx.fillStyle = "#06131f";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      drawBackground();
+
+      ctx.fillStyle = "rgba(255,255,255,0.92)";
+      ctx.font = "34px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Immune Defender", canvas.width / 2, canvas.height / 2 - 20);
+
+      ctx.font = "20px Arial";
+      ctx.fillText("Press Start game", canvas.width / 2, canvas.height / 2 + 18);
+    }
+
+    function drawEndScreen() {
+      draw();
+
+      ctx.fillStyle = "rgba(0,0,0,0.68)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "white";
+      ctx.font = "40px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Round Finished", canvas.width / 2, canvas.height / 2 - 26);
+
+      ctx.font = "22px Arial";
+      ctx.fillText("Removed: " + removed + "   Health: " + health + "   " + currentEndReason, canvas.width / 2, canvas.height / 2 + 18);
+    }
+
+    function saveTrial() {
+      if (gameRunning) {
+        message.textContent = "Finish the round before saving the trial.";
+        return;
+      }
+
+      if (!roundFinished) {
+        message.textContent = "Start and finish a round before saving a trial.";
+        return;
+      }
+
+      trials.push({
+        trial: trials.length + 1,
+        protection: currentProtectionLabel,
+        roundLength: roundLength,
+        removed: removed,
+        toxinHits: toxinHits,
+        health: health,
+        survivalTime: survivalTime,
+        endReason: currentEndReason
+      });
+
+      renderHistory();
+      updateDisplays();
+      message.textContent = "Trial saved. Start another round to collect more data.";
+    }
+
+    function renderHistory() {
+      historyBody.innerHTML = "";
+
+      if (trials.length === 0) {
+        const row = document.createElement("tr");
+        row.innerHTML = '<td colspan="6" class="empty">No saved trials yet.</td>';
+        historyBody.appendChild(row);
+        return;
+      }
+
+      trials.forEach(trial => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td>${trial.trial}</td>
+          <td>${trial.protection}</td>
+          <td>${trial.removed}</td>
+          <td>${trial.toxinHits}</td>
+          <td>${trial.health}</td>
+          <td>${trial.endReason}</td>
+        `;
+
+        historyBody.appendChild(row);
+      });
+    }
+
+    function updateDisplays() {
+      removedDisplay.textContent = removed;
+      timeLeftDisplay.textContent = timeLeft;
+      toxinHitsDisplay.textContent = toxinHits;
+      survivalDisplay.textContent = survivalTime;
+      healthDisplay.textContent = health;
+      attemptsDisplay.textContent = trials.length;
+
+      const healthPercent = Math.max(0, Math.min(100, (health / startingHealth) * 100));
+      healthFill.style.width = healthPercent + "%";
+
+      if (trials.length === 0) {
+        meanRemovedDisplay.textContent = "0";
+        meanToxinHitsDisplay.textContent = "0";
+        return;
+      }
+
+      const totalRemoved = trials.reduce((sum, trial) => sum + trial.removed, 0);
+      const totalToxinHits = trials.reduce((sum, trial) => sum + trial.toxinHits, 0);
+
+      meanRemovedDisplay.textContent = (totalRemoved / trials.length).toFixed(1);
+      meanToxinHitsDisplay.textContent = (totalToxinHits / trials.length).toFixed(1);
+    }
+
+    function downloadCSV() {
+      if (trials.length === 0) {
+        message.textContent = "There is no data to download yet.";
+        return;
+      }
+
+      const rows = [
+        ["Trial", "Protection mode", "Round length (s)", "Pathogens removed", "Toxin hits", "Health remaining", "Survival time (s)", "End reason"]
+      ];
+
+      trials.forEach(trial => {
+        rows.push([
+          trial.trial,
+          trial.protection,
+          trial.roundLength,
+          trial.removed,
+          trial.toxinHits,
+          trial.health,
+          trial.survivalTime,
+          trial.endReason
+        ]);
+      });
+
+      const csvContent = rows
+        .map(row => row.map(csvEscape).join(","))
+        .join("\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "immune_defender_pathogen_chase_data.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(url);
+    }
+
+    function clearHistory() {
+      trials = [];
+      renderHistory();
+      updateDisplays();
+      message.textContent = "Trial history cleared.";
+    }
+
+    function randomBetween(min, max) {
+      return min + Math.random() * (max - min);
+    }
+
+    function getDistance(x1, y1, x2, y2) {
+      const dx = x1 - x2;
+      const dy = y1 - y2;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function csvEscape(value) {
+      const text = String(value);
+
+      if (text.includes(",") || text.includes('"') || text.includes("\n")) {
+        return '"' + text.replace(/"/g, '""') + '"';
+      }
+
+      return text;
+    }
+
+    document.addEventListener("keydown", event => {
+      if (
+        event.key === "ArrowUp" ||
+        event.key === "ArrowDown" ||
+        event.key === "ArrowLeft" ||
+        event.key === "ArrowRight"
+      ) {
+        event.preventDefault();
+      }
+
+      if (event.key === "ArrowUp") keys.up = true;
+      if (event.key === "ArrowDown") keys.down = true;
+      if (event.key === "ArrowLeft") keys.left = true;
+      if (event.key === "ArrowRight") keys.right = true;
+    });
+
+    document.addEventListener("keyup", event => {
+      if (event.key === "ArrowUp") keys.up = false;
+      if (event.key === "ArrowDown") keys.down = false;
+      if (event.key === "ArrowLeft") keys.left = false;
+      if (event.key === "ArrowRight") keys.right = false;
+    });
+
+    roundLength = Number(roundLengthSelect.value);
+    timeLeft = roundLength;
+    health = startingHealth;
+    drawStartScreen();
+    updateDisplays();
+  </script>
+</body>
+</html>
