@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Particle Panic: Kinetic Energy Challenge</title>
+  <link rel="icon" type="image/png" href="/SciSims/favicon.png">
+
+  <style>
+    :root {
+      --bg: #eaf2fb;
+      --panel: #ffffff;
+      --panel-soft: #f7fbff;
+      --line: #cddcf0;
+      --text: #172033;
+      --muted: #4b5870;
+      --blue: #2f63e6;
+      --blue-dark: #173a9e;
+      --green: #16a34a;
+      --orange: #f97316;
+      --red: #dc2626;
+      --radius: 18px;
+      --shadow: 0 12px 28px rgba(22, 40, 70, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      width: min(1260px, calc(100% - 32px));
+      margin: 14px auto 40px;
+    }
+
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      margin-bottom: 18px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #123ca6;
+      text-decoration: none;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(22, 40, 70, 0.08);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      padding: 28px;
+      min-height: 176px;
+      background:
+        radial-gradient(circle at 95% 80%, rgba(72, 180, 115, 0.65) 0 19%, transparent 20%),
+        linear-gradient(120deg, #14254d 0%, #263c91 46%, #155f55 100%);
+      box-shadow: var(--shadow);
+      color: white;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2.1rem, 5vw, 4rem);
+      line-height: 1;
+      letter-spacing: -1.5px;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 930px;
+      font-size: 1.08rem;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    .li-sc {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .info-box {
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .info-box h3 {
+      margin: 0 0 6px;
+      color: var(--blue-dark);
+      font-size: 1rem;
+    }
+
+    .info-box p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.55fr 0.95fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 1.5rem;
+    }
+
+    .game-holder {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background:
+        linear-gradient(rgba(47, 99, 230, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(47, 99, 230, 0.055) 1px, transparent 1px),
+        #f8fbff;
+      background-size: 32px 32px;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    canvas {
+      width: min(100%, 760px);
+      height: auto;
+      aspect-ratio: 16 / 10;
+      background: #071527;
+      border-radius: 16px;
+      border: 4px solid #1f3b82;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+    }
+
+    .message,
+    .key-box {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #f5f8ff;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .key-box {
+      margin-top: 12px;
+    }
+
+    label {
+      display: block;
+      font-weight: 800;
+      color: var(--blue-dark);
+      margin-bottom: 6px;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 13px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--text);
+      font-weight: 700;
+      margin-bottom: 14px;
+      font: inherit;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 13px;
+      padding: 12px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      color: white;
+      background: var(--blue);
+      font: inherit;
+    }
+
+    button:hover {
+      filter: brightness(1.05);
+    }
+
+    .secondary {
+      background: #eaf2ff;
+      color: var(--blue-dark);
+      border: 1px solid #bfd3ff;
+    }
+
+    .success {
+      background: var(--green);
+    }
+
+    .warning {
+      background: #fff3e6;
+      color: #9a3412;
+      border: 1px solid #fed7aa;
+    }
+
+    .danger {
+      background: #fff1f1;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .stat {
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 2rem;
+      color: var(--blue-dark);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 800;
+    }
+
+    .below-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 14px;
+      font-size: 0.95rem;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background: #edf4ff;
+      color: var(--blue-dark);
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .challenge-list {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .teacher-notes {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    @media (max-width: 900px) {
+      .grid,
+      .below-grid,
+      .li-sc {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .page {
+        width: min(100% - 20px, 1260px);
+      }
+
+      .hero {
+        padding: 22px;
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+
+    <section class="hero">
+      <h1>Particle Panic: Kinetic Energy Challenge</h1>
+      <p>
+        Control the glowing particle, collect tokens and avoid high-energy particles. Change the temperature to see
+        how particle speed affects movement, collisions and survival time.
+      </p>
+    </section>
+
+    <section class="li-sc">
+      <div class="info-box">
+        <h3>Learning Intention</h3>
+        <p>Students will understand that increasing temperature increases the average kinetic energy and movement speed of particles.</p>
+      </div>
+
+      <div class="info-box">
+        <h3>Success Criteria</h3>
+        <p>Students can collect repeated trial data, compare survival time and collisions, and explain how temperature affects particle motion.</p>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <h2>Particle chamber</h2>
+
+        <div class="game-holder">
+          <canvas id="game" width="760" height="475"></canvas>
+        </div>
+
+        <div class="message" id="message">
+          Choose a temperature, press Start game, then use the arrow keys to move your glowing particle.
+        </div>
+
+        <div class="key-box">
+          Controls: Arrow keys to move. Collect yellow tokens. Avoid red high-energy particles.
+        </div>
+
+        <div class="key-box">
+          Model note: This is a game model. Real particles move randomly and are not controlled by a player.
+          Cold particles move more slowly. Hot particles move faster because they have greater average kinetic energy.
+        </div>
+      </div>
+
+      <aside class="panel">
+        <h2>Controls</h2>
+
+        <label for="temperature">Temperature setting</label>
+        <select id="temperature">
+          <option value="cold">Cold particles</option>
+          <option value="room" selected>Room temperature</option>
+          <option value="hot">Hot particles</option>
+          <option value="extreme">Extreme heat</option>
+        </select>
+
+        <label for="roundLength">Round length</label>
+        <select id="roundLength">
+          <option value="20">20 seconds</option>
+          <option value="30" selected>30 seconds</option>
+          <option value="45">45 seconds</option>
+          <option value="60">60 seconds</option>
+        </select>
+
+        <div class="controls">
+          <button onclick="startGame()">Start game</button>
+          <button class="secondary" onclick="pauseGame()">Pause</button>
+          <button class="secondary" onclick="resetCurrent()">Reset round</button>
+          <button class="success" onclick="saveTrial()">Save trial</button>
+          <button class="warning" onclick="downloadCSV()">Download CSV</button>
+          <button class="danger" onclick="clearHistory()">Clear history</button>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <strong id="score">0</strong>
+            <span>Tokens collected</span>
+          </div>
+
+          <div class="stat">
+            <strong id="timeLeft">30</strong>
+            <span>Time left</span>
+          </div>
+
+          <div class="stat">
+            <strong id="collisions">0</strong>
+            <span>Collisions</span>
+          </div>
+
+          <div class="stat">
+            <strong id="survival">0</strong>
+            <span>Survival time</span>
+          </div>
+
+          <div class="stat">
+            <strong id="attempts">0</strong>
+            <span>Saved trials</span>
+          </div>
+
+          <div class="stat">
+            <strong id="meanCollisions">0</strong>
+            <span>Mean collisions</span>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="below-grid">
+      <div class="panel">
+        <h2>Trial history</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Trial</th>
+              <th>Temperature</th>
+              <th>Tokens</th>
+              <th>Collisions</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+            <tr>
+              <td colspan="5" class="empty">No saved trials yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h2>Student challenge</h2>
+
+        <ul class="challenge-list">
+          <li>Complete three trials at room temperature.</li>
+          <li>Complete three trials at hot or extreme heat.</li>
+          <li>Compare tokens collected, collisions and survival time.</li>
+          <li>Identify the independent variable, dependent variables and controlled variables.</li>
+          <li>Explain how temperature affected particle movement.</li>
+          <li>Evaluate whether repeated trials made the results more reliable.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top: 18px;">
+      <h2>Teacher notes</h2>
+
+      <div class="teacher-notes">
+        <p>
+          This game links a brain break activity to the particle model of matter. Higher temperature settings increase
+          the speed of background particles, making collisions more likely and the game harder.
+        </p>
+
+        <p>
+          Suggested investigation question: <strong>How does temperature affect survival time and collisions in a particle model game?</strong>
+          The independent variable is the temperature setting. Dependent variables include tokens collected, number of collisions
+          and survival time. Controlled variables include round length, player, device, screen size, control method and number of trials.
+        </p>
+
+        <p>
+          This is a simplified model. Real particles do not have goals, points or player control, but the movement pattern helps
+          students visualise the idea that hotter particles move faster on average.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    const temperatureSelect = document.getElementById("temperature");
+    const roundLengthSelect = document.getElementById("roundLength");
+    const message = document.getElementById("message");
+    const historyBody = document.getElementById("historyBody");
+
+    const scoreDisplay = document.getElementById("score");
+    const timeLeftDisplay = document.getElementById("timeLeft");
+    const collisionsDisplay = document.getElementById("collisions");
+    const survivalDisplay = document.getElementById("survival");
+    const attemptsDisplay = document.getElementById("attempts");
+    const meanCollisionsDisplay = document.getElementById("meanCollisions");
+
+    const settings = {
+      cold: {
+        label: "Cold particles",
+        particleSpeed: 1.4,
+        particleCount: 12,
+        tokenCount: 4
+      },
+      room: {
+        label: "Room temperature",
+        particleSpeed: 2.1,
+        particleCount: 16,
+        tokenCount: 5
+      },
+      hot: {
+        label: "Hot particles",
+        particleSpeed: 3.1,
+        particleCount: 20,
+        tokenCount: 6
+      },
+      extreme: {
+        label: "Extreme heat",
+        particleSpeed: 4.2,
+        particleCount: 24,
+        tokenCount: 7
+      }
+    };
+
+    let player;
+    let particles = [];
+    let tokens = [];
+    let score = 0;
+    let collisions = 0;
+    let timeLeft = 30;
+    let survivalTime = 0;
+    let roundLength = 30;
+    let currentTemperatureLabel = "Room temperature";
+    let gameRunning = false;
+    let paused = false;
+    let roundFinished = false;
+    let animationId = null;
+    let timerId = null;
+    let invulnerableUntil = 0;
+    let trials = [];
+
+    const keys = {
+      up: false,
+      down: false,
+      left: false,
+      right: false
+    };
+
+    function startGame() {
+      cancelAnimationFrame(animationId);
+      clearInterval(timerId);
+
+      const setting = settings[temperatureSelect.value];
+      currentTemperatureLabel = setting.label;
+      roundLength = Number(roundLengthSelect.value);
+      timeLeft = roundLength;
+      survivalTime = 0;
+      score = 0;
+      collisions = 0;
+      particles = [];
+      tokens = [];
+      gameRunning = true;
+      paused = false;
+      roundFinished = false;
+      invulnerableUntil = 0;
+
+      player = {
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        radius: 12,
+        speed: 4.2
+      };
+
+      createParticles(setting);
+      createTokens(setting.tokenCount);
+
+      timerId = setInterval(() => {
+        if (!gameRunning || paused) return;
+
+        timeLeft--;
+        survivalTime = roundLength - timeLeft;
+
+        if (timeLeft <= 0) {
+          finishRound();
+        }
+
+        updateDisplays();
+      }, 1000);
+
+      message.textContent = "Game running. Collect yellow tokens and avoid red high-energy particles.";
+      updateDisplays();
+      animationId = requestAnimationFrame(gameLoop);
+    }
+
+    function pauseGame() {
+      if (!gameRunning || roundFinished) return;
+
+      paused = !paused;
+      message.textContent = paused ? "Game paused. Press Pause again to continue." : "Game running. Keep moving.";
+
+      if (!paused) {
+        animationId = requestAnimationFrame(gameLoop);
+      }
+    }
+
+    function resetCurrent() {
+      cancelAnimationFrame(animationId);
+      clearInterval(timerId);
+
+      score = 0;
+      collisions = 0;
+      survivalTime = 0;
+      roundLength = Number(roundLengthSelect.value);
+      timeLeft = roundLength;
+      gameRunning = false;
+      paused = false;
+      roundFinished = false;
+      particles = [];
+      tokens = [];
+
+      updateDisplays();
+      drawStartScreen();
+      message.textContent = "Round reset. Press Start game to try again.";
+    }
+
+    function finishRound() {
+      cancelAnimationFrame(animationId);
+      clearInterval(timerId);
+
+      gameRunning = false;
+      paused = false;
+      roundFinished = true;
+      survivalTime = roundLength - Math.max(timeLeft, 0);
+      timeLeft = Math.max(timeLeft, 0);
+
+      updateDisplays();
+      drawEndScreen();
+      message.textContent = "Round finished. Press Save trial to record this result, or Start game to try again.";
+    }
+
+    function createParticles(setting) {
+      for (let i = 0; i < setting.particleCount; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = setting.particleSpeed * (0.7 + Math.random() * 0.7);
+
+        particles.push({
+          x: randomBetween(40, canvas.width - 40),
+          y: randomBetween(40, canvas.height - 40),
+          radius: randomBetween(7, 12),
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed
+        });
+      }
+    }
+
+    function createTokens(count) {
+      tokens = [];
+
+      for (let i = 0; i < count; i++) {
+        tokens.push(makeToken());
+      }
+    }
+
+    function makeToken() {
+      return {
+        x: randomBetween(30, canvas.width - 30),
+        y: randomBetween(30, canvas.height - 30),
+        radius: 9
+      };
+    }
+
+    function gameLoop() {
+      if (!gameRunning || paused || roundFinished) return;
+
+      updateGame();
+      draw();
+      animationId = requestAnimationFrame(gameLoop);
+    }
+
+    function updateGame() {
+      movePlayer();
+      moveParticles();
+      checkTokenCollisions();
+      checkParticleCollisions();
+    }
+
+    function movePlayer() {
+      if (keys.up) player.y -= player.speed;
+      if (keys.down) player.y += player.speed;
+      if (keys.left) player.x -= player.speed;
+      if (keys.right) player.x += player.speed;
+
+      player.x = clamp(player.x, player.radius, canvas.width - player.radius);
+      player.y = clamp(player.y, player.radius, canvas.height - player.radius);
+    }
+
+    function moveParticles() {
+      particles.forEach(particle => {
+        particle.x += particle.vx;
+        particle.y += particle.vy;
+
+        if (particle.x - particle.radius <= 0 || particle.x + particle.radius >= canvas.width) {
+          particle.vx *= -1;
+          particle.x = clamp(particle.x, particle.radius, canvas.width - particle.radius);
+        }
+
+        if (particle.y - particle.radius <= 0 || particle.y + particle.radius >= canvas.height) {
+          particle.vy *= -1;
+          particle.y = clamp(particle.y, particle.radius, canvas.height - particle.radius);
+        }
+      });
+    }
+
+    function checkTokenCollisions() {
+      for (let i = tokens.length - 1; i >= 0; i--) {
+        const token = tokens[i];
+        const distance = getDistance(player.x, player.y, token.x, token.y);
+
+        if (distance < player.radius + token.radius) {
+          score++;
+          tokens.splice(i, 1);
+          tokens.push(makeToken());
+          updateDisplays();
+        }
+      }
+    }
+
+    function checkParticleCollisions() {
+      const now = performance.now();
+
+      if (now < invulnerableUntil) return;
+
+      for (const particle of particles) {
+        const distance = getDistance(player.x, player.y, particle.x, particle.y);
+
+        if (distance < player.radius + particle.radius) {
+          collisions++;
+          score = Math.max(0, score - 1);
+          invulnerableUntil = now + 900;
+
+          player.x = canvas.width / 2;
+          player.y = canvas.height / 2;
+
+          updateDisplays();
+          message.textContent = "Collision! You lost one token point. Keep going.";
+          return;
+        }
+      }
+    }
+
+    function draw() {
+      ctx.fillStyle = "#071527";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      drawBackgroundGrid();
+      drawParticles();
+      drawTokens();
+      drawPlayer();
+      drawTopText();
+    }
+
+    function drawBackgroundGrid() {
+      ctx.strokeStyle = "rgba(255,255,255,0.045)";
+      ctx.lineWidth = 1;
+
+      for (let x = 0; x <= canvas.width; x += 38) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+
+      for (let y = 0; y <= canvas.height; y += 38) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+    }
+
+    function drawParticles() {
+      particles.forEach(particle => {
+        ctx.fillStyle = "rgba(239, 68, 68, 0.9)";
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = "rgba(255,255,255,0.35)";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      });
+    }
+
+    function drawTokens() {
+      tokens.forEach(token => {
+        ctx.fillStyle = "#facc15";
+        ctx.beginPath();
+        ctx.arc(token.x, token.y, token.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = "rgba(255,255,255,0.7)";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      });
+    }
+
+    function drawPlayer() {
+      const flashing = performance.now() < invulnerableUntil && Math.floor(performance.now() / 120) % 2 === 0;
+
+      if (flashing) return;
+
+      ctx.fillStyle = "#38bdf8";
+      ctx.beginPath();
+      ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.shadowColor = "#38bdf8";
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      ctx.arc(player.x, player.y, player.radius + 3, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(56, 189, 248, 0.75)";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+
+    function drawTopText() {
+      ctx.fillStyle = "rgba(255,255,255,0.86)";
+      ctx.font = "18px Arial";
+      ctx.textAlign = "left";
+      ctx.fillText("Tokens: " + score, 18, 28);
+
+      ctx.textAlign = "right";
+      ctx.fillText("Collisions: " + collisions + "   Time: " + timeLeft + " s", canvas.width - 18, 28);
+    }
+
+    function drawStartScreen() {
+      ctx.fillStyle = "#071527";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      drawBackgroundGrid();
+
+      ctx.fillStyle = "rgba(255,255,255,0.92)";
+      ctx.font = "34px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Particle Panic", canvas.width / 2, canvas.height / 2 - 20);
+
+      ctx.font = "20px Arial";
+      ctx.fillText("Press Start game", canvas.width / 2, canvas.height / 2 + 18);
+    }
+
+    function drawEndScreen() {
+      draw();
+
+      ctx.fillStyle = "rgba(0,0,0,0.68)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "white";
+      ctx.font = "40px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Round Finished", canvas.width / 2, canvas.height / 2 - 26);
+
+      ctx.font = "22px Arial";
+      ctx.fillText("Tokens: " + score + "   Collisions: " + collisions, canvas.width / 2, canvas.height / 2 + 18);
+    }
+
+    function saveTrial() {
+      if (gameRunning) {
+        message.textContent = "Finish the round before saving the trial.";
+        return;
+      }
+
+      if (!roundFinished) {
+        message.textContent = "Start and finish a round before saving a trial.";
+        return;
+      }
+
+      trials.push({
+        trial: trials.length + 1,
+        temperature: currentTemperatureLabel,
+        roundLength: roundLength,
+        tokens: score,
+        collisions: collisions,
+        survivalTime: survivalTime
+      });
+
+      renderHistory();
+      updateDisplays();
+      message.textContent = "Trial saved. Start another round to collect more data.";
+    }
+
+    function renderHistory() {
+      historyBody.innerHTML = "";
+
+      if (trials.length === 0) {
+        const row = document.createElement("tr");
+        row.innerHTML = '<td colspan="5" class="empty">No saved trials yet.</td>';
+        historyBody.appendChild(row);
+        return;
+      }
+
+      trials.forEach(trial => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td>${trial.trial}</td>
+          <td>${trial.temperature}</td>
+          <td>${trial.tokens}</td>
+          <td>${trial.collisions}</td>
+          <td>${trial.survivalTime} s</td>
+        `;
+
+        historyBody.appendChild(row);
+      });
+    }
+
+    function updateDisplays() {
+      scoreDisplay.textContent = score;
+      timeLeftDisplay.textContent = timeLeft;
+      collisionsDisplay.textContent = collisions;
+      survivalDisplay.textContent = survivalTime;
+      attemptsDisplay.textContent = trials.length;
+
+      if (trials.length === 0) {
+        meanCollisionsDisplay.textContent = "0";
+        return;
+      }
+
+      const totalCollisions = trials.reduce((sum, trial) => sum + trial.collisions, 0);
+      meanCollisionsDisplay.textContent = (totalCollisions / trials.length).toFixed(1);
+    }
+
+    function downloadCSV() {
+      if (trials.length === 0) {
+        message.textContent = "There is no data to download yet.";
+        return;
+      }
+
+      const rows = [
+        ["Trial", "Temperature", "Round length (s)", "Tokens collected", "Collisions", "Survival time (s)"]
+      ];
+
+      trials.forEach(trial => {
+        rows.push([
+          trial.trial,
+          trial.temperature,
+          trial.roundLength,
+          trial.tokens,
+          trial.collisions,
+          trial.survivalTime
+        ]);
+      });
+
+      const csvContent = rows
+        .map(row => row.map(csvEscape).join(","))
+        .join("\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "particle_panic_kinetic_energy_data.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(url);
+    }
+
+    function clearHistory() {
+      trials = [];
+      renderHistory();
+      updateDisplays();
+      message.textContent = "Trial history cleared.";
+    }
+
+    function randomBetween(min, max) {
+      return min + Math.random() * (max - min);
+    }
+
+    function getDistance(x1, y1, x2, y2) {
+      const dx = x1 - x2;
+      const dy = y1 - y2;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function csvEscape(value) {
+      const text = String(value);
+
+      if (text.includes(",") || text.includes('"') || text.includes("\n")) {
+        return '"' + text.replace(/"/g, '""') + '"';
+      }
+
+      return text;
+    }
+
+    document.addEventListener("keydown", event => {
+      if (
+        event.key === "ArrowUp" ||
+        event.key === "ArrowDown" ||
+        event.key === "ArrowLeft" ||
+        event.key === "ArrowRight"
+      ) {
+        event.preventDefault();
+      }
+
+      if (event.key === "ArrowUp") keys.up = true;
+      if (event.key === "ArrowDown") keys.down = true;
+      if (event.key === "ArrowLeft") keys.left = true;
+      if (event.key === "ArrowRight") keys.right = true;
+    });
+
+    document.addEventListener("keyup", event => {
+      if (event.key === "ArrowUp") keys.up = false;
+      if (event.key === "ArrowDown") keys.down = false;
+      if (event.key === "ArrowLeft") keys.left = false;
+      if (event.key === "ArrowRight") keys.right = false;
+    });
+
+    roundLength = Number(roundLengthSelect.value);
+    timeLeft = roundLength;
+    drawStartScreen();
+    updateDisplays();
+  </script>
+</body>
+</html>
