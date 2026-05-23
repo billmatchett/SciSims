@@ -1,121 +1,604 @@
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simple Snake Game</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Snake Decision-Time Challenge</title>
+  <link rel="icon" type="image/png" href="/SciSims/favicon.png">
 
   <style>
+    :root {
+      --bg: #eaf2fb;
+      --panel: #ffffff;
+      --panel-soft: #f7fbff;
+      --line: #cddcf0;
+      --text: #172033;
+      --muted: #4b5870;
+      --blue: #2f63e6;
+      --blue-dark: #173a9e;
+      --green: #16a34a;
+      --orange: #f97316;
+      --red: #dc2626;
+      --radius: 18px;
+      --shadow: 0 12px 28px rgba(22, 40, 70, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      width: min(1260px, calc(100% - 32px));
+      margin: 14px auto 40px;
+    }
+
+    .home-link {
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      font-family: Arial, sans-serif;
-      background: #101820;
+      gap: 8px;
+      padding: 10px 16px;
+      margin-bottom: 18px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #123ca6;
+      text-decoration: none;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(22, 40, 70, 0.08);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      padding: 28px;
+      min-height: 176px;
+      background:
+        radial-gradient(circle at 95% 80%, rgba(72, 180, 115, 0.65) 0 19%, transparent 20%),
+        linear-gradient(120deg, #14254d 0%, #263c91 46%, #155f55 100%);
+      box-shadow: var(--shadow);
       color: white;
+      margin-bottom: 18px;
     }
 
-    h1 {
-      margin-bottom: 5px;
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2.1rem, 5vw, 4rem);
+      line-height: 1;
+      letter-spacing: -1.5px;
     }
 
-    #score {
-      font-size: 1.2rem;
-      margin-bottom: 15px;
+    .hero p {
+      margin: 0;
+      max-width: 920px;
+      font-size: 1.08rem;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    .li-sc {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .info-box {
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .info-box h3 {
+      margin: 0 0 6px;
+      color: var(--blue-dark);
+      font-size: 1rem;
+    }
+
+    .info-box p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.55fr 0.95fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 1.5rem;
+    }
+
+    .game-holder {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background:
+        linear-gradient(rgba(47, 99, 230, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(47, 99, 230, 0.055) 1px, transparent 1px),
+        #f8fbff;
+      background-size: 32px 32px;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      overflow: hidden;
     }
 
     canvas {
-      background: #0b0f14;
-      border: 4px solid #35d07f;
-      box-shadow: 0 0 20px rgba(53, 208, 127, 0.4);
+      width: min(100%, 520px);
+      height: auto;
+      aspect-ratio: 1 / 1;
+      background: #0b1220;
+      border-radius: 16px;
+      border: 4px solid #1f3b82;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
     }
 
-    .instructions {
-      margin-top: 15px;
-      font-size: 0.95rem;
-      color: #d8d8d8;
-      text-align: center;
+    .message {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #f5f8ff;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    label {
+      display: block;
+      font-weight: 800;
+      color: var(--blue-dark);
+      margin-bottom: 6px;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 13px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--text);
+      font-weight: 700;
+      margin-bottom: 14px;
+      font: inherit;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
     }
 
     button {
-      margin-top: 15px;
-      padding: 10px 18px;
-      border: none;
-      border-radius: 8px;
-      background: #35d07f;
-      color: #101820;
-      font-weight: bold;
+      border: 0;
+      border-radius: 13px;
+      padding: 12px 14px;
+      font-weight: 800;
       cursor: pointer;
+      color: white;
+      background: var(--blue);
+      font: inherit;
     }
 
     button:hover {
-      background: #57e99b;
+      filter: brightness(1.05);
+    }
+
+    .secondary {
+      background: #eaf2ff;
+      color: var(--blue-dark);
+      border: 1px solid #bfd3ff;
+    }
+
+    .success {
+      background: var(--green);
+    }
+
+    .warning {
+      background: #fff3e6;
+      color: #9a3412;
+      border: 1px solid #fed7aa;
+    }
+
+    .danger {
+      background: #fff1f1;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .stat {
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 2rem;
+      color: var(--blue-dark);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 800;
+    }
+
+    .below-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 14px;
+      font-size: 0.95rem;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background: #edf4ff;
+      color: var(--blue-dark);
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .challenge-list {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .teacher-notes {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .key-box {
+      margin-top: 12px;
+      background: #f5f8ff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      color: var(--muted);
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 900px) {
+      .grid,
+      .below-grid,
+      .li-sc {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .page {
+        width: min(100% - 20px, 1260px);
+      }
+
+      .hero {
+        padding: 22px;
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 
 <body>
-  <h1>Snake</h1>
-  <div id="score">Score: 0</div>
+  <main class="page">
+    <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
 
-  <canvas id="game" width="400" height="400"></canvas>
+    <section class="hero">
+      <h1>Snake Decision-Time Challenge</h1>
+      <p>
+        Guide the snake to collect food while avoiding walls and your own trail. Use the results to investigate decision-making,
+        attention, practice, reaction time and repeated trial data.
+      </p>
+    </section>
 
-  <div class="instructions">
-    Use the arrow keys to move.<br>
-    Eat the red food. Do not hit the wall or yourself.
-  </div>
+    <section class="li-sc">
+      <div class="info-box">
+        <h3>Learning Intention</h3>
+        <p>Students will understand that performance can be investigated by collecting repeated trial data under controlled conditions.</p>
+      </div>
 
-  <button onclick="restartGame()">Restart Game</button>
+      <div class="info-box">
+        <h3>Success Criteria</h3>
+        <p>Students can collect scores, compare survival times, calculate simple averages and explain how changing a variable affects performance.</p>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <h2>Snake game</h2>
+
+        <div class="game-holder">
+          <canvas id="game" width="520" height="520"></canvas>
+        </div>
+
+        <div class="message" id="message">
+          Choose a speed, press Start game, then use the arrow keys to move.
+        </div>
+
+        <div class="key-box">
+          Controls: Arrow keys to move. On some laptops, click the game first if the arrow keys do not respond.
+        </div>
+      </div>
+
+      <aside class="panel">
+        <h2>Controls</h2>
+
+        <label for="speed">Snake speed</label>
+        <select id="speed">
+          <option value="170">Slow</option>
+          <option value="130" selected>Medium</option>
+          <option value="95">Fast</option>
+          <option value="70">Very fast</option>
+        </select>
+
+        <div class="controls">
+          <button onclick="startGame()">Start game</button>
+          <button class="secondary" onclick="pauseGame()">Pause</button>
+          <button class="secondary" onclick="resetCurrent()">Reset round</button>
+          <button class="success" onclick="saveTrial()">Save trial</button>
+          <button class="warning" onclick="downloadCSV()">Download CSV</button>
+          <button class="danger" onclick="clearHistory()">Clear history</button>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <strong id="score">0</strong>
+            <span>Current score</span>
+          </div>
+
+          <div class="stat">
+            <strong id="survival">0</strong>
+            <span>Survival time</span>
+          </div>
+
+          <div class="stat">
+            <strong id="best">0</strong>
+            <span>Best score</span>
+          </div>
+
+          <div class="stat">
+            <strong id="attempts">0</strong>
+            <span>Saved trials</span>
+          </div>
+
+          <div class="stat">
+            <strong id="mean">0</strong>
+            <span>Mean score</span>
+          </div>
+
+          <div class="stat">
+            <strong id="meanTime">0</strong>
+            <span>Mean time</span>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="below-grid">
+      <div class="panel">
+        <h2>Trial history</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Trial</th>
+              <th>Speed</th>
+              <th>Score</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+            <tr>
+              <td colspan="4" class="empty">No saved trials yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h2>Student challenge</h2>
+
+        <ul class="challenge-list">
+          <li>Complete five trials using the same speed setting.</li>
+          <li>Record your score and survival time after each trial.</li>
+          <li>Calculate your mean score and mean survival time.</li>
+          <li>Repeat using a different speed setting and compare the results.</li>
+          <li>Identify the independent variable, dependent variable and at least two controlled variables.</li>
+          <li>Explain whether practice appears to improve performance.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top: 18px;">
+      <h2>Teacher notes</h2>
+
+      <div class="teacher-notes">
+        <p>
+          This activity can be used as a short Working Scientifically investigation into performance, reaction time,
+          attention and decision-making. Students can compare repeated trials at the same speed, then change one variable
+          such as speed setting or distraction level.
+        </p>
+
+        <p>
+          Suggested investigation question: <strong>How does snake speed affect final score and survival time?</strong>
+          The independent variable is the speed setting. The dependent variables are score and survival time. Controlled
+          variables include player, device, screen size, starting conditions, control method and number of trials.
+        </p>
+
+        <p>
+          The activity can also support discussion of reliability. A single score may not represent a player's usual
+          performance, so repeated trials and mean values are more useful than one result.
+        </p>
+      </div>
+    </section>
+  </main>
 
   <script>
     const canvas = document.getElementById("game");
     const ctx = canvas.getContext("2d");
+
     const scoreDisplay = document.getElementById("score");
+    const survivalDisplay = document.getElementById("survival");
+    const bestDisplay = document.getElementById("best");
+    const attemptsDisplay = document.getElementById("attempts");
+    const meanDisplay = document.getElementById("mean");
+    const meanTimeDisplay = document.getElementById("meanTime");
+    const message = document.getElementById("message");
+    const speedSelect = document.getElementById("speed");
+    const historyBody = document.getElementById("historyBody");
 
     const gridSize = 20;
     const tileCount = canvas.width / gridSize;
 
-    let snake;
-    let food;
-    let dx;
-    let dy;
-    let nextDx;
-    let nextDy;
-    let score;
-    let gameOver;
-    let gameLoop;
+    let snake = [];
+    let food = {};
+    let dx = 1;
+    let dy = 0;
+    let nextDx = 1;
+    let nextDy = 0;
+    let score = 0;
+    let gameRunning = false;
+    let gameOver = false;
+    let paused = false;
+    let gameLoop = null;
+    let startTime = null;
+    let survivalTime = 0;
+    let currentSpeedLabel = "Medium";
+    let trials = [];
 
     function startGame() {
-      snake = [
-        { x: 10, y: 10 }
-      ];
+      clearInterval(gameLoop);
 
-      food = {
-        x: 15,
-        y: 15
-      };
+      snake = [
+        { x: 10, y: 13 },
+        { x: 9, y: 13 },
+        { x: 8, y: 13 }
+      ];
 
       dx = 1;
       dy = 0;
       nextDx = 1;
       nextDy = 0;
       score = 0;
+      survivalTime = 0;
+      gameRunning = true;
       gameOver = false;
+      paused = false;
+      startTime = Date.now();
+      currentSpeedLabel = speedSelect.options[speedSelect.selectedIndex].text;
 
-      scoreDisplay.textContent = "Score: " + score;
+      placeFood();
+      updateDisplays();
+      draw();
 
+      const speed = Number(speedSelect.value);
+      gameLoop = setInterval(updateGame, speed);
+
+      message.textContent = "Game running. Use the arrow keys to move.";
+    }
+
+    function pauseGame() {
+      if (!gameRunning || gameOver) return;
+
+      paused = !paused;
+
+      if (paused) {
+        message.textContent = "Game paused. Press Pause again to continue.";
+      } else {
+        message.textContent = "Game running. Use the arrow keys to move.";
+      }
+    }
+
+    function resetCurrent() {
       clearInterval(gameLoop);
-      gameLoop = setInterval(updateGame, 120);
+
+      snake = [];
+      score = 0;
+      survivalTime = 0;
+      gameRunning = false;
+      gameOver = false;
+      paused = false;
+      startTime = null;
+
+      updateDisplays();
+      clearCanvas();
+
+      message.textContent = "Round reset. Press Start game to try again.";
     }
 
     function updateGame() {
-      if (gameOver) {
-        drawGameOver();
-        return;
-      }
+      if (!gameRunning || gameOver || paused) return;
+
+      survivalTime = Math.floor((Date.now() - startTime) / 1000);
 
       dx = nextDx;
       dy = nextDy;
@@ -132,7 +615,7 @@
         head.y >= tileCount ||
         hitsSelf(head)
       ) {
-        gameOver = true;
+        endGame();
         return;
       }
 
@@ -140,59 +623,112 @@
 
       if (head.x === food.x && head.y === food.y) {
         score++;
-        scoreDisplay.textContent = "Score: " + score;
         placeFood();
       } else {
         snake.pop();
       }
 
+      updateDisplays();
       draw();
     }
 
-    function draw() {
-      ctx.fillStyle = "#0b0f14";
+    function endGame() {
+      clearInterval(gameLoop);
+      gameRunning = false;
+      gameOver = true;
+      survivalTime = startTime ? Math.floor((Date.now() - startTime) / 1000) : survivalTime;
+
+      updateDisplays();
+      drawGameOver();
+
+      message.textContent = "Game over. Press Save trial to record this result, or Start game to try again.";
+    }
+
+    function clearCanvas() {
+      ctx.fillStyle = "#0b1220";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.fillStyle = "#e63946";
-      ctx.fillRect(
-        food.x * gridSize,
-        food.y * gridSize,
-        gridSize,
-        gridSize
-      );
+      ctx.fillStyle = "rgba(255, 255, 255, 0.14)";
+      ctx.font = "24px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Press Start game", canvas.width / 2, canvas.height / 2);
+    }
 
-      ctx.fillStyle = "#35d07f";
-      for (let part of snake) {
-        ctx.fillRect(
-          part.x * gridSize,
-          part.y * gridSize,
+    function draw() {
+      ctx.fillStyle = "#0b1220";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      drawGrid();
+
+      ctx.fillStyle = "#ef4444";
+      ctx.beginPath();
+      ctx.arc(
+        food.x * gridSize + gridSize / 2,
+        food.y * gridSize + gridSize / 2,
+        gridSize * 0.42,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+
+      for (let i = 0; i < snake.length; i++) {
+        const part = snake[i];
+
+        ctx.fillStyle = i === 0 ? "#86efac" : "#22c55e";
+        roundRect(
+          part.x * gridSize + 1,
+          part.y * gridSize + 1,
           gridSize - 2,
-          gridSize - 2
+          gridSize - 2,
+          5
         );
+        ctx.fill();
       }
 
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(
-        snake[0].x * gridSize + 6,
-        snake[0].y * gridSize + 6,
-        4,
-        4
-      );
+      if (snake.length > 0) {
+        const head = snake[0];
+        ctx.fillStyle = "#052e16";
+
+        ctx.beginPath();
+        ctx.arc(head.x * gridSize + 7, head.y * gridSize + 7, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(head.x * gridSize + 13, head.y * gridSize + 7, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function drawGrid() {
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
+      ctx.lineWidth = 1;
+
+      for (let i = 0; i <= tileCount; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * gridSize, 0);
+        ctx.lineTo(i * gridSize, canvas.height);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(0, i * gridSize);
+        ctx.lineTo(canvas.width, i * gridSize);
+        ctx.stroke();
+      }
     }
 
     function drawGameOver() {
-      clearInterval(gameLoop);
+      draw();
 
-      ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+      ctx.fillStyle = "rgba(0, 0, 0, 0.68)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       ctx.fillStyle = "white";
-      ctx.font = "32px Arial";
+      ctx.font = "42px Arial";
       ctx.textAlign = "center";
-      ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 10);
+      ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 22);
 
-      ctx.font = "18px Arial";
-      ctx.fillText("Score: " + score, canvas.width / 2, canvas.height / 2 + 25);
+      ctx.font = "22px Arial";
+      ctx.fillText("Score: " + score + "   Time: " + survivalTime + " s", canvas.width / 2, canvas.height / 2 + 22);
     }
 
     function hitsSelf(head) {
@@ -212,33 +748,192 @@
       food = newFood;
     }
 
-    function restartGame() {
-      startGame();
+    function saveTrial() {
+      if (gameRunning && !gameOver) {
+        message.textContent = "Finish the round before saving the trial.";
+        return;
+      }
+
+      if (!gameOver && score === 0 && survivalTime === 0) {
+        message.textContent = "Start and finish a round before saving a trial.";
+        return;
+      }
+
+      trials.push({
+        trial: trials.length + 1,
+        speed: currentSpeedLabel,
+        score: score,
+        survivalTime: survivalTime
+      });
+
+      renderHistory();
+      updateSummary();
+
+      message.textContent = "Trial saved. Start another game to collect more data.";
+    }
+
+    function renderHistory() {
+      historyBody.innerHTML = "";
+
+      if (trials.length === 0) {
+        const row = document.createElement("tr");
+        row.innerHTML = '<td colspan="4" class="empty">No saved trials yet.</td>';
+        historyBody.appendChild(row);
+        return;
+      }
+
+      trials.forEach(trial => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td>${trial.trial}</td>
+          <td>${trial.speed}</td>
+          <td>${trial.score}</td>
+          <td>${trial.survivalTime} s</td>
+        `;
+
+        historyBody.appendChild(row);
+      });
+    }
+
+    function updateDisplays() {
+      scoreDisplay.textContent = score;
+      survivalDisplay.textContent = survivalTime;
+      updateSummary();
+    }
+
+    function updateSummary() {
+      attemptsDisplay.textContent = trials.length;
+
+      if (trials.length === 0) {
+        bestDisplay.textContent = "0";
+        meanDisplay.textContent = "0";
+        meanTimeDisplay.textContent = "0";
+        return;
+      }
+
+      const scores = trials.map(trial => trial.score);
+      const times = trials.map(trial => trial.survivalTime);
+
+      const best = Math.max(...scores);
+      const meanScore = scores.reduce((sum, value) => sum + value, 0) / scores.length;
+      const meanTime = times.reduce((sum, value) => sum + value, 0) / times.length;
+
+      bestDisplay.textContent = best;
+      meanDisplay.textContent = meanScore.toFixed(1);
+      meanTimeDisplay.textContent = meanTime.toFixed(1);
+    }
+
+    function downloadCSV() {
+      if (trials.length === 0) {
+        message.textContent = "There is no data to download yet.";
+        return;
+      }
+
+      const rows = [
+        ["Trial", "Speed", "Score", "Survival time (s)"]
+      ];
+
+      trials.forEach(trial => {
+        rows.push([
+          trial.trial,
+          trial.speed,
+          trial.score,
+          trial.survivalTime
+        ]);
+      });
+
+      const csvContent = rows
+        .map(row => row.map(csvEscape).join(","))
+        .join("\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "snake_decision_time_challenge_data.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(url);
+    }
+
+    function csvEscape(value) {
+      const text = String(value);
+
+      if (text.includes(",") || text.includes('"') || text.includes("\n")) {
+        return '"' + text.replace(/"/g, '""') + '"';
+      }
+
+      return text;
+    }
+
+    function clearHistory() {
+      trials = [];
+      renderHistory();
+      updateSummary();
+      message.textContent = "Trial history cleared.";
+    }
+
+    function roundRect(x, y, width, height, radius) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
     }
 
     document.addEventListener("keydown", event => {
-      if (event.key === "ArrowUp" && dy !== 1) {
+      const key = event.key;
+
+      if (
+        key === "ArrowUp" ||
+        key === "ArrowDown" ||
+        key === "ArrowLeft" ||
+        key === "ArrowRight"
+      ) {
+        event.preventDefault();
+      }
+
+      if (!gameRunning || paused) return;
+
+      if (key === "ArrowUp" && dy !== 1) {
         nextDx = 0;
         nextDy = -1;
       }
 
-      if (event.key === "ArrowDown" && dy !== -1) {
+      if (key === "ArrowDown" && dy !== -1) {
         nextDx = 0;
         nextDy = 1;
       }
 
-      if (event.key === "ArrowLeft" && dx !== 1) {
+      if (key === "ArrowLeft" && dx !== 1) {
         nextDx = -1;
         nextDy = 0;
       }
 
-      if (event.key === "ArrowRight" && dx !== -1) {
+      if (key === "ArrowRight" && dx !== -1) {
         nextDx = 1;
         nextDy = 0;
       }
     });
 
-    startGame();
+    speedSelect.addEventListener("change", () => {
+      if (!gameRunning) {
+        currentSpeedLabel = speedSelect.options[speedSelect.selectedIndex].text;
+      }
+    });
+
+    clearCanvas();
+    updateDisplays();
   </script>
 </body>
 </html>
