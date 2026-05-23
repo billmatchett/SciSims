@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Classic Pong Focus Challenge</title>
+  <link rel="icon" type="image/png" href="/SciSims/favicon.png">
+
+  <style>
+    :root {
+      --bg: #eaf2fb;
+      --panel: #ffffff;
+      --panel-soft: #f7fbff;
+      --line: #cddcf0;
+      --text: #172033;
+      --muted: #4b5870;
+      --blue: #2f63e6;
+      --blue-dark: #173a9e;
+      --green: #16a34a;
+      --orange: #f97316;
+      --red: #dc2626;
+      --radius: 18px;
+      --shadow: 0 12px 28px rgba(22, 40, 70, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      width: min(1260px, calc(100% - 32px));
+      margin: 14px auto 40px;
+    }
+
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      margin-bottom: 18px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #123ca6;
+      text-decoration: none;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(22, 40, 70, 0.08);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      padding: 28px;
+      min-height: 176px;
+      background:
+        radial-gradient(circle at 95% 80%, rgba(72, 180, 115, 0.65) 0 19%, transparent 20%),
+        linear-gradient(120deg, #14254d 0%, #263c91 46%, #155f55 100%);
+      box-shadow: var(--shadow);
+      color: white;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2.1rem, 5vw, 4rem);
+      line-height: 1;
+      letter-spacing: -1.5px;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 920px;
+      font-size: 1.08rem;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    .li-sc {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .info-box {
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .info-box h3 {
+      margin: 0 0 6px;
+      color: var(--blue-dark);
+      font-size: 1rem;
+    }
+
+    .info-box p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.55fr 0.95fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 1.5rem;
+    }
+
+    .game-holder {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background:
+        linear-gradient(rgba(47, 99, 230, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(47, 99, 230, 0.055) 1px, transparent 1px),
+        #f8fbff;
+      background-size: 32px 32px;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    canvas {
+      width: min(100%, 760px);
+      height: auto;
+      aspect-ratio: 16 / 10;
+      background: #0b1220;
+      border-radius: 16px;
+      border: 4px solid #1f3b82;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+    }
+
+    .message {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #f5f8ff;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    label {
+      display: block;
+      font-weight: 800;
+      color: var(--blue-dark);
+      margin-bottom: 6px;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 13px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--text);
+      font-weight: 700;
+      margin-bottom: 14px;
+      font: inherit;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 13px;
+      padding: 12px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      color: white;
+      background: var(--blue);
+      font: inherit;
+    }
+
+    button:hover {
+      filter: brightness(1.05);
+    }
+
+    .secondary {
+      background: #eaf2ff;
+      color: var(--blue-dark);
+      border: 1px solid #bfd3ff;
+    }
+
+    .success {
+      background: var(--green);
+    }
+
+    .warning {
+      background: #fff3e6;
+      color: #9a3412;
+      border: 1px solid #fed7aa;
+    }
+
+    .danger {
+      background: #fff1f1;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .stat {
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 2rem;
+      color: var(--blue-dark);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 800;
+    }
+
+    .below-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 14px;
+      font-size: 0.95rem;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background: #edf4ff;
+      color: var(--blue-dark);
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .challenge-list {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .teacher-notes {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .key-box {
+      margin-top: 12px;
+      background: #f5f8ff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      color: var(--muted);
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 900px) {
+      .grid,
+      .below-grid,
+      .li-sc {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .page {
+        width: min(100% - 20px, 1260px);
+      }
+
+      .hero {
+        padding: 22px;
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+
+    <section class="hero">
+      <h1>Classic Pong Focus Challenge</h1>
+      <p>
+        Control the paddle, return the ball and try to outscore the computer. Use repeated trials to investigate focus,
+        reaction time, practice and how difficulty changes performance.
+      </p>
+    </section>
+
+    <section class="li-sc">
+      <div class="info-box">
+        <h3>Learning Intention</h3>
+        <p>Students will understand that performance can be investigated by collecting repeated trial data under controlled conditions.</p>
+      </div>
+
+      <div class="info-box">
+        <h3>Success Criteria</h3>
+        <p>Students can collect scores, compare trials, calculate simple averages and explain how difficulty or practice affects performance.</p>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <h2>Pong game</h2>
+
+        <div class="game-holder">
+          <canvas id="game" width="760" height="475"></canvas>
+        </div>
+
+        <div class="message" id="message">
+          Choose a difficulty, press Start game, then move your paddle with the arrow keys.
+        </div>
+
+        <div class="key-box">
+          Controls: Use <strong>Arrow Up</strong> and <strong>Arrow Down</strong> to move your paddle. First player to 7 wins the round.
+        </div>
+      </div>
+
+      <aside class="panel">
+        <h2>Controls</h2>
+
+        <label for="difficulty">Difficulty</label>
+        <select id="difficulty">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+          <option value="expert">Expert</option>
+        </select>
+
+        <div class="controls">
+          <button onclick="startGame()">Start game</button>
+          <button class="secondary" onclick="pauseGame()">Pause</button>
+          <button class="secondary" onclick="resetCurrent()">Reset round</button>
+          <button class="success" onclick="saveTrial()">Save trial</button>
+          <button class="warning" onclick="downloadCSV()">Download CSV</button>
+          <button class="danger" onclick="clearHistory()">Clear history</button>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <strong id="playerScore">0</strong>
+            <span>Player score</span>
+          </div>
+
+          <div class="stat">
+            <strong id="computerScore">0</strong>
+            <span>Computer score</span>
+          </div>
+
+          <div class="stat">
+            <strong id="rally">0</strong>
+            <span>Current rally</span>
+          </div>
+
+          <div class="stat">
+            <strong id="bestRally">0</strong>
+            <span>Best rally</span>
+          </div>
+
+          <div class="stat">
+            <strong id="attempts">0</strong>
+            <span>Saved trials</span>
+          </div>
+
+          <div class="stat">
+            <strong id="meanScore">0</strong>
+            <span>Mean score</span>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="below-grid">
+      <div class="panel">
+        <h2>Trial history</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Trial</th>
+              <th>Difficulty</th>
+              <th>Score</th>
+              <th>Best rally</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+            <tr>
+              <td colspan="5" class="empty">No saved trials yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h2>Student challenge</h2>
+
+        <ul class="challenge-list">
+          <li>Complete five trials on the same difficulty setting.</li>
+          <li>Record the player score, computer score and best rally.</li>
+          <li>Calculate your mean player score.</li>
+          <li>Repeat on a harder difficulty setting and compare the results.</li>
+          <li>Identify the independent variable, dependent variable and controlled variables.</li>
+          <li>Explain whether practice appears to improve performance.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top: 18px;">
+      <h2>Teacher notes</h2>
+
+      <div class="teacher-notes">
+        <p>
+          This activity can be used as a quick Working Scientifically or brain break investigation. Students can collect
+          repeated trial data and compare performance across difficulty settings or practice attempts.
+        </p>
+
+        <p>
+          Suggested investigation question: <strong>How does difficulty affect player score in Pong?</strong>
+          The independent variable is the difficulty setting. The dependent variables could include player score, result
+          or best rally. Controlled variables include game length, winning score, player, device, screen size, control method
+          and number of trials.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    const playerScoreDisplay = document.getElementById("playerScore");
+    const computerScoreDisplay = document.getElementById("computerScore");
+    const rallyDisplay = document.getElementById("rally");
+    const bestRallyDisplay = document.getElementById("bestRally");
+    const attemptsDisplay = document.getElementById("attempts");
+    const meanScoreDisplay = document.getElementById("meanScore");
+    const difficultySelect = document.getElementById("difficulty");
+    const message = document.getElementById("message");
+    const historyBody = document.getElementById("historyBody");
+
+    const winningScore = 7;
+
+    let player = {};
+    let computer = {};
+    let ball = {};
+    let playerScore = 0;
+    let computerScore = 0;
+    let currentRally = 0;
+    let bestRally = 0;
+    let upPressed = false;
+    let downPressed = false;
+    let gameRunning = false;
+    let paused = false;
+    let gameOver = false;
+    let animationId = null;
+    let currentDifficultyLabel = "Medium";
+    let trials = [];
+
+    const difficultySettings = {
+      easy: {
+        ballSpeed: 4.2,
+        computerSpeed: 3.0,
+        label: "Easy"
+      },
+      medium: {
+        ballSpeed: 5.2,
+        computerSpeed: 4.1,
+        label: "Medium"
+      },
+      hard: {
+        ballSpeed: 6.3,
+        computerSpeed: 5.2,
+        label: "Hard"
+      },
+      expert: {
+        ballSpeed: 7.4,
+        computerSpeed: 6.3,
+        label: "Expert"
+      }
+    };
+
+    function startGame() {
+      cancelAnimationFrame(animationId);
+
+      const selected = difficultySettings[difficultySelect.value];
+      currentDifficultyLabel = selected.label;
+
+      player = {
+        x: 28,
+        y: canvas.height / 2 - 48,
+        width: 14,
+        height: 96,
+        speed: 7
+      };
+
+      computer = {
+        x: canvas.width - 42,
+        y: canvas.height / 2 - 48,
+        width: 14,
+        height: 96,
+        speed: selected.computerSpeed
+      };
+
+      playerScore = 0;
+      computerScore = 0;
+      currentRally = 0;
+      bestRally = 0;
+      gameRunning = true;
+      paused = false;
+      gameOver = false;
+
+      resetBall(Math.random() < 0.5 ? 1 : -1);
+
+      updateDisplays();
+      message.textContent = "Game running. Use Arrow Up and Arrow Down to move.";
+      animationId = requestAnimationFrame(gameLoop);
+    }
+
+    function pauseGame() {
+      if (!gameRunning || gameOver) return;
+
+      paused = !paused;
+      message.textContent = paused ? "Game paused. Press Pause again to continue." : "Game running. Use Arrow Up and Arrow Down to move.";
+
+      if (!paused) {
+        animationId = requestAnimationFrame(gameLoop);
+      }
+    }
+
+    function resetCurrent() {
+      cancelAnimationFrame(animationId);
+
+      playerScore = 0;
+      computerScore = 0;
+      currentRally = 0;
+      bestRally = 0;
+      gameRunning = false;
+      paused = false;
+      gameOver = false;
+
+      drawStartScreen();
+      updateDisplays();
+      message.textContent = "Round reset. Press Start game to try again.";
+    }
+
+    function resetBall(direction) {
+      const selected = difficultySettings[difficultySelect.value];
+      const angle = (Math.random() * 0.8) - 0.4;
+
+      ball = {
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        radius: 9,
+        vx: direction * selected.ballSpeed,
+        vy: selected.ballSpeed * angle
+      };
+
+      currentRally = 0;
+    }
+
+    function gameLoop() {
+      if (!gameRunning || paused || gameOver) return;
+
+      update();
+      draw();
+
+      animationId = requestAnimationFrame(gameLoop);
+    }
+
+    function update() {
+      movePlayer();
+      moveComputer();
+      moveBall();
+      updateDisplays();
+    }
+
+    function movePlayer() {
+      if (upPressed) player.y -= player.speed;
+      if (downPressed) player.y += player.speed;
+
+      player.y = clamp(player.y, 0, canvas.height - player.height);
+    }
+
+    function moveComputer() {
+      const computerCentre = computer.y + computer.height / 2;
+      const targetY = ball.y;
+
+      if (computerCentre < targetY - 12) {
+        computer.y += computer.speed;
+      } else if (computerCentre > targetY + 12) {
+        computer.y -= computer.speed;
+      }
+
+      computer.y = clamp(computer.y, 0, canvas.height - computer.height);
+    }
+
+    function moveBall() {
+      ball.x += ball.vx;
+      ball.y += ball.vy;
+
+      if (ball.y - ball.radius <= 0 || ball.y + ball.radius >= canvas.height) {
+        ball.vy *= -1;
+        ball.y = clamp(ball.y, ball.radius, canvas.height - ball.radius);
+      }
+
+      if (hitsPaddle(player) && ball.vx < 0) {
+        bounceFromPaddle(player, 1);
+      }
+
+      if (hitsPaddle(computer) && ball.vx > 0) {
+        bounceFromPaddle(computer, -1);
+      }
+
+      if (ball.x + ball.radius < 0) {
+        computerScore++;
+        checkForWinner();
+        resetBall(1);
+      }
+
+      if (ball.x - ball.radius > canvas.width) {
+        playerScore++;
+        checkForWinner();
+        resetBall(-1);
+      }
+    }
+
+    function hitsPaddle(paddle) {
+      return (
+        ball.x - ball.radius < paddle.x + paddle.width &&
+        ball.x + ball.radius > paddle.x &&
+        ball.y + ball.radius > paddle.y &&
+        ball.y - ball.radius < paddle.y + paddle.height
+      );
+    }
+
+    function bounceFromPaddle(paddle, direction) {
+      const selected = difficultySettings[difficultySelect.value];
+      const paddleCentre = paddle.y + paddle.height / 2;
+      const relativeHit = (ball.y - paddleCentre) / (paddle.height / 2);
+      const speedBoost = Math.min(1.8, currentRally * 0.08);
+      const speed = selected.ballSpeed + speedBoost;
+
+      ball.vx = direction * speed;
+      ball.vy = relativeHit * speed * 0.85;
+
+      ball.x = direction > 0
+        ? paddle.x + paddle.width + ball.radius
+        : paddle.x - ball.radius;
+
+      currentRally++;
+      bestRally = Math.max(bestRally, currentRally);
+    }
+
+    function checkForWinner() {
+      if (playerScore >= winningScore || computerScore >= winningScore) {
+        gameOver = true;
+        gameRunning = false;
+        cancelAnimationFrame(animationId);
+
+        drawGameOver();
+
+        const result = playerScore > computerScore ? "win" : "loss";
+        message.textContent = "Round finished. Result: " + result + ". Press Save trial to record the result.";
+      }
+    }
+
+    function draw() {
+      ctx.fillStyle = "#0b1220";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      drawCentreLine();
+      drawPaddle(player, "#86efac");
+      drawPaddle(computer, "#93c5fd");
+      drawBall();
+      drawScoreText();
+    }
+
+    function drawCentreLine() {
+      ctx.strokeStyle = "rgba(255,255,255,0.22)";
+      ctx.lineWidth = 4;
+      ctx.setLineDash([14, 14]);
+      ctx.beginPath();
+      ctx.moveTo(canvas.width / 2, 0);
+      ctx.lineTo(canvas.width / 2, canvas.height);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    function drawPaddle(paddle, colour) {
+      ctx.fillStyle = colour;
+      roundRect(paddle.x, paddle.y, paddle.width, paddle.height, 7);
+      ctx.fill();
+    }
+
+    function drawBall() {
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawScoreText() {
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
+      ctx.font = "44px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText(playerScore, canvas.width / 2 - 70, 58);
+      ctx.fillText(computerScore, canvas.width / 2 + 70, 58);
+    }
+
+    function drawStartScreen() {
+      ctx.fillStyle = "#0b1220";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      drawCentreLine();
+
+      ctx.fillStyle = "rgba(255,255,255,0.9)";
+      ctx.font = "34px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Classic Pong", canvas.width / 2, canvas.height / 2 - 20);
+
+      ctx.font = "20px Arial";
+      ctx.fillText("Press Start game", canvas.width / 2, canvas.height / 2 + 18);
+    }
+
+    function drawGameOver() {
+      draw();
+
+      ctx.fillStyle = "rgba(0, 0, 0, 0.68)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "white";
+      ctx.font = "42px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Round Finished", canvas.width / 2, canvas.height / 2 - 22);
+
+      ctx.font = "22px Arial";
+      ctx.fillText("Player " + playerScore + " : " + computerScore + " Computer", canvas.width / 2, canvas.height / 2 + 22);
+    }
+
+    function saveTrial() {
+      if (gameRunning && !gameOver) {
+        message.textContent = "Finish the round before saving the trial.";
+        return;
+      }
+
+      if (!gameOver && playerScore === 0 && computerScore === 0) {
+        message.textContent = "Start and finish a round before saving a trial.";
+        return;
+      }
+
+      const result = playerScore > computerScore ? "Win" : "Loss";
+
+      trials.push({
+        trial: trials.length + 1,
+        difficulty: currentDifficultyLabel,
+        playerScore: playerScore,
+        computerScore: computerScore,
+        bestRally: bestRally,
+        result: result
+      });
+
+      renderHistory();
+      updateSummary();
+
+      message.textContent = "Trial saved. Start another game to collect more data.";
+    }
+
+    function renderHistory() {
+      historyBody.innerHTML = "";
+
+      if (trials.length === 0) {
+        const row = document.createElement("tr");
+        row.innerHTML = '<td colspan="5" class="empty">No saved trials yet.</td>';
+        historyBody.appendChild(row);
+        return;
+      }
+
+      trials.forEach(trial => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td>${trial.trial}</td>
+          <td>${trial.difficulty}</td>
+          <td>${trial.playerScore} : ${trial.computerScore}</td>
+          <td>${trial.bestRally}</td>
+          <td>${trial.result}</td>
+        `;
+
+        historyBody.appendChild(row);
+      });
+    }
+
+    function updateDisplays() {
+      playerScoreDisplay.textContent = playerScore;
+      computerScoreDisplay.textContent = computerScore;
+      rallyDisplay.textContent = currentRally;
+      bestRallyDisplay.textContent = bestRally;
+      updateSummary();
+    }
+
+    function updateSummary() {
+      attemptsDisplay.textContent = trials.length;
+
+      if (trials.length === 0) {
+        meanScoreDisplay.textContent = "0";
+        return;
+      }
+
+      const scores = trials.map(trial => trial.playerScore);
+      const mean = scores.reduce((sum, value) => sum + value, 0) / scores.length;
+
+      meanScoreDisplay.textContent = mean.toFixed(1);
+    }
+
+    function downloadCSV() {
+      if (trials.length === 0) {
+        message.textContent = "There is no data to download yet.";
+        return;
+      }
+
+      const rows = [
+        ["Trial", "Difficulty", "Player score", "Computer score", "Best rally", "Result"]
+      ];
+
+      trials.forEach(trial => {
+        rows.push([
+          trial.trial,
+          trial.difficulty,
+          trial.playerScore,
+          trial.computerScore,
+          trial.bestRally,
+          trial.result
+        ]);
+      });
+
+      const csvContent = rows
+        .map(row => row.map(csvEscape).join(","))
+        .join("\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "classic_pong_focus_challenge_data.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(url);
+    }
+
+    function clearHistory() {
+      trials = [];
+      renderHistory();
+      updateSummary();
+      message.textContent = "Trial history cleared.";
+    }
+
+    function csvEscape(value) {
+      const text = String(value);
+
+      if (text.includes(",") || text.includes('"') || text.includes("\n")) {
+        return '"' + text.replace(/"/g, '""') + '"';
+      }
+
+      return text;
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function roundRect(x, y, width, height, radius) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+    }
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+        event.preventDefault();
+      }
+
+      if (event.key === "ArrowUp") {
+        upPressed = true;
+      }
+
+      if (event.key === "ArrowDown") {
+        downPressed = true;
+      }
+    });
+
+    document.addEventListener("keyup", event => {
+      if (event.key === "ArrowUp") {
+        upPressed = false;
+      }
+
+      if (event.key === "ArrowDown") {
+        downPressed = false;
+      }
+    });
+
+    difficultySelect.addEventListener("change", () => {
+      if (!gameRunning) {
+        const selected = difficultySettings[difficultySelect.value];
+        currentDifficultyLabel = selected.label;
+      }
+    });
+
+    drawStartScreen();
+    updateDisplays();
+  </script>
+</body>
+</html>
