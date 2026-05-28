@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projectile Panic | SciSims</title>
+  <link rel="icon" type="image/png" href="/SciSims/favicon.png">
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --panel:#ffffff;
+      --text:#1f2937;
+      --muted:#64748b;
+      --line:#dbe3ef;
+      --button:#2563eb;
+      --button-hover:#1d4ed8;
+      --accent:#f97316;
+      --accent-soft:#ffedd5;
+      --success:#16a34a;
+      --danger:#dc2626;
+      --soft-blue:#e0ecff;
+      --radius:18px;
+      --shadow:0 16px 35px rgba(15,23,42,0.10);
+    }
+
+    *{box-sizing:border-box;}
+
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:linear-gradient(180deg,#eef4ff 0%,var(--bg) 48%,#f8fafc 100%);
+      color:var(--text);
+      line-height:1.5;
+    }
+
+    .page{
+      width:min(1180px,94vw);
+      margin:0 auto;
+      padding:22px 0 44px;
+    }
+
+    .home-link{
+      display:inline-block;
+      margin:0 0 14px;
+      color:#1d4ed8;
+      text-decoration:none;
+      font-weight:700;
+    }
+
+    .home-link:hover{text-decoration:underline;}
+
+    header{
+      background:radial-gradient(circle at top left,#fff7ed 0,#ffffff 38%,#e0ecff 100%);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:28px;
+      overflow:hidden;
+      position:relative;
+    }
+
+    header::after{
+      content:"";
+      position:absolute;
+      right:-90px;
+      top:-90px;
+      width:240px;
+      height:240px;
+      background:rgba(249,115,22,0.16);
+      border-radius:50%;
+    }
+
+    h1{
+      margin:0 0 8px;
+      font-size:clamp(2rem,4vw,3.8rem);
+      line-height:1;
+      letter-spacing:-0.04em;
+    }
+
+    .subtitle{
+      margin:0;
+      max-width:780px;
+      color:var(--muted);
+      font-size:1.08rem;
+    }
+
+    .li-sc{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+      margin-top:18px;
+    }
+
+    .li-sc div{
+      padding:16px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:#fff;
+    }
+
+    .li-sc strong{
+      display:block;
+      margin-bottom:6px;
+      color:#0f172a;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:360px 1fr;
+      gap:18px;
+      margin-top:18px;
+      align-items:start;
+    }
+
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:0 10px 24px rgba(15,23,42,0.07);
+      padding:18px;
+    }
+
+    .panel h2,.panel h3{margin:0 0 12px;}
+
+    .control{margin:14px 0;}
+
+    .control label{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      font-weight:700;
+      font-size:0.95rem;
+      margin-bottom:6px;
+    }
+
+    .value{color:var(--button);white-space:nowrap;}
+
+    input[type="range"]{width:100%;accent-color:var(--button);}
+
+    select, button{font:inherit;}
+
+    select{
+      width:100%;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:white;
+      color:var(--text);
+    }
+
+    .button-row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:16px;
+    }
+
+    button{
+      border:0;
+      border-radius:14px;
+      padding:12px 14px;
+      font-weight:800;
+      cursor:pointer;
+      background:var(--button);
+      color:white;
+      box-shadow:0 8px 16px rgba(37,99,235,0.22);
+    }
+
+    button:hover{background:var(--button-hover);}
+
+    button.secondary{
+      background:#e2e8f0;
+      color:#0f172a;
+      box-shadow:none;
+    }
+
+    button.secondary:hover{background:#cbd5e1;}
+
+    button.warning{
+      background:var(--accent);
+      box-shadow:0 8px 16px rgba(249,115,22,0.24);
+    }
+
+    button.warning:hover{background:#ea580c;}
+
+    canvas{
+      display:block;
+      width:100%;
+      background:linear-gradient(#dbeafe 0%,#eff6ff 57%,#dcfce7 58%,#bbf7d0 100%);
+      border:1px solid var(--line);
+      border-radius:18px;
+    }
+
+    .readouts{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .metric{
+      background:#f8fafc;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px;
+    }
+
+    .metric span{
+      display:block;
+      color:var(--muted);
+      font-size:0.78rem;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+    }
+
+    .metric strong{
+      display:block;
+      font-size:1.05rem;
+      margin-top:3px;
+    }
+
+    .message{
+      margin-top:12px;
+      padding:12px 14px;
+      background:var(--accent-soft);
+      border:1px solid #fed7aa;
+      border-radius:14px;
+      font-weight:700;
+    }
+
+    .two-col{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:18px;
+      margin-top:18px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:0.9rem;
+    }
+
+    th,td{
+      border-bottom:1px solid var(--line);
+      padding:8px 6px;
+      text-align:right;
+    }
+
+    th:first-child,td:first-child{text-align:left;}
+    th{background:#f8fafc;}
+
+    .scroll-table{
+      max-height:260px;
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:14px;
+    }
+
+    ul{padding-left:1.2rem;}
+
+    .tag{
+      display:inline-block;
+      padding:4px 8px;
+      background:var(--soft-blue);
+      border-radius:999px;
+      font-size:0.82rem;
+      font-weight:700;
+      margin:3px 4px 3px 0;
+    }
+
+    .test-pass{color:var(--success);font-weight:700;}
+    .test-fail{color:var(--danger);font-weight:700;}
+
+    @media (max-width:900px){
+      .grid,.two-col,.li-sc{grid-template-columns:1fr;}
+      .readouts{grid-template-columns:repeat(2,1fr);}
+    }
+
+    @media (max-width:520px){
+      .button-row,.readouts{grid-template-columns:1fr;}
+      header{padding:20px;}
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <a class="home-link" href="/SciSims/">← Back to main SciSims page</a>
+
+    <header>
+      <h1>Projectile Panic</h1>
+      <p class="subtitle">Adjust launch angle, velocity, gravity and target distance to test projectile motion. Calculate first, launch second, then reveal the result after the projectile lands.</p>
+    </header>
+
+    <section class="li-sc">
+      <div>
+        <strong>Learning Intention</strong>
+        Students will understand that projectile motion can be modelled by separating horizontal and vertical motion.
+      </div>
+      <div>
+        <strong>Success Criteria</strong>
+        Students can adjust projectile variables, interpret trajectory data and use evidence from the simulation to explain changes in range, height and time of flight.
+      </div>
+    </section>
+
+    <section class="grid">
+      <aside class="panel">
+        <h2>Launch controls</h2>
+
+        <div class="control">
+          <label for="angle">Launch angle <span class="value" id="angleVal">45°</span></label>
+          <input id="angle" type="range" min="5" max="85" step="1" value="45">
+        </div>
+
+        <div class="control">
+          <label for="speed">Initial velocity <span class="value" id="speedVal">30 m/s</span></label>
+          <input id="speed" type="range" min="5" max="60" step="1" value="30">
+        </div>
+
+        <div class="control">
+          <label for="height">Launch height <span class="value" id="heightVal">2 m</span></label>
+          <input id="height" type="range" min="0" max="20" step="0.5" value="2">
+        </div>
+
+        <div class="control">
+          <label for="gravity">Gravity <span class="value" id="gravityVal">9.8 m/s²</span></label>
+          <input id="gravity" type="range" min="1.6" max="24.8" step="0.1" value="9.8">
+        </div>
+
+        <div class="control">
+          <label for="target">Target distance <span class="value" id="targetVal">65 m</span></label>
+          <input id="target" type="range" min="10" max="140" step="1" value="65">
+        </div>
+
+        <div class="control">
+          <label for="planet">Preset gravity</label>
+          <select id="planet">
+            <option value="custom">Custom</option>
+            <option value="1.6">Moon, 1.6 m/s²</option>
+            <option value="3.7">Mars, 3.7 m/s²</option>
+            <option value="9.8" selected>Earth, 9.8 m/s²</option>
+            <option value="24.8">Jupiter, 24.8 m/s²</option>
+          </select>
+        </div>
+
+        <div class="button-row">
+          <button id="launchBtn" class="warning">Launch</button>
+          <button id="resetBtn" class="secondary">Reset</button>
+          <button id="randomBtn" class="secondary">Random target</button>
+          <button id="csvBtn" class="secondary">Export CSV</button>
+        </div>
+
+        <p><span class="tag">Projectile motion</span><span class="tag">Kinematics</span><span class="tag">Modelling</span></p>
+      </aside>
+
+      <section class="panel">
+        <h2>Simulation</h2>
+        <canvas id="simCanvas" width="860" height="460" aria-label="Projectile motion simulation canvas"></canvas>
+        <div class="readouts">
+          <div class="metric"><span>Range</span><strong id="rangeRead">Hidden until landing</strong></div>
+          <div class="metric"><span>Max height</span><strong id="heightRead">Hidden until landing</strong></div>
+          <div class="metric"><span>Flight time</span><strong id="timeRead">Hidden until landing</strong></div>
+          <div class="metric"><span>Hit accuracy</span><strong id="accuracyRead">Hidden until launch</strong></div>
+        </div>
+        <div class="message" id="message">Adjust the controls, calculate your prediction, then launch. Results will appear after landing.</div>
+      </section>
+    </section>
+
+    <section class="panel" style="margin-top:18px;">
+      <h2>Data table</h2>
+      <p style="margin-top:0;color:var(--muted);">The table fills after the projectile lands so students can compare their calculation with the simulated result.</p>
+      <div class="scroll-table">
+        <table>
+          <thead>
+            <tr>
+              <th>t (s)</th>
+              <th>x (m)</th>
+              <th>y (m)</th>
+              <th>vx (m/s)</th>
+              <th>vy (m/s)</th>
+            </tr>
+          </thead>
+          <tbody id="dataBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="two-col">
+      <section class="panel">
+        <h2>Student challenge</h2>
+        <ul>
+          <li>Calculate launch settings that should hit the target within 2 m.</li>
+          <li>Change gravity to Mars and explain why the same launch settings behave differently.</li>
+          <li>Keep velocity constant and test three different angles. Identify which angle gives the greatest range.</li>
+          <li>Use the data table to explain the relationship between height, flight time and range.</li>
+          <li>Evaluate one limitation of this simulation compared with a real projectile experiment.</li>
+        </ul>
+      </section>
+
+      <section class="panel">
+        <h2>Teacher notes</h2>
+        <p>This version uses an ideal projectile model with no air resistance or wind. Horizontal velocity is constant, while vertical velocity changes due to gravity.</p>
+        <p>Useful prompts: What variables affect horizontal range? Why does changing gravity affect both height and time of flight? Why might a real projectile not match this model exactly?</p>
+      </section>
+    </section>
+
+    <section class="panel" style="margin-top:18px;">
+      <h2>Developer checks</h2>
+      <p style="margin-top:0;color:var(--muted);">These checks confirm that the core projectile calculations are running correctly.</p>
+      <div id="testResults"></div>
+    </section>
+  </main>
+
+  <script>
+    const angleInput = document.getElementById('angle');
+    const speedInput = document.getElementById('speed');
+    const heightInput = document.getElementById('height');
+    const gravityInput = document.getElementById('gravity');
+    const targetInput = document.getElementById('target');
+    const planetSelect = document.getElementById('planet');
+
+    const angleVal = document.getElementById('angleVal');
+    const speedVal = document.getElementById('speedVal');
+    const heightVal = document.getElementById('heightVal');
+    const gravityVal = document.getElementById('gravityVal');
+    const targetVal = document.getElementById('targetVal');
+
+    const rangeRead = document.getElementById('rangeRead');
+    const heightRead = document.getElementById('heightRead');
+    const timeRead = document.getElementById('timeRead');
+    const accuracyRead = document.getElementById('accuracyRead');
+    const message = document.getElementById('message');
+    const dataBody = document.getElementById('dataBody');
+    const testResults = document.getElementById('testResults');
+
+    const simCanvas = document.getElementById('simCanvas');
+    const simCtx = simCanvas.getContext('2d');
+
+    let trajectory = [];
+    let animationId = null;
+    let animIndex = 0;
+    let hasLaunched = false;
+
+    function calculateProjectile(angleDeg, speed, launchHeight, gravity){
+      const radians = angleDeg * Math.PI / 180;
+      const vx = speed * Math.cos(radians);
+      const vy0 = speed * Math.sin(radians);
+      const discriminant = (vy0 * vy0) + (2 * gravity * launchHeight);
+      const flightTime = (vy0 + Math.sqrt(discriminant)) / gravity;
+      const maxHeight = launchHeight + ((vy0 * vy0) / (2 * gravity));
+      const range = vx * flightTime;
+      return {vx: vx, vy0: vy0, flightTime: flightTime, maxHeight: maxHeight, range: range};
+    }
+
+    function getInputs(){
+      return {
+        angle:Number(angleInput.value),
+        speed:Number(speedInput.value),
+        height:Number(heightInput.value),
+        gravity:Number(gravityInput.value),
+        target:Number(targetInput.value)
+      };
+    }
+
+    function calculateTrajectory(){
+      const p = getInputs();
+      const model = calculateProjectile(p.angle, p.speed, p.height, p.gravity);
+      const rows = [];
+      const steps = Math.max(80, Math.ceil(model.flightTime / 0.04));
+      for(let i=0;i<=steps;i++){
+        const t = model.flightTime * i / steps;
+        const x = model.vx * t;
+        const yRaw = p.height + (model.vy0 * t) - (0.5 * p.gravity * t * t);
+        const y = Math.max(0, yRaw);
+        const vy = model.vy0 - (p.gravity * t);
+        rows.push({t:t, x:x, y:y, vx:model.vx, vy:vy});
+      }
+      return {
+        rows:rows,
+        range:model.range,
+        maxHeight:model.maxHeight,
+        flightTime:model.flightTime,
+        vx:model.vx,
+        vy0:model.vy0
+      };
+    }
+
+    function updateLabels(){
+      const p = getInputs();
+      angleVal.textContent = p.angle + '°';
+      speedVal.textContent = p.speed + ' m/s';
+      heightVal.textContent = p.height.toFixed(1).replace('.0','') + ' m';
+      gravityVal.textContent = p.gravity.toFixed(1) + ' m/s²';
+      targetVal.textContent = p.target + ' m';
+    }
+
+    function getScale(result){
+      const p = getInputs();
+      const maxX = Math.max(result.range, p.target + 20, 80);
+      const maxY = Math.max(result.maxHeight, p.height + 10, 35);
+      return {maxX:maxX, maxY:maxY};
+    }
+
+    function worldToCanvas(x,y,scale){
+      const marginLeft = 48;
+      const marginRight = 28;
+      const marginTop = 24;
+      const groundY = simCanvas.height - 54;
+      const plotW = simCanvas.width - marginLeft - marginRight;
+      const plotH = groundY - marginTop;
+      return {
+        cx: marginLeft + (x / scale.maxX) * plotW,
+        cy: groundY - (y / scale.maxY) * plotH
+      };
+    }
+
+    function drawScene(showPath, projectilePoint){
+      const result = calculateTrajectory();
+      const p = getInputs();
+      const scale = getScale(result);
+      const groundY = simCanvas.height - 54;
+
+      simCtx.clearRect(0,0,simCanvas.width,simCanvas.height);
+      simCtx.fillStyle = '#86efac';
+      simCtx.fillRect(0, groundY, simCanvas.width, 54);
+
+      simCtx.strokeStyle = '#64748b';
+      simCtx.lineWidth = 2;
+      simCtx.beginPath();
+      simCtx.moveTo(42, groundY);
+      simCtx.lineTo(simCanvas.width - 20, groundY);
+      simCtx.stroke();
+
+      const launchPoint = worldToCanvas(0,p.height,scale);
+      simCtx.fillStyle = '#92400e';
+      simCtx.fillRect(launchPoint.cx - 12, launchPoint.cy, 24, groundY - launchPoint.cy);
+      simCtx.beginPath();
+      simCtx.arc(launchPoint.cx, launchPoint.cy, 13, 0, Math.PI * 2);
+      simCtx.fillStyle = '#f97316';
+      simCtx.fill();
+
+      const targetPoint = worldToCanvas(p.target,0,scale);
+      simCtx.fillStyle = '#dc2626';
+      simCtx.fillRect(targetPoint.cx - 3, groundY - 52, 6, 52);
+      simCtx.beginPath();
+      simCtx.arc(targetPoint.cx, groundY - 52, 18, 0, Math.PI * 2);
+      simCtx.fillStyle = '#fee2e2';
+      simCtx.fill();
+      simCtx.strokeStyle = '#dc2626';
+      simCtx.lineWidth = 4;
+      simCtx.stroke();
+      simCtx.beginPath();
+      simCtx.arc(targetPoint.cx, groundY - 52, 8, 0, Math.PI * 2);
+      simCtx.fillStyle = '#dc2626';
+      simCtx.fill();
+
+      simCtx.fillStyle = '#334155';
+      simCtx.font = '13px Arial';
+      simCtx.fillText('Target: ' + p.target + ' m', Math.min(targetPoint.cx + 10, simCanvas.width - 120), groundY - 64);
+
+      if(showPath){
+        simCtx.beginPath();
+        result.rows.forEach(function(row,index){
+          const pt = worldToCanvas(row.x,row.y,scale);
+          if(index === 0){
+            simCtx.moveTo(pt.cx,pt.cy);
+          } else {
+            simCtx.lineTo(pt.cx,pt.cy);
+          }
+        });
+        simCtx.strokeStyle = '#2563eb';
+        simCtx.lineWidth = 4;
+        simCtx.setLineDash([]);
+        simCtx.stroke();
+      }
+
+      if(projectilePoint){
+        const pt = worldToCanvas(projectilePoint.x, projectilePoint.y, scale);
+        simCtx.beginPath();
+        simCtx.arc(pt.cx, pt.cy, 11, 0, Math.PI * 2);
+        simCtx.fillStyle = '#111827';
+        simCtx.fill();
+        simCtx.beginPath();
+        simCtx.arc(pt.cx - 3, pt.cy - 3, 3, 0, Math.PI * 2);
+        simCtx.fillStyle = '#f8fafc';
+        simCtx.fill();
+      }
+    }
+
+    function updateReadouts(result){
+      const p = getInputs();
+      const miss = Math.abs(result.range - p.target);
+
+      if(!hasLaunched){
+        rangeRead.textContent = 'Hidden until landing';
+        heightRead.textContent = 'Hidden until landing';
+        timeRead.textContent = 'Hidden until landing';
+        accuracyRead.textContent = 'Hidden until landing';
+        return;
+      }
+
+      rangeRead.textContent = result.range.toFixed(1) + ' m';
+      heightRead.textContent = result.maxHeight.toFixed(1) + ' m';
+      timeRead.textContent = result.flightTime.toFixed(2) + ' s';
+      accuracyRead.textContent = miss.toFixed(1) + ' m from target';
+
+      if(miss <= 1){
+        message.textContent = 'Direct hit! The projectile landed within 1 m of the target.';
+      } else if(miss <= 3){
+        message.textContent = 'Close hit. The projectile landed within 3 m of the target.';
+      } else if(result.range < p.target){
+        message.textContent = 'Too short. Try increasing velocity, changing the angle, or reducing gravity.';
+      } else {
+        message.textContent = 'Too far. Try decreasing velocity, changing the angle, or increasing gravity.';
+      }
+    }
+
+    function hideReadouts(){
+      rangeRead.textContent = 'Hidden until landing';
+      heightRead.textContent = 'Hidden until landing';
+      timeRead.textContent = 'Hidden until landing';
+      accuracyRead.textContent = 'Hidden until landing';
+    }
+
+    function updateTable(result){
+      const sampleEvery = Math.max(1, Math.floor(result.rows.length / 14));
+      const sampledRows = result.rows.filter(function(row,index){
+        return index % sampleEvery === 0 || index === result.rows.length - 1;
+      });
+      dataBody.innerHTML = sampledRows.map(function(row){
+        return '<tr>' +
+          '<td>' + row.t.toFixed(2) + '</td>' +
+          '<td>' + row.x.toFixed(2) + '</td>' +
+          '<td>' + row.y.toFixed(2) + '</td>' +
+          '<td>' + row.vx.toFixed(2) + '</td>' +
+          '<td>' + row.vy.toFixed(2) + '</td>' +
+          '</tr>';
+      }).join('');
+    }
+
+    function showEmptyTable(){
+      dataBody.innerHTML = '<tr><td colspan="5" style="text-align:left;color:var(--muted);">Launch the projectile to collect data.</td></tr>';
+    }
+
+    function refresh(){
+      updateLabels();
+      const result = calculateTrajectory();
+      trajectory = result.rows;
+      drawScene(hasLaunched, null);
+      if(hasLaunched){
+        updateReadouts(result);
+        updateTable(result);
+      } else {
+        hideReadouts();
+        showEmptyTable();
+      }
+    }
+
+    function launch(){
+      if(animationId){
+        cancelAnimationFrame(animationId);
+      }
+      hasLaunched = true;
+      animIndex = 0;
+      const result = calculateTrajectory();
+      trajectory = result.rows;
+
+      hideReadouts();
+      showEmptyTable();
+      message.textContent = 'Projectile in flight. Results will appear after landing.';
+
+      function step(){
+        const point = trajectory[Math.min(animIndex, trajectory.length - 1)];
+        drawScene(true, point);
+        animIndex += 2;
+        if(animIndex < trajectory.length){
+          animationId = requestAnimationFrame(step);
+        } else {
+          updateReadouts(result);
+          updateTable(result);
+          animationId = null;
+        }
+      }
+
+      step();
+    }
+
+    function reset(){
+      if(animationId){
+        cancelAnimationFrame(animationId);
+      }
+      hasLaunched = false;
+      animIndex = 0;
+      angleInput.value = 45;
+      speedInput.value = 30;
+      heightInput.value = 2;
+      gravityInput.value = 9.8;
+      targetInput.value = 65;
+      planetSelect.value = '9.8';
+      message.textContent = 'Adjust the controls, calculate your prediction, then launch. Results will appear after landing.';
+      refresh();
+    }
+
+    function randomTarget(){
+      targetInput.value = Math.floor(20 + Math.random() * 110);
+      hasLaunched = false;
+      message.textContent = 'New target set. Calculate the settings before launching. Results will appear after landing.';
+      refresh();
+    }
+
+    function exportCsv(){
+      const result = calculateTrajectory();
+      const rows = [['time_s','distance_m','height_m','vx_m_per_s','vy_m_per_s']];
+      result.rows.forEach(function(row){
+        rows.push([
+          row.t.toFixed(3),
+          row.x.toFixed(3),
+          row.y.toFixed(3),
+          row.vx.toFixed(3),
+          row.vy.toFixed(3)
+        ]);
+      });
+      const csv = rows.map(function(row){
+        return row.join(',');
+      }).join(String.fromCharCode(10));
+      const blob = new Blob([csv], {type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'projectile-panic-data.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    function runDeveloperChecks(){
+      const checks = [];
+      const earth45 = calculateProjectile(45, 10, 0, 9.8);
+      checks.push({
+        name:'45 degree launch at 10 m/s has range close to 10.20 m',
+        pass:Math.abs(earth45.range - 10.204) < 0.05
+      });
+      checks.push({
+        name:'45 degree launch at 10 m/s has flight time close to 1.44 s',
+        pass:Math.abs(earth45.flightTime - 1.443) < 0.02
+      });
+      const moon = calculateProjectile(45, 10, 0, 1.6);
+      checks.push({
+        name:'Lower gravity produces greater range than Earth for same launch settings',
+        pass:moon.range > earth45.range
+      });
+      const raised = calculateProjectile(30, 20, 5, 9.8);
+      checks.push({
+        name:'Raised launch height gives a positive flight time and positive range',
+        pass:raised.flightTime > 0 && raised.range > 0
+      });
+
+      testResults.innerHTML = checks.map(function(check){
+        const klass = check.pass ? 'test-pass' : 'test-fail';
+        const label = check.pass ? 'PASS' : 'FAIL';
+        return '<p class="' + klass + '">' + label + ': ' + check.name + '</p>';
+      }).join('');
+    }
+
+    [angleInput,speedInput,heightInput,gravityInput,targetInput].forEach(function(input){
+      input.addEventListener('input',function(){
+        hasLaunched = false;
+        if(input === gravityInput){
+          planetSelect.value = 'custom';
+        }
+        message.textContent = 'Settings updated. Calculate first, then launch to test.';
+        refresh();
+      });
+    });
+
+    planetSelect.addEventListener('change',function(){
+      if(planetSelect.value !== 'custom'){
+        gravityInput.value = planetSelect.value;
+      }
+      hasLaunched = false;
+      message.textContent = 'Gravity changed. Compare how the trajectory changes.';
+      refresh();
+    });
+
+    document.getElementById('launchBtn').addEventListener('click',launch);
+    document.getElementById('resetBtn').addEventListener('click',reset);
+    document.getElementById('randomBtn').addEventListener('click',randomTarget);
+    document.getElementById('csvBtn').addEventListener('click',exportCsv);
+
+    runDeveloperChecks();
+    refresh();
+  </script>
+</body>
+</html>
