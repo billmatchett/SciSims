@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SciSims: Electromagnet Simulator</title>
+  <link rel="icon" type="image/png" href="/SciSims/favicon.png">
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --panel:#ffffff;
+      --text:#1f2937;
+      --muted:#64748b;
+      --line:#dbe3ef;
+      --button:#2563eb;
+      --button-hover:#1d4ed8;
+      --red:#dc2626;
+      --blue:#2563eb;
+      --amber:#f59e0b;
+      --shadow:0 12px 30px rgba(15,23,42,0.10);
+      --radius:18px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.5;
+    }
+    .page{ width:min(1220px, 94vw); margin:0 auto; padding:22px 0 42px; }
+    .home-link{
+      display:inline-flex;
+      margin:0 0 14px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:var(--panel);
+      border:1px solid var(--line);
+      color:#1d4ed8;
+      font-weight:700;
+      text-decoration:none;
+      box-shadow:0 6px 18px rgba(15,23,42,0.08);
+    }
+    .hero{
+      background:linear-gradient(135deg, #1e3a8a, #2563eb 55%, #dc2626);
+      color:white;
+      border-radius:28px;
+      padding:30px;
+      box-shadow:var(--shadow);
+    }
+    .hero h1{
+      margin:0 0 10px;
+      font-size:clamp(2rem, 5vw, 4rem);
+      line-height:1.02;
+      letter-spacing:-0.05em;
+    }
+    .hero p{ margin:0; max-width:860px; font-size:1.15rem; color:rgba(255,255,255,0.92); }
+    .meta-row{ display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+    .pill{
+      border-radius:999px;
+      padding:8px 12px;
+      background:rgba(255,255,255,0.17);
+      border:1px solid rgba(255,255,255,0.28);
+      font-weight:700;
+      font-size:0.94rem;
+    }
+    .li-sc{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px; margin:18px 0; }
+    .info-card, .panel, .canvas-card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+    .info-card h2, .info-card h3, .panel h2{ margin:0 0 8px; line-height:1.18; }
+    .info-card p{ margin:0; color:var(--muted); }
+    .sim-grid{ display:grid; grid-template-columns:360px minmax(0, 1fr); gap:18px; align-items:start; margin-top:18px; }
+    .stage-wrap{ display:grid; grid-template-columns:1fr; gap:18px; }
+    .control-group{ border-top:1px solid var(--line); padding-top:14px; margin-top:14px; }
+    .control-group:first-of-type{ border-top:0; padding-top:0; margin-top:0; }
+    label{ display:block; font-weight:800; margin:0 0 7px; }
+    .sub-label{ display:flex; justify-content:space-between; gap:12px; color:var(--muted); font-size:0.9rem; margin-bottom:8px; }
+    input[type="range"]{ width:100%; accent-color:var(--button); }
+    select, button{ font:inherit; }
+    select{ width:100%; padding:10px 12px; border-radius:12px; border:1px solid var(--line); background:white; color:var(--text); font-weight:650; }
+    .button-row{ display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+    button{ border:0; border-radius:12px; padding:10px 13px; background:var(--button); color:white; font-weight:800; cursor:pointer; }
+    button:hover{ background:var(--button-hover); }
+    button.secondary{ background:#334155; }
+    canvas{ width:100%; display:block; background:#ffffff; border-radius:14px; border:1px solid var(--line); }
+    .legend-row{ display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; color:#475569; font-size:0.9rem; font-weight:700; }
+    .legend-item{ display:inline-flex; align-items:center; gap:7px; padding:7px 10px; border:1px solid var(--line); border-radius:999px; background:#f8fafc; }
+    .legend-dot{ width:12px; height:12px; border-radius:50%; display:inline-block; background:#2563eb; }
+    .legend-dot.current{ background:#dc2626; }
+    .legend-dot.core{ background:#64748b; }
+    .legend-dot.probe{ background:#f59e0b; }
+    .results{ display:grid; grid-template-columns:repeat(auto-fit, minmax(155px, 1fr)); gap:12px; margin-top:14px; }
+    .metric{ background:#f8fafc; border:1px solid var(--line); border-radius:16px; padding:13px; }
+    .metric .label{ color:var(--muted); font-size:0.85rem; font-weight:750; margin-bottom:4px; }
+    .metric .value{ font-size:1.32rem; font-weight:900; line-height:1.12; }
+    .metric .small{ color:var(--muted); font-size:0.82rem; margin-top:5px; }
+    .bar-shell{ width:100%; height:10px; background:#e2e8f0; border-radius:999px; overflow:hidden; margin-top:9px; }
+    .bar-fill{ height:100%; width:0%; background:linear-gradient(90deg, #93c5fd, #2563eb, #dc2626); border-radius:999px; }
+    .table-wrap{ overflow:auto; border:1px solid var(--line); border-radius:14px; margin-top:14px; }
+    table{ width:100%; border-collapse:collapse; min-width:620px; background:white; }
+    th, td{ padding:10px 12px; border-bottom:1px solid var(--line); text-align:left; font-size:0.94rem; }
+    th{ background:#f1f5f9; color:#334155; font-weight:850; }
+    tr.current-row td{ background:#eff6ff; font-weight:850; }
+    .notes-grid{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px; margin-top:18px; }
+    .challenge-list{ margin:10px 0 0; padding-left:22px; color:var(--muted); }
+    .challenge-list li{ margin:7px 0; }
+    .teacher-note{ background:#fff7ed; border-color:#fed7aa; }
+    .teacher-note p, .teacher-note li{ color:#7c2d12; }
+    .warning-note{ background:#eff6ff; border-color:#bfdbfe; margin-top:14px; box-shadow:none; }
+    .warning-note p{ color:#1e3a8a; }
+    @media (max-width:980px){ .sim-grid, .li-sc, .notes-grid{ grid-template-columns:1fr; } .results{ grid-template-columns:repeat(2, minmax(0, 1fr)); } }
+    @media (max-width:620px){ .hero{ padding:22px; } .results{ grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <a class="home-link" href="/SciSims/">&larr; Back to main SciSims page</a>
+
+    <section class="hero">
+      <h1>Electromagnet Simulator</h1>
+      <p>Investigate how current, coil turns and core material affect the strength and polarity of an electromagnet.</p>
+      <div class="meta-row" aria-label="Simulation tags">
+        <span class="pill">Physics</span>
+        <span class="pill">Electromagnetism</span>
+        <span class="pill">Fields</span>
+        <span class="pill">Circuits</span>
+      </div>
+    </section>
+
+    <section class="li-sc">
+      <div class="info-card">
+        <h2>Learning Intention</h2>
+        <p>Students will understand that an electric current in a coil can produce a magnetic field and that an iron core can make the electromagnet stronger.</p>
+      </div>
+      <div class="info-card">
+        <h2>Success Criteria</h2>
+        <p>Students can explain how current, number of turns and core material affect electromagnet strength, and predict how reversing the current changes the magnetic poles.</p>
+      </div>
+    </section>
+
+    <section class="sim-grid" aria-label="Electromagnet simulation">
+      <aside class="panel" aria-label="Controls">
+        <h2>Controls</h2>
+
+        <div class="control-group">
+          <label for="turns">Number of coil turns</label>
+          <div class="sub-label"><span>Few turns</span><strong><span id="turnsReadout">25</span> turns</strong><span>Many turns</span></div>
+          <input id="turns" type="range" min="5" max="60" step="1" value="25">
+        </div>
+
+        <div class="control-group">
+          <label for="current">Current through the coil</label>
+          <div class="sub-label"><span>Low</span><strong><span id="currentReadout">2.0</span> A</strong><span>High</span></div>
+          <input id="current" type="range" min="0" max="5" step="0.1" value="2.0">
+        </div>
+
+        <div class="control-group">
+          <label for="coreType">Core material</label>
+          <select id="coreType">
+            <option value="none">No core, air only</option>
+            <option value="iron" selected>Soft iron core</option>
+            <option value="steel">Steel core</option>
+            <option value="ferrite">Ferrite core</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="direction">Current direction</label>
+          <select id="direction">
+            <option value="forward">Forward current</option>
+            <option value="reverse">Reverse current</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="visualMode">Visual layer</label>
+          <select id="visualMode">
+            <option value="combined">Full model: field, circuit and probe</option>
+            <option value="field">Magnetic field layer only</option>
+            <option value="current">Current path only</option>
+            <option value="filings">Iron filings layer only</option>
+          </select>
+        </div>
+
+        <div class="button-row">
+          <button id="resetBtn" class="secondary" type="button">Reset</button>
+          <button id="centreProbeBtn" class="secondary" type="button">Centre probe</button>
+          <button id="csvBtn" type="button">Export data</button>
+        </div>
+
+        <div class="info-card warning-note">
+          <h3>Model note</h3>
+          <p>This sim uses a simplified classroom model. Relative field strength increases with current, number of turns and core effect, but the values are not exact tesla measurements. Heat risk is estimated from current and coil turns, not from a measured resistance.</p>
+        </div>
+      </aside>
+
+      <div class="stage-wrap">
+        <section class="canvas-card" aria-label="Electromagnet visualiser">
+          <canvas id="simCanvas" width="920" height="500" aria-label="Visualisation of an electromagnet, current direction and magnetic field"></canvas>
+          <div class="legend-row" aria-label="Visualiser key">
+            <span class="legend-item"><span class="legend-dot current"></span>Red arrows show current direction in the external circuit.</span>
+            <span class="legend-item"><span class="legend-dot"></span>Blue arrows and lines show magnetic field direction.</span>
+            <span class="legend-item"><span class="legend-dot core"></span>The core changes the relative field strength.</span>
+            <span class="legend-item"><span class="legend-dot probe"></span>Click the canvas to move the orange field probe.</span>
+          </div>
+          <div class="results" aria-label="Current results">
+            <div class="metric">
+              <div class="label">Relative electromagnet strength</div>
+              <div class="value"><span id="strengthOut">0</span>%</div>
+              <div class="bar-shell"><div id="strengthBar" class="bar-fill"></div></div>
+              <div class="small">Based on current, turns and core</div>
+            </div>
+            <div class="metric">
+              <div class="label">Poles</div>
+              <div class="value"><span id="polesOut">Left N, Right S</span></div>
+              <div class="small">Reverse current swaps the poles</div>
+            </div>
+            <div class="metric">
+              <div class="label">Core effect</div>
+              <div class="value"><span id="coreOut">Soft iron</span></div>
+              <div class="small">More magnetic domains align</div>
+            </div>
+            <div class="metric">
+              <div class="label">Heat risk</div>
+              <div class="value"><span id="heatOut">Low</span></div>
+              <div class="small">Based on current and coil turns</div>
+            </div>
+            <div class="metric">
+              <div class="label">Probe field</div>
+              <div class="value"><span id="probeOut">0</span>%</div>
+              <div class="small"><span id="probeDirectionOut">No field direction</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="canvas-card" aria-label="Electromagnet data graph">
+          <canvas id="graphCanvas" width="920" height="330" aria-label="Graph showing relative electromagnet strength"></canvas>
+          <div class="table-wrap" aria-label="Data table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Current (A)</th>
+                  <th>Turns</th>
+                  <th>Core</th>
+                  <th>Relative strength (%)</th>
+                  <th>Heat risk</th>
+                </tr>
+              </thead>
+              <tbody id="dataBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="notes-grid">
+      <div class="info-card">
+        <h2>Student challenge</h2>
+        <ul class="challenge-list">
+          <li>Keep the current fixed and change the number of turns. Describe the pattern.</li>
+          <li>Keep the number of turns fixed and change the current. Describe the pattern.</li>
+          <li>Compare no core, soft iron, steel and ferrite. Which creates the strongest electromagnet in this model?</li>
+          <li>Reverse the current and explain what happens to the north and south poles.</li>
+          <li>Find a strong electromagnet setting with only a moderate heat risk.</li>
+        </ul>
+      </div>
+      <div class="info-card teacher-note">
+        <h2>Teacher notes</h2>
+        <p>This sim links magnetism and circuits by showing that a current-carrying coil behaves like a magnet. A soft iron core strengthens the electromagnet because it becomes magnetised while current flows, but it does not behave like a permanent magnet once the current is removed. It is designed for qualitative and semi-quantitative comparisons rather than precise electromagnetic calculations.</p>
+        <ul class="challenge-list">
+          <li>Good prompt: What evidence shows that increasing current increases the magnetic field?</li>
+          <li>Good prompt: Why does adding a soft iron core make the electromagnet stronger?</li>
+          <li>Extension: Ask students to plan a fair test for electromagnet strength using paperclips.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function initElectromagnetSim(){
+      var ui = {};
+      ui.turnsInput = document.getElementById('turns');
+      ui.currentInput = document.getElementById('current');
+      ui.coreInput = document.getElementById('coreType');
+      ui.directionInput = document.getElementById('direction');
+      ui.visualModeInput = document.getElementById('visualMode');
+      ui.resetBtn = document.getElementById('resetBtn');
+      ui.csvBtn = document.getElementById('csvBtn');
+      ui.centreProbeBtn = document.getElementById('centreProbeBtn');
+      ui.canvas = document.getElementById('simCanvas');
+      ui.graphCanvas = document.getElementById('graphCanvas');
+      ui.turnsReadout = document.getElementById('turnsReadout');
+      ui.currentReadout = document.getElementById('currentReadout');
+      ui.strengthOut = document.getElementById('strengthOut');
+      ui.strengthBar = document.getElementById('strengthBar');
+      ui.polesOut = document.getElementById('polesOut');
+      ui.coreOut = document.getElementById('coreOut');
+      ui.heatOut = document.getElementById('heatOut');
+      ui.probeOut = document.getElementById('probeOut');
+      ui.probeDirectionOut = document.getElementById('probeDirectionOut');
+      ui.dataBody = document.getElementById('dataBody');
+
+      var ctx = ui.canvas.getContext('2d');
+      var graphCtx = ui.graphCanvas.getContext('2d');
+      var width = ui.canvas.width;
+      var height = ui.canvas.height;
+      var core = { x:250, y:215, w:420, h:80 };
+      var probe = { x:705, y:150 };
+
+      function getCoreInfo(type){
+        if(type === 'iron'){ return { label:'Soft iron', factor:4.0, colour:'#64748b' }; }
+        if(type === 'steel'){ return { label:'Steel', factor:2.4, colour:'#475569' }; }
+        if(type === 'ferrite'){ return { label:'Ferrite', factor:3.1, colour:'#334155' }; }
+        return { label:'No core', factor:1.0, colour:'#cbd5e1' };
+      }
+
+      function getState(){
+        var coreInfo = getCoreInfo(ui.coreInput.value);
+        return {
+          turns:Number(ui.turnsInput.value),
+          current:Number(ui.currentInput.value),
+          coreType:ui.coreInput.value,
+          coreLabel:coreInfo.label,
+          coreFactor:coreInfo.factor,
+          coreColour:coreInfo.colour,
+          reverse:ui.directionInput.value === 'reverse',
+          visualMode:ui.visualModeInput.value
+        };
+      }
+
+      function strengthPercent(state){
+        var turnFactor = state.turns / 60;
+        var currentFactor = state.current / 5;
+        var coreFactor = state.coreFactor / 4;
+        var raw = turnFactor * currentFactor * coreFactor * 100;
+        return Math.max(0, Math.min(100, raw));
+      }
+
+      function heatRisk(state){
+        var turnFactor = state.turns / 60;
+        var heat = state.current * state.current * (0.45 + turnFactor);
+        if(heat < 5){ return 'Low'; }
+        if(heat < 17){ return 'Moderate'; }
+        return 'High';
+      }
+
+      function isActive(state){
+        return state.current > 0.01 && strengthPercent(state) > 0.01;
+      }
+
+      function fieldAt(x, y, state){
+        var strength = strengthPercent(state) / 100;
+        var northX = state.reverse ? core.x + core.w : core.x;
+        var southX = state.reverse ? core.x : core.x + core.w;
+        var north = { x:northX, y:core.y + core.h / 2 };
+        var south = { x:southX, y:core.y + core.h / 2 };
+        var bx = 0;
+        var by = 0;
+        var soft = 1300;
+
+        function addPole(p, q){
+          var dx = x - p.x;
+          var dy = y - p.y;
+          var r2 = dx * dx + dy * dy + soft;
+          var r = Math.sqrt(r2);
+          bx += q * dx / (r2 * r);
+          by += q * dy / (r2 * r);
+        }
+
+        addPole(north, strength);
+        addPole(south, -strength);
+        return { bx:bx, by:by, mag:Math.sqrt(bx * bx + by * by), angle:Math.atan2(by, bx) };
+      }
+
+      function roundedRect(ctx, x, y, w, h, r){
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+      }
+
+      function drawArrow(ctx, x1, y1, x2, y2, colour, lineWidth){
+        var angle = Math.atan2(y2 - y1, x2 - x1);
+        var headLength = Math.max(7, lineWidth * 2.4);
+        ctx.save();
+        ctx.strokeStyle = colour;
+        ctx.fillStyle = colour;
+        ctx.lineWidth = lineWidth;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - headLength * Math.cos(angle - Math.PI / 6), y2 - headLength * Math.sin(angle - Math.PI / 6));
+        ctx.lineTo(x2 - headLength * Math.cos(angle + Math.PI / 6), y2 - headLength * Math.sin(angle + Math.PI / 6));
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawOutlinedArrow(x1, y1, x2, y2, colour, lineWidth){
+        drawArrow(ctx, x1, y1, x2, y2, '#f8fafc', lineWidth + 4.5);
+        drawArrow(ctx, x1, y1, x2, y2, colour, lineWidth);
+      }
+
+      function drawCompassNeedle(x1, y1, x2, y2, colour, lineWidth){
+        drawArrow(ctx, x1, y1, x2, y2, '#f8fafc', lineWidth + 3.2);
+        drawArrow(ctx, x1, y1, x2, y2, colour, lineWidth);
+      }
+
+      function drawBackground(){
+        var gradient = ctx.createLinearGradient(0, 0, width, height);
+        gradient.addColorStop(0, '#f8fafc');
+        gradient.addColorStop(1, '#eef2ff');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+        ctx.strokeStyle = 'rgba(148,163,184,0.20)';
+        ctx.lineWidth = 1;
+        for(var gx = 40; gx < width; gx += 40){ ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, height); ctx.stroke(); }
+        for(var gy = 40; gy < height; gy += 40){ ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(width, gy); ctx.stroke(); }
+      }
+
+      function drawCircuit(state){
+        ctx.save();
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(160, 330);
+        ctx.lineTo(160, 395);
+        ctx.lineTo(760, 395);
+        ctx.lineTo(760, 330);
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2;
+        roundedRect(ctx, 388, 365, 144, 54, 10);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#0f172a';
+        ctx.font = '900 18px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Power supply', 460, 392);
+        ctx.fillStyle = '#dc2626';
+        ctx.fillText(state.reverse ? '-' : '+', 400, 392);
+        ctx.fillStyle = '#2563eb';
+        ctx.fillText(state.reverse ? '+' : '-', 520, 392);
+
+        var dir = state.reverse ? -1 : 1;
+        if(dir === 1){
+          drawArrow(ctx, 210, 395, 275, 395, '#dc2626', 4);
+          drawArrow(ctx, 650, 395, 715, 395, '#dc2626', 4);
+          drawArrow(ctx, 760, 372, 760, 330, '#dc2626', 4);
+          drawArrow(ctx, 160, 330, 160, 372, '#dc2626', 4);
+        }else{
+          drawArrow(ctx, 275, 395, 210, 395, '#dc2626', 4);
+          drawArrow(ctx, 715, 395, 650, 395, '#dc2626', 4);
+          drawArrow(ctx, 760, 330, 760, 372, '#dc2626', 4);
+          drawArrow(ctx, 160, 372, 160, 330, '#dc2626', 4);
+        }
+        ctx.restore();
+      }
+
+      function drawCoilAndCore(state){
+        ctx.save();
+        ctx.globalAlpha = state.coreType === 'none' ? 0.35 : 1;
+        roundedRect(ctx, core.x, core.y, core.w, core.h, 18);
+        ctx.fillStyle = state.coreColour;
+        ctx.fill();
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '900 28px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        if(isActive(state)){
+          if(state.reverse){
+            ctx.fillText('S', core.x + 34, core.y + core.h / 2);
+            ctx.fillText('N', core.x + core.w - 34, core.y + core.h / 2);
+          }else{
+            ctx.fillText('N', core.x + 34, core.y + core.h / 2);
+            ctx.fillText('S', core.x + core.w - 34, core.y + core.h / 2);
+          }
+        }else{
+          ctx.fillStyle = '#f8fafc';
+          ctx.font = '900 22px system-ui, sans-serif';
+          ctx.fillText('No active poles', core.x + core.w / 2, core.y + core.h / 2);
+        }
+
+        var visibleLoops = Math.max(6, Math.min(24, Math.round(state.turns / 2.5)));
+        var spacing = core.w / visibleLoops;
+        ctx.strokeStyle = '#b45309';
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        for(var i = 0; i <= visibleLoops; i++){
+          var x = core.x + i * spacing;
+          ctx.beginPath();
+          ctx.ellipse(x, core.y + core.h / 2, 14, 54, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function drawFieldReference(state){
+        ctx.save();
+        ctx.globalAlpha = 0.22;
+        roundedRect(ctx, core.x, core.y, core.w, core.h, 18);
+        ctx.fillStyle = state.coreColour;
+        ctx.fill();
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        var visibleLoops = Math.max(6, Math.min(24, Math.round(state.turns / 2.5)));
+        var spacing = core.w / visibleLoops;
+        ctx.strokeStyle = '#b45309';
+        ctx.lineWidth = 3;
+        for(var i = 0; i <= visibleLoops; i++){
+          var x = core.x + i * spacing;
+          ctx.beginPath();
+          ctx.ellipse(x, core.y + core.h / 2, 14, 54, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        ctx.globalAlpha = 0.45;
+        ctx.fillStyle = '#0f172a';
+        ctx.font = '900 24px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        if(isActive(state)){
+          if(state.reverse){
+            ctx.fillText('S', core.x + 34, core.y + core.h / 2);
+            ctx.fillText('N', core.x + core.w - 34, core.y + core.h / 2);
+          }else{
+            ctx.fillText('N', core.x + 34, core.y + core.h / 2);
+            ctx.fillText('S', core.x + core.w - 34, core.y + core.h / 2);
+          }
+        }
+        ctx.restore();
+      }
+
+      function cubicPoint(a, b, c, d, t){
+        var mt = 1 - t;
+        return mt * mt * mt * a + 3 * mt * mt * t * b + 3 * mt * t * t * c + t * t * t * d;
+      }
+
+      function drawSingleCurve(startX, startY, c1x, c1y, c2x, c2y, endX, endY, colour, lineWidth){
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.bezierCurveTo(c1x, c1y, c2x, c2y, endX, endY);
+        ctx.stroke();
+        var midX = cubicPoint(startX, c1x, c2x, endX, 0.55);
+        var midY = cubicPoint(startY, c1y, c2y, endY, 0.55);
+        var nextX = cubicPoint(startX, c1x, c2x, endX, 0.61);
+        var nextY = cubicPoint(startY, c1y, c2y, endY, 0.61);
+        drawArrow(ctx, midX, midY, nextX, nextY, colour, Math.max(1.6, lineWidth - 0.2));
+      }
+
+      function drawFieldLines(state){
+        var strength = strengthPercent(state);
+        if(!isActive(state)){ return; }
+        var alpha = Math.max(0.12, Math.min(0.75, 0.15 + strength / 150));
+        var northX = state.reverse ? core.x + core.w : core.x;
+        var southX = state.reverse ? core.x : core.x + core.w;
+        var centreY = core.y + core.h / 2;
+        var directionSign = state.reverse ? -1 : 1;
+        var colour = 'rgba(37,99,235,' + alpha + ')';
+        var lineWidth = 2 + strength / 45;
+
+        ctx.save();
+        ctx.strokeStyle = colour;
+        ctx.lineWidth = lineWidth;
+        ctx.lineCap = 'round';
+        for(var i = 0; i < 8; i++){
+          var offset = (i - 3.5) * 26;
+          var curve = 62 + Math.abs(offset) * 0.9;
+          var startY = centreY + offset * 0.4;
+          var endY = centreY + offset * 0.4;
+          drawSingleCurve(northX, startY, northX - directionSign * 120, centreY - curve, southX + directionSign * 120, centreY - curve, southX, endY, colour, lineWidth);
+          drawSingleCurve(northX, startY, northX - directionSign * 120, centreY + curve, southX + directionSign * 120, centreY + curve, southX, endY, colour, lineWidth);
+        }
+        ctx.restore();
+      }
+
+      function drawNeedles(state){
+        if(!isActive(state)){ return; }
+        ctx.save();
+        for(var y = 70; y <= 360; y += 34){
+          for(var x = 72; x <= width - 72; x += 38){
+            var onCore = x > core.x - 8 && x < core.x + core.w + 8 && y > core.y - 8 && y < core.y + core.h + 8;
+            if(onCore){ continue; }
+            var field = fieldAt(x, y, state);
+            var scaled = Math.min(1, field.mag * 200000);
+            if(scaled < 0.03){ continue; }
+            var len = 8 + scaled * 17;
+            var alpha = 0.16 + scaled * 0.62;
+            drawArrow(ctx, x - Math.cos(field.angle) * len / 2, y - Math.sin(field.angle) * len / 2, x + Math.cos(field.angle) * len / 2, y + Math.sin(field.angle) * len / 2, 'rgba(37,99,235,' + alpha + ')', 1.6);
+          }
+        }
+        ctx.restore();
+      }
+
+      function drawInternalFieldArrows(state){
+        if(!isActive(state)){ return; }
+        if(!(state.visualMode === 'field' || state.visualMode === 'combined')){ return; }
+        var strength = strengthPercent(state);
+        var alpha = state.visualMode === 'field' ? 0.96 : Math.max(0.55, Math.min(0.86, 0.45 + strength / 125));
+        var colour = 'rgba(37,99,235,' + alpha + ')';
+        var lineWidth = state.visualMode === 'field' ? 2.8 : 2.3;
+        var direction = state.reverse ? 1 : -1;
+        var xStart = core.x + 55;
+        var xEnd = core.x + core.w - 55;
+        var spacing = state.visualMode === 'field' ? 45 : 62;
+        var rows = state.visualMode === 'field'
+          ? [core.y + 10, core.y + 26, core.y + core.h / 2, core.y + core.h - 26, core.y + core.h - 10]
+          : [core.y + 20, core.y + core.h / 2, core.y + core.h - 20];
+
+        for(var r = 0; r < rows.length; r++){
+          var y = rows[r];
+          for(var x = xStart; x <= xEnd; x += spacing){
+            if(direction === 1){
+              drawCompassNeedle(x - 18, y, x + 18, y, colour, lineWidth);
+            }else{
+              drawCompassNeedle(x + 18, y, x - 18, y, colour, lineWidth);
+            }
+          }
+        }
+      }
+
+      function drawFilings(state){
+        if(!isActive(state)){ return; }
+        ctx.save();
+        for(var y = 62; y <= 360; y += 18){
+          for(var x = 62; x <= width - 62; x += 18){
+            var field = fieldAt(x, y, state);
+            var scaled = Math.min(1, field.mag * 230000);
+            var len = 4 + scaled * 16;
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(field.angle);
+            ctx.strokeStyle = 'rgba(51,65,85,' + Math.max(0.06, scaled * 0.55) + ')';
+            ctx.lineWidth = 1.15;
+            ctx.beginPath();
+            ctx.moveTo(-len / 2, 0);
+            ctx.lineTo(len / 2, 0);
+            ctx.stroke();
+            ctx.restore();
+          }
+        }
+        ctx.restore();
+      }
+
+      function drawProbe(state){
+        var field = fieldAt(probe.x, probe.y, state);
+        var activeProbe = isActive(state) && field.mag > 0;
+        var arrowLength = 68;
+        ctx.save();
+        ctx.fillStyle = '#f59e0b';
+        ctx.strokeStyle = '#92400e';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(probe.x, probe.y, 13, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        if(activeProbe){
+          var dx = Math.cos(field.angle) * arrowLength / 2;
+          var dy = Math.sin(field.angle) * arrowLength / 2;
+          drawArrow(ctx, probe.x - dx, probe.y - dy, probe.x + dx, probe.y + dy, '#ffffff', 8);
+          drawArrow(ctx, probe.x - dx, probe.y - dy, probe.x + dx, probe.y + dy, '#92400e', 4);
+        }
+        ctx.restore();
+      }
+
+      function insideCoreArea(x, y){
+        return x > core.x - 30 && x < core.x + core.w + 30 && y > core.y - 45 && y < core.y + core.h + 45;
+      }
+
+      function moveProbeFromEvent(evt){
+        var state = getState();
+        if(state.visualMode !== 'combined'){ return; }
+        var rect = ui.canvas.getBoundingClientRect();
+        var scaleX = ui.canvas.width / rect.width;
+        var scaleY = ui.canvas.height / rect.height;
+        var x = (evt.clientX - rect.left) * scaleX;
+        var y = (evt.clientY - rect.top) * scaleY;
+        if(!insideCoreArea(x, y)){
+          probe.x = x;
+          probe.y = y;
+          update();
+        }
+      }
+
+      function centreProbe(){
+        probe.x = core.x + core.w / 2;
+        probe.y = core.y - 68;
+        update();
+      }
+
+      function drawScene(){
+        var state = getState();
+        drawBackground();
+
+        if(state.visualMode === 'field'){
+          drawFieldReference(state);
+          drawFieldLines(state);
+          drawNeedles(state);
+          drawInternalFieldArrows(state);
+          return;
+        }
+
+        if(state.visualMode === 'filings'){
+          drawFieldReference(state);
+          drawFilings(state);
+          return;
+        }
+
+        if(state.visualMode === 'current'){
+          drawCircuit(state);
+          drawCoilAndCore(state);
+          return;
+        }
+
+        drawFieldLines(state);
+        drawNeedles(state);
+        drawCircuit(state);
+        drawCoilAndCore(state);
+        drawInternalFieldArrows(state);
+        drawProbe(state);
+      }
+
+      function buildRows(){
+        var state = getState();
+        var rows = [];
+        for(var current = 0; current <= 5.01; current += 0.5){
+          var fakeState = {
+            turns:state.turns,
+            current:current,
+            coreFactor:state.coreFactor,
+            coreLabel:state.coreLabel,
+            coreType:state.coreType
+          };
+          rows.push({ current:current, turns:state.turns, core:state.coreLabel, strength:strengthPercent(fakeState), heat:heatRisk(fakeState) });
+        }
+        return rows;
+      }
+
+      function drawGraph(){
+        var state = getState();
+        var rows = buildRows();
+        var ctxG = graphCtx;
+        var w = ui.graphCanvas.width;
+        var h = ui.graphCanvas.height;
+        ctxG.clearRect(0, 0, w, h);
+        ctxG.fillStyle = '#ffffff';
+        ctxG.fillRect(0, 0, w, h);
+        var padLeft = 78;
+        var padRight = 30;
+        var padTop = 36;
+        var padBottom = 62;
+        var plotW = w - padLeft - padRight;
+        var plotH = h - padTop - padBottom;
+        function xScale(current){ return padLeft + (current / 5) * plotW; }
+        function yScale(strength){ return padTop + plotH - (strength / 100) * plotH; }
+
+        ctxG.strokeStyle = '#cbd5e1';
+        ctxG.lineWidth = 1;
+        ctxG.fillStyle = '#64748b';
+        ctxG.font = '700 13px system-ui, sans-serif';
+        ctxG.textAlign = 'right';
+        ctxG.textBaseline = 'middle';
+        for(var y = 0; y <= 100; y += 20){
+          var py = yScale(y);
+          ctxG.beginPath();
+          ctxG.moveTo(padLeft, py);
+          ctxG.lineTo(w - padRight, py);
+          ctxG.stroke();
+          ctxG.fillText(y + '%', padLeft - 10, py);
+        }
+        ctxG.textAlign = 'center';
+        ctxG.textBaseline = 'top';
+        for(var x = 0; x <= 5; x += 1){
+          var px = xScale(x);
+          ctxG.strokeStyle = '#e2e8f0';
+          ctxG.beginPath();
+          ctxG.moveTo(px, padTop);
+          ctxG.lineTo(px, padTop + plotH);
+          ctxG.stroke();
+          ctxG.fillStyle = '#64748b';
+          ctxG.fillText(x + ' A', px, padTop + plotH + 10);
+        }
+        ctxG.strokeStyle = '#0f172a';
+        ctxG.lineWidth = 2;
+        ctxG.beginPath();
+        ctxG.moveTo(padLeft, padTop);
+        ctxG.lineTo(padLeft, padTop + plotH);
+        ctxG.lineTo(w - padRight, padTop + plotH);
+        ctxG.stroke();
+        ctxG.strokeStyle = '#dc2626';
+        ctxG.lineWidth = 4;
+        ctxG.beginPath();
+        for(var i = 0; i < rows.length; i++){
+          if(i === 0){ ctxG.moveTo(xScale(rows[i].current), yScale(rows[i].strength)); }
+          else{ ctxG.lineTo(xScale(rows[i].current), yScale(rows[i].strength)); }
+        }
+        ctxG.stroke();
+        var nowStrength = strengthPercent(state);
+        ctxG.fillStyle = '#0f172a';
+        ctxG.beginPath();
+        ctxG.arc(xScale(state.current), yScale(nowStrength), 8, 0, Math.PI * 2);
+        ctxG.fill();
+        ctxG.strokeStyle = '#ffffff';
+        ctxG.lineWidth = 3;
+        ctxG.stroke();
+        ctxG.fillStyle = '#0f172a';
+        ctxG.font = '900 18px system-ui, sans-serif';
+        ctxG.textAlign = 'center';
+        ctxG.textBaseline = 'bottom';
+        ctxG.fillText('Relative strength as current changes, with turns and core held constant', w / 2, 26);
+        ctxG.font = '800 14px system-ui, sans-serif';
+        ctxG.textBaseline = 'top';
+        ctxG.fillText('Current through coil (A)', w / 2, h - 30);
+        ctxG.save();
+        ctxG.translate(22, h / 2);
+        ctxG.rotate(-Math.PI / 2);
+        ctxG.textAlign = 'center';
+        ctxG.fillText('Relative strength (%)', 0, 0);
+        ctxG.restore();
+      }
+
+      function updateTable(){
+        var rows = buildRows();
+        ui.dataBody.innerHTML = '';
+        for(var i = 0; i < rows.length; i++){
+          var tr = document.createElement('tr');
+          var currentNow = Number(ui.currentInput.value);
+          if(Math.abs(rows[i].current - currentNow) < 0.01){ tr.className = 'current-row'; }
+          tr.innerHTML = '<td>' + rows[i].current.toFixed(1) + '</td><td>' + rows[i].turns + '</td><td>' + rows[i].core + '</td><td>' + rows[i].strength.toFixed(1) + '</td><td>' + rows[i].heat + '</td>';
+          ui.dataBody.appendChild(tr);
+        }
+      }
+
+      function updateReadouts(){
+        var state = getState();
+        var strength = strengthPercent(state);
+        ui.turnsReadout.textContent = state.turns;
+        ui.currentReadout.textContent = state.current.toFixed(1);
+        ui.strengthOut.textContent = strength.toFixed(1);
+        ui.strengthBar.style.width = strength <= 0 ? '0%' : Math.max(2, strength) + '%';
+        ui.polesOut.textContent = isActive(state) ? (state.reverse ? 'Left S, Right N' : 'Left N, Right S') : 'No active poles';
+        ui.coreOut.textContent = state.coreLabel;
+        ui.heatOut.textContent = heatRisk(state);
+        var probeField = fieldAt(probe.x, probe.y, state);
+        var probeStrength = isActive(state) ? Math.min(100, probeField.mag * 300000) : 0;
+        var probeDirection = Math.round((probeField.angle * 180 / Math.PI + 360) % 360);
+        ui.probeOut.textContent = probeStrength.toFixed(1);
+        ui.probeDirectionOut.textContent = isActive(state) ? 'Direction ' + probeDirection + ' degrees' : 'No field direction';
+      }
+
+      function update(){
+        updateReadouts();
+        drawScene();
+        drawGraph();
+        updateTable();
+      }
+
+      function resetSim(){
+        ui.turnsInput.value = 25;
+        ui.currentInput.value = 2.0;
+        ui.coreInput.value = 'iron';
+        ui.directionInput.value = 'forward';
+        ui.visualModeInput.value = 'combined';
+        probe.x = 705;
+        probe.y = 150;
+        update();
+      }
+
+      function exportCSV(){
+        var rows = buildRows();
+        var lines = [];
+        lines.push('Current (A),Turns,Core,Relative strength (%),Heat risk');
+        for(var i = 0; i < rows.length; i++){
+          lines.push([rows[i].current.toFixed(1), rows[i].turns, rows[i].core, rows[i].strength.toFixed(1), rows[i].heat].join(','));
+        }
+        var blob = new Blob([lines.join(String.fromCharCode(10))], { type:'text/csv;charset=utf-8;' });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = 'electromagnet-strength-data.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }
+
+      var controls = [ui.turnsInput, ui.currentInput, ui.coreInput, ui.directionInput, ui.visualModeInput];
+      for(var c = 0; c < controls.length; c++){
+        controls[c].addEventListener('input', update);
+        controls[c].addEventListener('change', update);
+      }
+      ui.resetBtn.addEventListener('click', resetSim);
+      ui.centreProbeBtn.addEventListener('click', centreProbe);
+      ui.canvas.addEventListener('click', moveProbeFromEvent);
+      ui.csvBtn.addEventListener('click', exportCSV);
+      update();
+    }
+
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', initElectromagnetSim);
+    }else{
+      initElectromagnetSim();
+    }
+  </script>
+</body>
+</html>
