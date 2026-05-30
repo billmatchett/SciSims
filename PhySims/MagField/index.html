@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SciSims: Magnetic Field Visualiser</title>
+  <link rel="icon" type="image/png" href="/SciSims/favicon.png">
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --panel:#ffffff;
+      --text:#1f2937;
+      --muted:#64748b;
+      --line:#dbe3ef;
+      --button:#2563eb;
+      --button-hover:#1d4ed8;
+      --red:#dc2626;
+      --blue:#2563eb;
+      --shadow:0 12px 30px rgba(15,23,42,0.10);
+      --radius:18px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.5;
+    }
+    .page{ width:min(1220px, 94vw); margin:0 auto; padding:22px 0 42px; }
+    .home-link{
+      display:inline-flex;
+      margin:0 0 14px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:var(--panel);
+      border:1px solid var(--line);
+      color:#1d4ed8;
+      font-weight:700;
+      text-decoration:none;
+      box-shadow:0 6px 18px rgba(15,23,42,0.08);
+    }
+    .hero{
+      background:linear-gradient(135deg, #1e3a8a, #2563eb 55%, #ef4444);
+      color:white;
+      border-radius:28px;
+      padding:30px;
+      box-shadow:var(--shadow);
+    }
+    .hero h1{
+      margin:0 0 10px;
+      font-size:clamp(2rem, 5vw, 4rem);
+      line-height:1.02;
+      letter-spacing:-0.05em;
+    }
+    .hero p{ margin:0; max-width:850px; font-size:1.15rem; color:rgba(255,255,255,0.92); }
+    .meta-row{ display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+    .pill{
+      border-radius:999px;
+      padding:8px 12px;
+      background:rgba(255,255,255,0.17);
+      border:1px solid rgba(255,255,255,0.28);
+      font-weight:700;
+      font-size:0.94rem;
+    }
+    .li-sc{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px; margin:18px 0; }
+    .info-card, .panel, .canvas-card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+    .info-card h2, .info-card h3, .panel h2{ margin:0 0 8px; line-height:1.18; }
+    .info-card p{ margin:0; color:var(--muted); }
+    .sim-grid{ display:grid; grid-template-columns:360px minmax(0, 1fr); gap:18px; align-items:start; margin-top:18px; }
+    .stage-wrap{ display:grid; grid-template-columns:1fr; gap:18px; }
+    .control-group{ border-top:1px solid var(--line); padding-top:14px; margin-top:14px; }
+    .control-group:first-of-type{ border-top:0; padding-top:0; margin-top:0; }
+    label{ display:block; font-weight:800; margin:0 0 7px; }
+    .sub-label{ display:flex; justify-content:space-between; gap:12px; color:var(--muted); font-size:0.9rem; margin-bottom:8px; }
+    input[type="range"]{ width:100%; accent-color:var(--button); }
+    select, button{ font:inherit; }
+    select{ width:100%; padding:10px 12px; border-radius:12px; border:1px solid var(--line); background:white; color:var(--text); font-weight:650; }
+    .button-row{ display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+    button{ border:0; border-radius:12px; padding:10px 13px; background:var(--button); color:white; font-weight:800; cursor:pointer; }
+    button:hover{ background:var(--button-hover); }
+    button.secondary{ background:#334155; }
+    canvas{ width:100%; display:block; background:#ffffff; border-radius:14px; border:1px solid var(--line); }
+    .legend-row{ display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; color:#475569; font-size:0.9rem; font-weight:700; }
+    .legend-item{ display:inline-flex; align-items:center; gap:7px; padding:7px 10px; border:1px solid var(--line); border-radius:999px; background:#f8fafc; }
+    .legend-dot{ width:12px; height:12px; border-radius:50%; display:inline-block; background:#2563eb; }
+    .legend-dot.line{ background:#7c3aed; }
+    .legend-dot.probe{ background:#f59e0b; }
+    .results{ display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; margin-top:14px; }
+    .metric{ background:#f8fafc; border:1px solid var(--line); border-radius:16px; padding:13px; }
+    .metric .label{ color:var(--muted); font-size:0.85rem; font-weight:750; margin-bottom:4px; }
+    .metric .value{ font-size:1.35rem; font-weight:900; line-height:1.12; }
+    .metric .small{ color:var(--muted); font-size:0.82rem; margin-top:5px; }
+    .bar-shell{ width:100%; height:10px; background:#e2e8f0; border-radius:999px; overflow:hidden; margin-top:9px; }
+    .bar-fill{ height:100%; width:0%; background:linear-gradient(90deg, #93c5fd, #2563eb, #dc2626); border-radius:999px; }
+    .notes-grid{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px; margin-top:18px; }
+    .challenge-list{ margin:10px 0 0; padding-left:22px; color:var(--muted); }
+    .challenge-list li{ margin:7px 0; }
+    .teacher-note{ background:#fff7ed; border-color:#fed7aa; }
+    .teacher-note p, .teacher-note li{ color:#7c2d12; }
+    .warning-note{ background:#eff6ff; border-color:#bfdbfe; margin-top:14px; box-shadow:none; }
+    .warning-note p{ color:#1e3a8a; }
+    @media (max-width:980px){ .sim-grid, .li-sc, .notes-grid{ grid-template-columns:1fr; } .results{ grid-template-columns:repeat(2, minmax(0, 1fr)); } }
+    @media (max-width:620px){ .hero{ padding:22px; } .results{ grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <a class="home-link" href="/SciSims/">&larr; Back to main SciSims page</a>
+
+    <section class="hero">
+      <h1>Magnetic Field Visualiser</h1>
+      <p>Visualise the magnetic field around a bar magnet using compass needles, field lines and a movable field probe.</p>
+      <div class="meta-row" aria-label="Simulation tags">
+        <span class="pill">Physics</span>
+        <span class="pill">Magnetism</span>
+        <span class="pill">Fields</span>
+        <span class="pill">Compass directions</span>
+      </div>
+    </section>
+
+    <section class="li-sc">
+      <div class="info-card">
+        <h2>Learning Intention</h2>
+        <p>Students will understand that a magnetic field exists around a magnet and that the field has both direction and relative strength.</p>
+      </div>
+      <div class="info-card">
+        <h2>Success Criteria</h2>
+        <p>Students can identify field direction around a bar magnet, describe where the field is strongest, and use a probe to compare field strength at different positions.</p>
+      </div>
+    </section>
+
+    <section class="sim-grid" aria-label="Magnetic field simulation">
+      <aside class="panel" aria-label="Controls">
+        <h2>Controls</h2>
+
+        <div class="control-group">
+          <label for="strength">Magnet strength</label>
+          <div class="sub-label"><span>Weak</span><strong><span id="strengthReadout">70</span>%</strong><span>Strong</span></div>
+          <input id="strength" type="range" min="10" max="100" step="5" value="70">
+        </div>
+
+        <div class="control-group">
+          <label for="rotation">Magnet rotation</label>
+          <div class="sub-label"><span>0 degrees</span><strong><span id="rotationReadout">0</span> degrees</strong><span>180 degrees</span></div>
+          <input id="rotation" type="range" min="0" max="180" step="5" value="0">
+        </div>
+
+        <div class="control-group">
+          <label for="visualMode">Visual layer</label>
+          <select id="visualMode">
+            <option value="combined">Compass needles and field lines</option>
+            <option value="needles">Compass needles only</option>
+            <option value="lines">Field lines only</option>
+            <option value="filings">Iron filings style</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="density">Needle density</label>
+          <select id="density">
+            <option value="44">Low density</option>
+            <option value="34" selected>Medium density</option>
+            <option value="25">High density</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="polarity">Polarity</label>
+          <select id="polarity">
+            <option value="normal">North on the left</option>
+            <option value="reversed">North on the right</option>
+          </select>
+        </div>
+
+        <div class="button-row">
+          <button id="resetBtn" class="secondary" type="button">Reset</button>
+          <button id="centreProbeBtn" type="button">Centre probe</button>
+        </div>
+
+        <div class="info-card warning-note">
+          <h3>Model note</h3>
+          <p>This sim uses a simplified two-pole model to show field direction and relative strength. It is useful for pattern recognition, but it is not a precise map of a real bar magnet.</p>
+        </div>
+      </aside>
+
+      <div class="stage-wrap">
+        <section class="canvas-card" aria-label="Magnetic field visualiser">
+          <canvas id="fieldCanvas" width="920" height="520" aria-label="Visualisation of magnetic field around a bar magnet"></canvas>
+          <div class="legend-row" aria-label="Visualiser key">
+            <span class="legend-item"><span class="legend-dot"></span>Blue needles show field direction.</span>
+            <span class="legend-item"><span class="legend-dot line"></span>Curves show the field pattern outside the magnet.</span>
+            <span class="legend-item"><span class="legend-dot probe"></span>Orange probe measures the local field.</span>
+          </div>
+          <div class="results" aria-label="Current field results">
+            <div class="metric">
+              <div class="label">Probe strength</div>
+              <div class="value"><span id="fieldStrengthReadout">0</span>%</div>
+              <div class="bar-shell"><div id="fieldBar" class="bar-fill"></div></div>
+              <div class="small">Relative local field</div>
+            </div>
+            <div class="metric">
+              <div class="label">Field direction</div>
+              <div class="value"><span id="directionReadout">0</span> degrees</div>
+              <div class="small">Compass needle direction at probe</div>
+            </div>
+            <div class="metric">
+              <div class="label">Probe position</div>
+              <div class="value"><span id="probeReadout">Centre</span></div>
+              <div class="small">Click the canvas to move the probe</div>
+            </div>
+            <div class="metric">
+              <div class="label">Field rule</div>
+              <div class="value">N to S</div>
+              <div class="small">Outside the magnet, field points away from north and towards south</div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="notes-grid">
+      <div class="info-card">
+        <h2>Student challenge</h2>
+        <ul class="challenge-list">
+          <li>Move the probe close to each pole and compare the field strength.</li>
+          <li>Move the probe far away from the magnet and describe what happens to the field strength.</li>
+          <li>Rotate the magnet and explain how the compass needles respond.</li>
+          <li>Reverse the polarity and identify what changes in the field pattern.</li>
+          <li>Use the field rule to explain why the compass needles point away from the north pole and towards the south pole.</li>
+        </ul>
+      </div>
+      <div class="info-card teacher-note">
+        <h2>Teacher notes</h2>
+        <p>The sim is designed to show the shape, direction and relative strength of the magnetic field around a bar magnet. It separates the idea of a field from the idea of contact force.</p>
+        <ul class="challenge-list">
+          <li>Good prompt: Where is the field strongest and how can you tell?</li>
+          <li>Good prompt: Why do the compass needles curve around rather than point straight across the whole screen?</li>
+          <li>Extension: Ask students to sketch the field before turning on the field-line layer.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function initFieldSim(){
+      var ui = {};
+      ui.strengthInput = document.getElementById('strength');
+      ui.rotationInput = document.getElementById('rotation');
+      ui.visualModeInput = document.getElementById('visualMode');
+      ui.densityInput = document.getElementById('density');
+      ui.polarityInput = document.getElementById('polarity');
+      ui.resetBtn = document.getElementById('resetBtn');
+      ui.centreProbeBtn = document.getElementById('centreProbeBtn');
+      ui.canvas = document.getElementById('fieldCanvas');
+      ui.strengthReadout = document.getElementById('strengthReadout');
+      ui.rotationReadout = document.getElementById('rotationReadout');
+      ui.fieldStrengthReadout = document.getElementById('fieldStrengthReadout');
+      ui.directionReadout = document.getElementById('directionReadout');
+      ui.probeReadout = document.getElementById('probeReadout');
+      ui.fieldBar = document.getElementById('fieldBar');
+
+      var ctx = ui.canvas.getContext('2d');
+      var probe = { x:690, y:170 };
+      var width = ui.canvas.width;
+      var height = ui.canvas.height;
+      var magnet = { x:width / 2, y:height / 2, w:260, h:86 };
+
+      function getState(){
+        return {
+          strength:Number(ui.strengthInput.value),
+          angle:Number(ui.rotationInput.value) * Math.PI / 180,
+          visualMode:ui.visualModeInput.value,
+          density:Number(ui.densityInput.value),
+          reversed:ui.polarityInput.value === 'reversed'
+        };
+      }
+
+      function rotatePoint(px, py, cx, cy, angle){
+        var dx = px - cx;
+        var dy = py - cy;
+        var cosA = Math.cos(angle);
+        var sinA = Math.sin(angle);
+        return { x:cx + dx * cosA - dy * sinA, y:cy + dx * sinA + dy * cosA };
+      }
+
+      function localPoint(px, py, cx, cy, angle){
+        var dx = px - cx;
+        var dy = py - cy;
+        var cosA = Math.cos(-angle);
+        var sinA = Math.sin(-angle);
+        return { x:dx * cosA - dy * sinA, y:dx * sinA + dy * cosA };
+      }
+
+      function getPoles(state){
+        var leftPole = rotatePoint(magnet.x - magnet.w * 0.38, magnet.y, magnet.x, magnet.y, state.angle);
+        var rightPole = rotatePoint(magnet.x + magnet.w * 0.38, magnet.y, magnet.x, magnet.y, state.angle);
+        if(state.reversed){
+          return { north:rightPole, south:leftPole };
+        }
+        return { north:leftPole, south:rightPole };
+      }
+
+      function fieldAt(x, y, state){
+        var poles = getPoles(state);
+        var strength = state.strength / 100;
+        var soft = 900;
+        var bx = 0;
+        var by = 0;
+
+        function addPole(p, q){
+          var dx = x - p.x;
+          var dy = y - p.y;
+          var r2 = dx * dx + dy * dy + soft;
+          var r = Math.sqrt(r2);
+          bx += q * dx / (r2 * r);
+          by += q * dy / (r2 * r);
+        }
+
+        addPole(poles.north, strength);
+        addPole(poles.south, -strength);
+
+        var mag = Math.sqrt(bx * bx + by * by);
+        var angle = Math.atan2(by, bx);
+        return { bx:bx, by:by, mag:mag, angle:angle };
+      }
+
+      function insideMagnet(x, y, state){
+        var p = localPoint(x, y, magnet.x, magnet.y, state.angle);
+        return Math.abs(p.x) < magnet.w / 2 && Math.abs(p.y) < magnet.h / 2;
+      }
+
+      function roundedRect(ctx, x, y, w, h, r){
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+      }
+
+      function drawArrow(ctx, x1, y1, x2, y2, colour, widthLine){
+        var angle = Math.atan2(y2 - y1, x2 - x1);
+        var headLength = Math.max(6, widthLine * 2.4);
+        ctx.save();
+        ctx.strokeStyle = colour;
+        ctx.fillStyle = colour;
+        ctx.lineWidth = widthLine;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - headLength * Math.cos(angle - Math.PI / 6), y2 - headLength * Math.sin(angle - Math.PI / 6));
+        ctx.lineTo(x2 - headLength * Math.cos(angle + Math.PI / 6), y2 - headLength * Math.sin(angle + Math.PI / 6));
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawMagnet(state){
+        ctx.save();
+        ctx.translate(magnet.x, magnet.y);
+        ctx.rotate(state.angle);
+        ctx.shadowColor = 'rgba(15,23,42,0.18)';
+        ctx.shadowBlur = 14;
+        ctx.shadowOffsetY = 8;
+        roundedRect(ctx, -magnet.w / 2, -magnet.h / 2, magnet.w, magnet.h, 14);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        ctx.shadowColor = 'transparent';
+        ctx.save();
+        roundedRect(ctx, -magnet.w / 2, -magnet.h / 2, magnet.w / 2, magnet.h, 14);
+        ctx.clip();
+        ctx.fillStyle = state.reversed ? '#2563eb' : '#dc2626';
+        ctx.fillRect(-magnet.w / 2, -magnet.h / 2, magnet.w / 2, magnet.h);
+        ctx.restore();
+        ctx.save();
+        roundedRect(ctx, 0, -magnet.h / 2, magnet.w / 2, magnet.h, 14);
+        ctx.clip();
+        ctx.fillStyle = state.reversed ? '#dc2626' : '#2563eb';
+        ctx.fillRect(0, -magnet.h / 2, magnet.w / 2, magnet.h);
+        ctx.restore();
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2;
+        roundedRect(ctx, -magnet.w / 2, -magnet.h / 2, magnet.w, magnet.h, 14);
+        ctx.stroke();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '900 34px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(state.reversed ? 'S' : 'N', -magnet.w * 0.25, 0);
+        ctx.fillText(state.reversed ? 'N' : 'S', magnet.w * 0.25, 0);
+        ctx.restore();
+      }
+
+      function drawNeedles(state){
+        var spacing = state.density;
+        for(var y = 60; y <= height - 60; y += spacing){
+          for(var x = 60; x <= width - 60; x += spacing){
+            if(insideMagnet(x, y, state)){ continue; }
+            var field = fieldAt(x, y, state);
+            var scaled = Math.min(1, field.mag * 130000);
+            var alpha = Math.max(0.14, Math.min(0.85, 0.16 + scaled * 0.7));
+            var len = 8 + scaled * 16;
+            var x1 = x - Math.cos(field.angle) * len / 2;
+            var y1 = y - Math.sin(field.angle) * len / 2;
+            var x2 = x + Math.cos(field.angle) * len / 2;
+            var y2 = y + Math.sin(field.angle) * len / 2;
+            drawArrow(ctx, x1, y1, x2, y2, 'rgba(37,99,235,' + alpha + ')', 1.6);
+          }
+        }
+      }
+
+      function drawFilings(state){
+        var spacing = 18;
+        ctx.save();
+        for(var y = 54; y <= height - 54; y += spacing){
+          for(var x = 54; x <= width - 54; x += spacing){
+            if(insideMagnet(x, y, state)){ continue; }
+            var field = fieldAt(x, y, state);
+            var scaled = Math.min(1, field.mag * 150000);
+            var len = 4 + scaled * 16;
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(field.angle);
+            ctx.strokeStyle = 'rgba(51,65,85,' + Math.max(0.08, scaled * 0.58) + ')';
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.moveTo(-len / 2, 0);
+            ctx.lineTo(len / 2, 0);
+            ctx.stroke();
+            ctx.restore();
+          }
+        }
+        ctx.restore();
+      }
+
+      function drawFieldLines(state){
+        var poles = getPoles(state);
+        var starts = [];
+        var count = 16;
+        for(var i = 0; i < count; i++){
+          var a = (Math.PI * 2 / count) * i;
+          starts.push({ x:poles.north.x + Math.cos(a) * 24, y:poles.north.y + Math.sin(a) * 24 });
+        }
+        ctx.save();
+        ctx.strokeStyle = 'rgba(124,58,237,0.58)';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        for(var s = 0; s < starts.length; s++){
+          var x = starts[s].x;
+          var y = starts[s].y;
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          for(var step = 0; step < 360; step++){
+            if(x < 20 || x > width - 20 || y < 20 || y > height - 20){ break; }
+            if(insideMagnet(x, y, state) && step > 6){ break; }
+            var field = fieldAt(x, y, state);
+            var dx = Math.cos(field.angle) * 5;
+            var dy = Math.sin(field.angle) * 5;
+            x += dx;
+            y += dy;
+            ctx.lineTo(x, y);
+            var toSouth = Math.sqrt((x - poles.south.x) * (x - poles.south.x) + (y - poles.south.y) * (y - poles.south.y));
+            if(toSouth < 22){ break; }
+          }
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function drawProbe(state){
+        var field = fieldAt(probe.x, probe.y, state);
+        ctx.save();
+        ctx.fillStyle = '#f59e0b';
+        ctx.strokeStyle = '#92400e';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(probe.x, probe.y, 13, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        drawArrow(ctx, probe.x - Math.cos(field.angle) * 28, probe.y - Math.sin(field.angle) * 28, probe.x + Math.cos(field.angle) * 28, probe.y + Math.sin(field.angle) * 28, '#92400e', 4);
+        ctx.restore();
+      }
+
+      function drawBackground(){
+        var gradient = ctx.createLinearGradient(0, 0, width, height);
+        gradient.addColorStop(0, '#f8fafc');
+        gradient.addColorStop(1, '#eef2ff');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+        ctx.strokeStyle = 'rgba(148,163,184,0.20)';
+        ctx.lineWidth = 1;
+        for(var gx = 40; gx < width; gx += 40){ ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, height); ctx.stroke(); }
+        for(var gy = 40; gy < height; gy += 40){ ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(width, gy); ctx.stroke(); }
+      }
+
+      function updateReadouts(state){
+        var field = fieldAt(probe.x, probe.y, state);
+        var scaledStrength = Math.max(0, Math.min(100, field.mag * 140000));
+        var degrees = Math.round((field.angle * 180 / Math.PI + 360) % 360);
+        ui.strengthReadout.textContent = state.strength;
+        ui.rotationReadout.textContent = Math.round(state.angle * 180 / Math.PI);
+        ui.fieldStrengthReadout.textContent = scaledStrength.toFixed(1);
+        ui.directionReadout.textContent = degrees;
+        ui.fieldBar.style.width = Math.max(2, scaledStrength) + '%';
+        ui.probeReadout.textContent = Math.round(probe.x) + ', ' + Math.round(probe.y);
+      }
+
+      function draw(){
+        var state = getState();
+        drawBackground();
+        if(state.visualMode === 'filings'){
+          drawFilings(state);
+        }
+        if(state.visualMode === 'lines' || state.visualMode === 'combined'){
+          drawFieldLines(state);
+        }
+        if(state.visualMode === 'needles' || state.visualMode === 'combined'){
+          drawNeedles(state);
+        }
+        drawMagnet(state);
+        drawProbe(state);
+        updateReadouts(state);
+      }
+
+      function resetSim(){
+        ui.strengthInput.value = 70;
+        ui.rotationInput.value = 0;
+        ui.visualModeInput.value = 'combined';
+        ui.densityInput.value = 34;
+        ui.polarityInput.value = 'normal';
+        probe.x = 690;
+        probe.y = 170;
+        draw();
+      }
+
+      function centreProbe(){
+        probe.x = magnet.x;
+        probe.y = magnet.y - 150;
+        draw();
+      }
+
+      function moveProbeFromEvent(evt){
+        var rect = ui.canvas.getBoundingClientRect();
+        var scaleX = ui.canvas.width / rect.width;
+        var scaleY = ui.canvas.height / rect.height;
+        var x = (evt.clientX - rect.left) * scaleX;
+        var y = (evt.clientY - rect.top) * scaleY;
+        var state = getState();
+        if(!insideMagnet(x, y, state)){
+          probe.x = x;
+          probe.y = y;
+          draw();
+        }
+      }
+
+      var controls = [ui.strengthInput, ui.rotationInput, ui.visualModeInput, ui.densityInput, ui.polarityInput];
+      for(var c = 0; c < controls.length; c++){
+        controls[c].addEventListener('input', draw);
+        controls[c].addEventListener('change', draw);
+      }
+      ui.canvas.addEventListener('click', moveProbeFromEvent);
+      ui.resetBtn.addEventListener('click', resetSim);
+      ui.centreProbeBtn.addEventListener('click', centreProbe);
+      draw();
+    }
+
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', initFieldSim);
+    }else{
+      initFieldSim();
+    }
+  </script>
+</body>
+</html>
