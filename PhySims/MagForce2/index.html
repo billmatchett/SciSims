@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Changing the Magnitude of Force</title>
+  <link rel="icon" type="image/png" href="/SciSims/favicon.png">
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --panel:#ffffff;
+      --soft:#f8fafc;
+      --text:#1f2937;
+      --muted:#64748b;
+      --line:#dbe3ef;
+      --blue:#2563eb;
+      --blue2:#1d4ed8;
+      --green:#166534;
+      --greenSoft:#dcfce7;
+      --orange:#b45309;
+      --orangeSoft:#ffedd5;
+      --red:#991b1b;
+      --redSoft:#fee2e2;
+      --teal:#0f766e;
+      --shadow:0 10px 30px rgba(15,23,42,.08);
+    }
+
+    *{box-sizing:border-box;}
+
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:linear-gradient(180deg,#eef4ff 0%,var(--bg) 320px);
+      color:var(--text);
+    }
+
+    .page{
+      width:min(1180px,calc(100% - 28px));
+      margin:0 auto;
+      padding:18px 0 36px;
+    }
+
+    .home-link{
+      display:inline-flex;
+      margin:4px 0 14px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:#fff;
+      color:var(--blue);
+      text-decoration:none;
+      font-weight:800;
+      box-shadow:var(--shadow);
+      border:1px solid var(--line);
+    }
+
+    .hero,.box,.canvas-card,.chart-card,.table-card,.challenge-card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+    }
+
+    .hero{
+      padding:26px;
+      margin-bottom:18px;
+      background:radial-gradient(circle at 20% 20%,#dbeafe 0%,transparent 32%),radial-gradient(circle at 90% 10%,#ccfbf1 0%,transparent 28%),linear-gradient(135deg,#fff 0%,#eef6ff 100%);
+    }
+
+    h1{
+      margin:0 0 10px;
+      font-size:clamp(2rem,4vw,3.4rem);
+      line-height:1.02;
+      letter-spacing:-.04em;
+    }
+
+    h2{margin:0 0 10px;font-size:1.05rem;}
+    p{line-height:1.5;}
+    .hero p,.box p,.small-note{color:var(--muted);}
+
+    .li-sc,.note-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+      margin-bottom:18px;
+    }
+
+    .box{padding:18px;}
+
+    .sim-grid{
+      display:grid;
+      grid-template-columns:1.35fr .95fr;
+      gap:18px;
+      align-items:start;
+    }
+
+    .canvas-card{padding:18px;}
+
+    .canvas-wrap{
+      width:100%;
+      aspect-ratio:16/10;
+      border-radius:18px;
+      overflow:hidden;
+      background:#dbeafe;
+      border:1px solid var(--line);
+    }
+
+    canvas{width:100%;height:100%;display:block;}
+
+    .mode-tabs{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-bottom:14px;
+    }
+
+    .mode-tabs button{
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--text);
+      border-radius:14px;
+      padding:12px 8px;
+      font-weight:900;
+      cursor:pointer;
+    }
+
+    .mode-tabs button.active{
+      background:var(--blue);
+      color:#fff;
+      border-color:var(--blue);
+    }
+
+    .controls{display:grid;gap:14px;}
+
+    .control-group{
+      display:grid;
+      gap:8px;
+      padding:13px;
+      background:var(--soft);
+      border:1px solid var(--line);
+      border-radius:16px;
+    }
+
+    .control-row{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:10px;
+      align-items:center;
+    }
+
+    label{font-weight:900;font-size:.92rem;}
+    .value{color:var(--muted);font-weight:900;font-variant-numeric:tabular-nums;}
+    input[type=range]{width:100%;accent-color:var(--blue);}
+
+    .button-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+    button.action{
+      border:0;
+      border-radius:14px;
+      padding:12px 14px;
+      font-weight:900;
+      cursor:pointer;
+      background:var(--blue);
+      color:#fff;
+    }
+
+    button.action:hover{background:var(--blue2);}
+    button.secondary{background:#e2e8f0;color:var(--text);}
+    button.secondary:hover{background:#cbd5e1;}
+
+    .feedback{
+      padding:14px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:#ccfbf1;
+      color:#134e4a;
+      font-weight:800;
+      line-height:1.45;
+    }
+
+    .feedback.success{background:var(--greenSoft);color:var(--green);border-color:#86efac;}
+    .feedback.warn{background:var(--orangeSoft);color:var(--orange);border-color:#fed7aa;}
+    .feedback.danger{background:var(--redSoft);color:var(--red);border-color:#fecaca;}
+
+    .results-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    .metric{
+      padding:12px;
+      border-radius:14px;
+      background:#fff;
+      border:1px solid var(--line);
+    }
+
+    .metric .name{
+      color:var(--muted);
+      font-size:.78rem;
+      font-weight:900;
+      text-transform:uppercase;
+    }
+
+    .metric .number{
+      margin-top:4px;
+      font-size:1.15rem;
+      font-weight:950;
+      font-variant-numeric:tabular-nums;
+    }
+
+    .chart-card,.table-card,.challenge-card{
+      margin-top:18px;
+      padding:18px;
+    }
+
+    .chart-wrap{
+      height:290px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      overflow:hidden;
+      background:#fff;
+    }
+
+    .table-scroll{
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:16px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:900px;
+      background:#fff;
+    }
+
+    th,td{
+      padding:10px 12px;
+      border-bottom:1px solid var(--line);
+      text-align:left;
+      font-size:.92rem;
+    }
+
+    th{
+      background:#f1f5f9;
+      color:#334155;
+      font-size:.78rem;
+      text-transform:uppercase;
+    }
+
+    ol,ul{margin:0;padding-left:1.2rem;color:var(--muted);line-height:1.55;}
+    .small-note{margin-top:10px;font-size:.9rem;}
+    .formula{font-family:Consolas,monospace;background:#f1f5f9;border:1px solid var(--line);padding:2px 6px;border-radius:7px;white-space:nowrap;}
+
+    @media(max-width:940px){
+      .sim-grid,.li-sc,.note-grid{grid-template-columns:1fr;}
+      .results-grid{grid-template-columns:1fr;}
+      .canvas-wrap{aspect-ratio:4/3;}
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+  <a class="home-link" href="/SciSims/">&#8592; Back to main SciSims page</a>
+
+  <section class="hero">
+    <h1>Changing the Magnitude of Force</h1>
+    <p>Investigate how changing a lever or pulley setup affects the effort force needed to lift the same load. Run repeated trials, calculate averages and use the graph to identify trends.</p>
+  </section>
+
+  <section class="li-sc">
+    <div class="box">
+      <h2>Learning Intention</h2>
+      <p>Students will understand that changing the setup of a lever or pulley can change the magnitude of the effort force needed to lift a load.</p>
+    </div>
+    <div class="box">
+      <h2>Success Criteria</h2>
+      <p>Students can collect repeated force data, calculate an average force and describe how changing effort arm length or supporting rope segments affects the force needed.</p>
+    </div>
+  </section>
+
+  <section class="sim-grid">
+    <div class="canvas-card">
+      <div class="mode-tabs" id="modeTabs"></div>
+      <div class="canvas-wrap"><canvas id="simCanvas" width="1000" height="625"></canvas></div>
+      <p class="small-note" id="modeDescription">Choose a mode and run a trial.</p>
+    </div>
+
+    <aside class="box controls">
+      <h2>Investigation Controls</h2>
+
+      <div class="control-group">
+        <div class="control-row"><label for="loadMass">Load mass</label><span class="value" id="loadMassValue"></span></div>
+        <input id="loadMass" type="range" min="100" max="1000" step="50" value="500">
+      </div>
+
+      <div class="control-group">
+        <div class="control-row"><label id="settingLabel" for="settingSlider">Effort arm length</label><span class="value" id="settingValue"></span></div>
+        <input id="settingSlider" type="range" min="0.2" max="1.2" step="0.1" value="0.6">
+      </div>
+
+      <div class="control-group">
+        <div class="control-row"><label for="friction">Friction and energy loss</label><span class="value" id="frictionValue"></span></div>
+        <input id="friction" type="range" min="0" max="40" step="1" value="10">
+      </div>
+
+      <div class="control-group">
+        <div class="control-row"><label for="variation">Trial variation</label><span class="value" id="variationValue"></span></div>
+        <input id="variation" type="range" min="0" max="12" step="1" value="4">
+      </div>
+
+      <div class="button-row">
+        <button class="action" id="runBtn">Run trial</button>
+        <button class="action secondary" id="repeatBtn">Repeat 3 trials</button>
+      </div>
+      <div class="button-row">
+        <button class="action secondary" id="recordBtn">Record result</button>
+        <button class="action secondary" id="csvBtn">Download CSV</button>
+      </div>
+      <div class="button-row">
+        <button class="action secondary" id="resetTrialBtn">Clear current setup</button>
+        <button class="action secondary" id="resetAllBtn">Reset all</button>
+      </div>
+
+      <div class="feedback" id="feedback">Set up the machine, then run repeated trials.</div>
+      <div class="results-grid" id="resultsGrid"></div>
+    </aside>
+  </section>
+
+  <section class="chart-card">
+    <h2>Average Force Graph</h2>
+    <p class="small-note">Record at least three repeated trials for each setup. The graph plots the average force needed for each setup you record.</p>
+    <div class="chart-wrap"><canvas id="chartCanvas" width="1100" height="290"></canvas></div>
+  </section>
+
+  <section class="table-card">
+    <h2>Results Table</h2>
+    <p class="small-note">Use repeated trials to calculate a more reliable estimate of the force needed for each setup.</p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Setup</th>
+            <th>Machine</th>
+            <th>Independent variable</th>
+            <th>Trial 1</th>
+            <th>Trial 2</th>
+            <th>Trial 3</th>
+            <th>Average force</th>
+            <th>Range</th>
+            <th>Mechanical advantage</th>
+          </tr>
+        </thead>
+        <tbody id="resultBody"><tr><td colspan="9">No results recorded yet.</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="note-grid">
+    <div class="challenge-card">
+      <h2>Student Investigation</h2>
+      <ol>
+        <li>Keep the same load mass for all trials.</li>
+        <li>Change the lever effort arm length or the number of pulley rope segments.</li>
+        <li>Run three trials for each setup.</li>
+        <li>Record the average force needed for each setup.</li>
+        <li>Use the graph to describe the trend in your results.</li>
+      </ol>
+    </div>
+
+    <div class="challenge-card">
+      <h2>Assess the Simulation</h2>
+      <ul>
+        <li>What did this simulation help you understand about force and simple machines?</li>
+        <li>What is one strength of this simulation as a model?</li>
+        <li>What is one limitation compared with a real lever or pulley investigation?</li>
+        <li>How might friction, poor alignment, inaccurate readings or human error affect real results?</li>
+        <li>Overall, how useful was this simulation for planning or interpreting the practical investigation?</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="challenge-card">
+    <h2>Teacher Notes</h2>
+    <p>This simulation supports a practical investigation on how simple machine setup affects the magnitude of force. It is designed to reinforce variables, repeated trials, average force, range and trend interpretation.</p>
+    <p class="small-note">Core relationships: <span class="formula">weight force = mass x gravity</span>, <span class="formula">mechanical advantage = load force / effort force</span>.</p>
+  </section>
+</main>
+
+<script>
+(function(){
+  'use strict';
+
+  const canvas = document.getElementById('simCanvas');
+  const ctx = canvas.getContext('2d');
+  const chart = document.getElementById('chartCanvas');
+  const gctx = chart.getContext('2d');
+  const el = id => document.getElementById(id);
+
+  const controls = {
+    loadMass: el('loadMass'),
+    settingSlider: el('settingSlider'),
+    friction: el('friction'),
+    variation: el('variation')
+  };
+
+  const labels = {
+    loadMassValue: el('loadMassValue'),
+    settingValue: el('settingValue'),
+    frictionValue: el('frictionValue'),
+    variationValue: el('variationValue'),
+    settingLabel: el('settingLabel'),
+    feedback: el('feedback'),
+    resultsGrid: el('resultsGrid'),
+    resultBody: el('resultBody'),
+    modeTabs: el('modeTabs'),
+    modeDescription: el('modeDescription')
+  };
+
+  const modes = {
+    lever: {
+      name:'Lever',
+      tab:'Lever',
+      settingLabel:'Effort arm length',
+      min:0.2,
+      max:1.2,
+      step:0.1,
+      value:0.6,
+      units:'m',
+      desc:'Lever mode: keep the same load and fulcrum, then change the effort arm length.',
+      ma:function(setting){ return Math.max(0.25, setting / 0.30); },
+      settingText:function(setting){ return setting.toFixed(1) + ' m'; },
+      variableName:'Effort arm length'
+    },
+    pulley: {
+      name:'Pulley',
+      tab:'Pulley',
+      settingLabel:'Pulley setup',
+      min:1,
+      max:4,
+      step:1,
+      value:2,
+      units:'segments',
+      desc:'Pulley mode: keep the same load, then change the number of rope segments supporting the load. Each preset arrangement shows a different pulley setup.',
+      ma:function(setting){ return Math.max(1, Math.round(setting)); },
+      settingText:function(setting){
+        const seg = Math.round(setting);
+        if(seg === 1) return '1 segment: fixed pulley';
+        if(seg === 2) return '2 segments: movable pulley';
+        if(seg === 3) return '3 segments: compound pulley';
+        return '4 segments: block and tackle';
+      },
+      variableName:'Supporting rope segments'
+    }
+  };
+
+  const state = {
+    mode:'lever',
+    progress:0,
+    running:false,
+    autoRepeat:false,
+    currentTrials:[],
+    results:[],
+    lastForce:null,
+    lastTime:0,
+    lastTrialNumber:0
+  };
+
+  function clamp(value,min,max){ return Math.max(min, Math.min(max, value)); }
+  function randBetween(min,max){ return min + Math.random() * (max - min); }
+  function mean(values){ return values.reduce((a,b)=>a+b,0) / values.length; }
+  function round1(value){ return Math.round(value * 10) / 10; }
+  function fmtN(value){ return Math.round(value).toLocaleString('en-AU') + ' N'; }
+  function fmtKg(value){ return Math.round(value).toLocaleString('en-AU') + ' g'; }
+
+  function getInput(){
+    return {
+      loadMass:+controls.loadMass.value,
+      setting:+controls.settingSlider.value,
+      friction:+controls.friction.value,
+      variation:+controls.variation.value
+    };
+  }
+
+  function getCalc(forceOverride){
+    const i = getInput();
+    const mode = modes[state.mode];
+    const loadForce = (i.loadMass / 1000) * 9.8;
+    const idealMA = mode.ma(i.setting);
+    const lossFactor = 1 + (i.friction / 100);
+    const predictedForce = (loadForce / idealMA) * lossFactor;
+    const trialForce = forceOverride !== undefined ? forceOverride : predictedForce;
+    const actualMA = loadForce / Math.max(0.01, trialForce);
+    return {i,mode,loadForce,idealMA,lossFactor,predictedForce,trialForce,actualMA};
+  }
+
+  function generateTrialForce(){
+    const c = getCalc();
+    const percent = getInput().variation / 100;
+    const multiplier = 1 + randBetween(-percent, percent);
+    return Math.max(0.05, c.predictedForce * multiplier);
+  }
+
+  function setMode(modeKey){
+    state.mode = modeKey;
+    state.progress = 0;
+    state.running = false;
+    state.currentTrials = [];
+    state.lastForce = null;
+    const mode = modes[modeKey];
+    controls.settingSlider.min = mode.min;
+    controls.settingSlider.max = mode.max;
+    controls.settingSlider.step = mode.step;
+    controls.settingSlider.value = mode.value;
+    labels.settingLabel.textContent = mode.settingLabel;
+    buildTabs();
+    updateAll();
+  }
+
+  function buildTabs(){
+    labels.modeTabs.innerHTML = '';
+    Object.keys(modes).forEach(key => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = modes[key].tab;
+      button.className = key === state.mode ? 'active' : '';
+      button.addEventListener('click', function(){ setMode(key); });
+      labels.modeTabs.appendChild(button);
+    });
+  }
+
+  function updateLabels(){
+    const i = getInput();
+    const mode = modes[state.mode];
+    labels.loadMassValue.textContent = fmtKg(i.loadMass);
+    labels.settingValue.textContent = mode.settingText(i.setting);
+    labels.frictionValue.textContent = i.friction + '%';
+    labels.variationValue.textContent = i.variation + '%';
+    labels.modeDescription.textContent = mode.desc;
+  }
+
+  function updateMetrics(){
+    const c = getCalc(state.lastForce === null ? undefined : state.lastForce);
+    const trials = state.currentTrials;
+    const averageText = trials.length ? fmtN(mean(trials)) : 'Not enough data';
+    const rangeText = trials.length > 1 ? fmtN(Math.max.apply(null,trials) - Math.min.apply(null,trials)) : 'Not enough data';
+    const forceText = state.lastForce === null ? fmtN(c.predictedForce) + ' predicted' : fmtN(c.trialForce);
+    const rows = [
+      ['Load force', fmtN(c.loadForce)],
+      ['Force meter', forceText],
+      ['Current trials', String(trials.length) + ' / 3'],
+      ['Average force', averageText],
+      ['Range', rangeText],
+      ['Mechanical advantage', c.actualMA.toFixed(2)]
+    ];
+    labels.resultsGrid.innerHTML = rows.map(function(row){
+      return '<div class="metric"><div class="name">' + row[0] + '</div><div class="number">' + row[1] + '</div></div>';
+    }).join('');
+
+    el('recordBtn').disabled = trials.length < 3;
+    el('recordBtn').style.opacity = trials.length < 3 ? '0.55' : '1';
+    el('recordBtn').style.cursor = trials.length < 3 ? 'not-allowed' : 'pointer';
+
+    if(state.running){
+      labels.feedback.className = 'feedback';
+      labels.feedback.textContent = 'Running trial ' + (state.currentTrials.length + 1) + '. Watch the force meter reading.';
+    }else if(trials.length >= 3){
+      labels.feedback.className = 'feedback success';
+      labels.feedback.textContent = 'Three repeated trials are complete. Record the result to add the average to the table and graph.';
+    }else if(trials.length > 0){
+      labels.feedback.className = 'feedback warn';
+      labels.feedback.textContent = 'Trial recorded. Repeat until you have three trials for this same setup.';
+    }else{
+      labels.feedback.className = 'feedback';
+      labels.feedback.textContent = 'Set up the machine, then run repeated trials.';
+    }
+  }
+
+  function drawBackground(){
+    ctx.clearRect(0,0,1000,625);
+    ctx.fillStyle = '#dbeafe';
+    ctx.fillRect(0,0,1000,350);
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillRect(0,350,1000,115);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillRect(0,465,1000,160);
+    ctx.strokeStyle = 'rgba(15,23,42,.12)';
+    ctx.lineWidth = 2;
+    for(let y=455;y<625;y+=32){
+      ctx.beginPath();
+      ctx.moveTo(0,y);
+      ctx.lineTo(1000,y);
+      ctx.stroke();
+    }
+  }
+
+  function arrow(x1,y1,x2,y2,colour,label){
+    const angle = Math.atan2(y2-y1,x2-x1);
+    ctx.strokeStyle = colour;
+    ctx.fillStyle = colour;
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(x1,y1);
+    ctx.lineTo(x2,y2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x2,y2);
+    ctx.lineTo(x2 - 16*Math.cos(angle-.45), y2 - 16*Math.sin(angle-.45));
+    ctx.lineTo(x2 - 16*Math.cos(angle+.45), y2 - 16*Math.sin(angle+.45));
+    ctx.closePath();
+    ctx.fill();
+    ctx.font = 'bold 16px system-ui';
+    ctx.fillText(label,x2+10,y2+4);
+  }
+
+  function crate(x,y,size,label){
+    ctx.fillStyle = '#b45309';
+    ctx.fillRect(x,y,size,size);
+    ctx.strokeStyle = '#7c2d12';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(x,y,size,size);
+    ctx.strokeStyle = 'rgba(255,255,255,.35)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(x+8,y+8);
+    ctx.lineTo(x+size-8,y+size-8);
+    ctx.moveTo(x+size-8,y+8);
+    ctx.lineTo(x+8,y+size-8);
+    ctx.stroke();
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 15px system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText(label,x+size/2,y+size/2+5);
+    ctx.textAlign = 'left';
+  }
+
+  function forceMeter(x,y,force){
+    const maxForce = 30;
+    const fill = clamp(force / maxForce,0,1);
+    ctx.fillStyle = 'rgba(255,255,255,.92)';
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(x,y,170,96,14);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#1f2937';
+    ctx.font = 'bold 16px system-ui';
+    ctx.fillText('Force meter',x+16,y+26);
+    ctx.fillStyle = '#64748b';
+    ctx.font = '13px system-ui';
+    ctx.fillText(fmtN(force),x+16,y+50);
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillRect(x+16,y+66,138,12);
+    ctx.fillStyle = force > 20 ? '#b45309' : '#2563eb';
+    ctx.fillRect(x+16,y+66,138*fill,12);
+  }
+
+  function drawLever(c){
+    const p = state.progress;
+    const setting = getInput().setting;
+    const fulcrumX = 520;
+    const fulcrumY = 440;
+    const loadArm = 170;
+    const effortArmPx = 130 + setting * 250;
+    const angle = -0.06 - p * 0.18;
+    const leftX = fulcrumX - effortArmPx;
+    const rightX = fulcrumX + loadArm;
+    const force = state.lastForce === null ? c.predictedForce : c.trialForce;
+
+    ctx.save();
+    ctx.translate(fulcrumX,fulcrumY);
+    ctx.rotate(angle);
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(-effortArmPx,-10,effortArmPx+loadArm+50,20);
+    ctx.restore();
+
+    ctx.fillStyle = '#475569';
+    ctx.beginPath();
+    ctx.moveTo(fulcrumX-38,fulcrumY+55);
+    ctx.lineTo(fulcrumX+38,fulcrumY+55);
+    ctx.lineTo(fulcrumX,fulcrumY-20);
+    ctx.closePath();
+    ctx.fill();
+
+    crate(rightX-40,340-p*85,82,(c.i.loadMass/1000).toFixed(2)+' kg');
+    arrow(leftX,300,leftX,390,'#2563eb','effort');
+    arrow(rightX+70,338,rightX+70,415,'#dc2626','load');
+
+    ctx.strokeStyle = '#0f766e';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(leftX,520);
+    ctx.lineTo(fulcrumX,520);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(fulcrumX,552);
+    ctx.lineTo(rightX,552);
+    ctx.stroke();
+
+    ctx.fillStyle = '#0f766e';
+    ctx.font = 'bold 16px system-ui';
+    ctx.fillText('effort arm length ' + modes.lever.settingText(setting),leftX,500);
+    ctx.fillText('controlled load arm 0.30 m',fulcrumX,575);
+    forceMeter(40,34,force);
+  }
+
+  function pulleyWheel(x,y,r){
+    ctx.fillStyle = '#f8fafc';
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.arc(x,y,r,0,Math.PI*2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#94a3b8';
+    ctx.beginPath();
+    ctx.arc(x,y,8,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  function drawPulley(c){
+    const p = state.progress;
+    const seg = Math.round(getInput().setting);
+    const loadX = 620;
+    const loadY = 395 - p*120;
+    const force = state.lastForce === null ? c.predictedForce : c.trialForce;
+
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.moveTo(380,110);
+    ctx.lineTo(835,110);
+    ctx.stroke();
+
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(500,110,24,54);
+    if(seg >= 3) ctx.fillRect(705,110,24,54);
+
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 5;
+    ctx.lineCap = 'round';
+
+    if(seg === 1){
+      pulleyWheel(520,165,48);
+      ctx.beginPath();
+      ctx.moveTo(472,165);
+      ctx.lineTo(472,455 + p*65);
+      ctx.moveTo(472,165);
+      ctx.quadraticCurveTo(520,118,568,165);
+      ctx.lineTo(loadX,loadY+10);
+      ctx.stroke();
+      ctx.lineCap = 'butt';
+      crate(loadX-45,loadY+22,90,(c.i.loadMass/1000).toFixed(2)+' kg');
+      arrow(430,265,430,352,'#2563eb','effort');
+      arrow(loadX+82,loadY+34,loadX+82,loadY+107,'#dc2626','load');
+    }
+
+    if(seg === 2){
+      pulleyWheel(520,165,48);
+      pulleyWheel(loadX,loadY-25,42);
+      ctx.beginPath();
+      ctx.moveTo(575,116);
+      ctx.lineTo(575,loadY-25);
+      ctx.quadraticCurveTo(loadX,loadY-70,loadX+45,loadY-25);
+      ctx.lineTo(568,165);
+      ctx.quadraticCurveTo(520,118,472,165);
+      ctx.lineTo(472,455+p*65);
+      ctx.stroke();
+      ctx.lineCap = 'butt';
+      crate(loadX-45,loadY+25,90,(c.i.loadMass/1000).toFixed(2)+' kg');
+      arrow(430,265,430,352,'#2563eb','effort');
+      arrow(loadX+82,loadY+36,loadX+82,loadY+110,'#dc2626','load');
+    }
+
+    if(seg === 3){
+      pulleyWheel(520,165,44);
+      pulleyWheel(720,165,44);
+      pulleyWheel(loadX,loadY-25,42);
+      ctx.beginPath();
+      ctx.moveTo(475,165);
+      ctx.lineTo(475,455+p*65);
+      ctx.moveTo(475,165);
+      ctx.quadraticCurveTo(520,125,565,165);
+      ctx.lineTo(loadX-42,loadY-25);
+      ctx.quadraticCurveTo(loadX,loadY-67,loadX+42,loadY-25);
+      ctx.lineTo(675,165);
+      ctx.quadraticCurveTo(720,125,765,165);
+      ctx.lineTo(loadX+22,loadY-25);
+      ctx.stroke();
+      ctx.lineCap = 'butt';
+      crate(loadX-45,loadY+25,90,(c.i.loadMass/1000).toFixed(2)+' kg');
+      arrow(430,265,430,352,'#2563eb','effort');
+      arrow(loadX+82,loadY+36,loadX+82,loadY+110,'#dc2626','load');
+    }
+
+    if(seg === 4){
+      pulleyWheel(520,165,42);
+      pulleyWheel(720,165,42);
+      pulleyWheel(loadX-48,loadY-25,36);
+      pulleyWheel(loadX+48,loadY-25,36);
+      ctx.beginPath();
+      ctx.moveTo(470,165);
+      ctx.lineTo(470,455+p*65);
+      ctx.moveTo(470,165);
+      ctx.quadraticCurveTo(520,126,570,165);
+      ctx.lineTo(loadX-48,loadY-25);
+      ctx.lineTo(680,165);
+      ctx.quadraticCurveTo(720,126,760,165);
+      ctx.lineTo(loadX+48,loadY-25);
+      ctx.lineTo(575,116);
+      ctx.stroke();
+      ctx.lineCap = 'butt';
+      crate(loadX-45,loadY+25,90,(c.i.loadMass/1000).toFixed(2)+' kg');
+      arrow(430,265,430,352,'#2563eb','effort');
+      arrow(loadX+82,loadY+36,loadX+82,loadY+110,'#dc2626','load');
+    }
+
+    ctx.fillStyle = '#0f766e';
+    ctx.font = 'bold 16px system-ui';
+    ctx.fillText('supporting rope segments: ' + seg,105,520);
+    ctx.fillStyle = '#64748b';
+    ctx.font = '13px system-ui';
+    ctx.fillText(modes.pulley.settingText(seg),105,543);
+    forceMeter(40,34,force);
+  }
+
+  function drawLegend(c){
+    let title = 'Ready to test';
+    let colour = '#1f2937';
+    if(state.running){ title = 'Running trial'; colour = '#2563eb'; }
+    if(!state.running && state.currentTrials.length >= 3){ title = 'Ready to record'; colour = '#166534'; }
+    ctx.fillStyle = 'rgba(255,255,255,.92)';
+    ctx.strokeStyle = 'rgba(203,213,225,.95)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(780,34,180,112,14);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = colour;
+    ctx.font = 'bold 17px system-ui';
+    ctx.fillText(title,800,64);
+    ctx.fillStyle = '#475569';
+    ctx.font = '13px system-ui';
+    ctx.fillText('Trial: ' + state.currentTrials.length + ' of 3',800,92);
+    ctx.fillText('Load: ' + fmtN(c.loadForce),800,116);
+  }
+
+  function drawScene(){
+    const c = getCalc(state.lastForce === null ? undefined : state.lastForce);
+    drawBackground();
+    if(state.mode === 'lever') drawLever(c);
+    if(state.mode === 'pulley') drawPulley(c);
+    drawLegend(c);
+  }
+
+  function drawGraph(){
+    gctx.clearRect(0,0,chart.width,chart.height);
+    gctx.fillStyle = '#ffffff';
+    gctx.fillRect(0,0,chart.width,chart.height);
+    const data = state.results.filter(function(r){ return r.modeKey === state.mode; });
+    const pad = {l:80,r:30,t:28,b:60};
+    const w = chart.width;
+    const h = chart.height;
+    const mode = modes[state.mode];
+    const current = getCalc();
+    const predicted = [];
+    const steps = state.mode === 'pulley' ? mode.max - mode.min : 20;
+    for(let i=0;i<=steps;i++){
+      const raw = mode.min + (mode.max-mode.min)*(i/steps);
+      const setting = mode.step === 1 ? Math.round(raw) : raw;
+      const oldValue = controls.settingSlider.value;
+      controls.settingSlider.value = setting;
+      const point = getCalc();
+      predicted.push({setting:setting,force:point.predictedForce});
+      controls.settingSlider.value = oldValue;
+    }
+    const maxY = Math.max(10, current.predictedForce, ...predicted.map(function(d){ return d.force; }), ...data.map(function(d){ return d.average; })) * 1.18;
+    const minX = mode.min;
+    const maxX = mode.max;
+
+    gctx.strokeStyle = '#dbe3ef';
+    gctx.lineWidth = 1;
+    gctx.fillStyle = '#64748b';
+    gctx.font = '13px system-ui';
+    for(let i=0;i<=5;i++){
+      const y = pad.t + (h-pad.t-pad.b)*(i/5);
+      const value = maxY * (1 - i/5);
+      gctx.beginPath();
+      gctx.moveTo(pad.l,y);
+      gctx.lineTo(w-pad.r,y);
+      gctx.stroke();
+      gctx.fillText(Math.round(value) + ' N',14,y+4);
+    }
+
+    const xs = value => pad.l + (value-minX)/(maxX-minX)*(w-pad.l-pad.r);
+    const ys = value => pad.t + (1-value/maxY)*(h-pad.t-pad.b);
+
+    gctx.strokeStyle = '#334155';
+    gctx.lineWidth = 2;
+    gctx.beginPath();
+    gctx.moveTo(pad.l,pad.t);
+    gctx.lineTo(pad.l,h-pad.b);
+    gctx.lineTo(w-pad.r,h-pad.b);
+    gctx.stroke();
+
+    predicted.sort(function(a,b){ return a.setting-b.setting; });
+    gctx.strokeStyle = 'rgba(100,116,139,.45)';
+    gctx.lineWidth = 4;
+    gctx.setLineDash([8,6]);
+    gctx.beginPath();
+    predicted.forEach(function(d,index){
+      const x = xs(d.setting);
+      const y = ys(d.force);
+      if(index === 0) gctx.moveTo(x,y);
+      else gctx.lineTo(x,y);
+    });
+    gctx.stroke();
+    gctx.setLineDash([]);
+    gctx.fillStyle = '#64748b';
+    gctx.font = '12px system-ui';
+    gctx.fillText('predicted trend',w-150,44);
+
+    data.sort(function(a,b){ return a.setting-b.setting; });
+    if(data.length){
+      gctx.strokeStyle = '#2563eb';
+      gctx.lineWidth = 5;
+      gctx.beginPath();
+      data.forEach(function(d,index){
+        const x = xs(d.setting);
+        const y = ys(d.average);
+        if(index === 0) gctx.moveTo(x,y);
+        else gctx.lineTo(x,y);
+      });
+      gctx.stroke();
+      data.forEach(function(d){
+        const x = xs(d.setting);
+        const y = ys(d.average);
+        gctx.fillStyle = '#2563eb';
+        gctx.beginPath();
+        gctx.arc(x,y,7,0,Math.PI*2);
+        gctx.fill();
+        gctx.fillStyle = '#334155';
+        gctx.font = '12px system-ui';
+        gctx.textAlign = 'center';
+        gctx.fillText(Math.round(d.average) + ' N',x,y-12);
+        gctx.textAlign = 'left';
+      });
+    }else{
+      gctx.fillStyle = '#64748b';
+      gctx.font = 'bold 18px system-ui';
+      gctx.fillText('Record results to compare your averages with the predicted trend.',pad.l+20,120);
+    }
+
+    gctx.fillStyle = '#334155';
+    gctx.font = 'bold 15px system-ui';
+    gctx.fillText('Average force needed',14,20);
+    gctx.textAlign = 'center';
+    gctx.fillText(mode.settingLabel,w/2,h-18);
+    gctx.textAlign = 'left';
+  }
+
+  function updateTable(){
+    if(state.results.length === 0){
+      labels.resultBody.innerHTML = '<tr><td colspan="9">No results recorded yet.</td></tr>';
+      return;
+    }
+    labels.resultBody.innerHTML = state.results.map(function(r,index){
+      return '<tr>' +
+        '<td>' + (index+1) + '</td>' +
+        '<td>' + r.machine + '</td>' +
+        '<td>' + r.settingText + '</td>' +
+        '<td>' + fmtN(r.trials[0]) + '</td>' +
+        '<td>' + fmtN(r.trials[1]) + '</td>' +
+        '<td>' + fmtN(r.trials[2]) + '</td>' +
+        '<td>' + fmtN(r.average) + '</td>' +
+        '<td>' + fmtN(r.range) + '</td>' +
+        '<td>' + r.mechanicalAdvantage.toFixed(2) + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  function runOneTrial(){
+    if(state.running) return;
+    if(state.currentTrials.length >= 3){
+      state.currentTrials = [];
+    }
+    state.lastForce = generateTrialForce();
+    state.progress = 0;
+    state.running = true;
+    state.lastTime = 0;
+    updateAll();
+  }
+
+  function repeatThreeTrials(){
+    state.currentTrials = [];
+    state.autoRepeat = true;
+    runOneTrial();
+  }
+
+  function finishTrial(){
+    state.running = false;
+    state.progress = 1;
+    state.currentTrials.push(state.lastForce);
+    if(state.autoRepeat && state.currentTrials.length < 3){
+      window.setTimeout(runOneTrial, 320);
+    }else{
+      state.autoRepeat = false;
+    }
+    updateAll();
+  }
+
+  function recordResult(){
+    if(state.currentTrials.length < 3){
+      labels.feedback.className = 'feedback warn';
+      labels.feedback.textContent = 'Run three repeated trials before recording this setup.';
+      return;
+    }
+    const c = getCalc(mean(state.currentTrials));
+    const mode = modes[state.mode];
+    const sorted = state.currentTrials.slice().sort(function(a,b){ return a-b; });
+    state.results.push({
+      modeKey:state.mode,
+      machine:mode.name,
+      setting:c.i.setting,
+      settingText:mode.settingText(c.i.setting),
+      trials:state.currentTrials.slice(0,3),
+      average:mean(state.currentTrials),
+      range:sorted[sorted.length-1] - sorted[0],
+      mechanicalAdvantage:c.loadForce / mean(state.currentTrials)
+    });
+    state.currentTrials = [];
+    state.lastForce = null;
+    state.progress = 0;
+    updateAll();
+  }
+
+  function csvEscape(value){
+    const text = String(value);
+    const lf = String.fromCharCode(10);
+    if(text.indexOf(',') >= 0 || text.indexOf('"') >= 0 || text.indexOf(lf) >= 0){
+      return '"' + text.split('"').join('""') + '"';
+    }
+    return text;
+  }
+
+  function downloadCSV(){
+    const rows = [['Setup','Machine','Independent Variable','Trial 1 N','Trial 2 N','Trial 3 N','Average Force N','Range N','Mechanical Advantage']];
+    state.results.forEach(function(r,index){
+      rows.push([index+1,r.machine,r.settingText,round1(r.trials[0]),round1(r.trials[1]),round1(r.trials[2]),round1(r.average),round1(r.range),round1(r.mechanicalAdvantage)]);
+    });
+    const csv = rows.map(function(row){ return row.map(csvEscape).join(','); }).join(String.fromCharCode(10));
+    const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'changing-magnitude-of-force-results.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function clearCurrentSetup(){
+    state.currentTrials = [];
+    state.lastForce = null;
+    state.progress = 0;
+    state.running = false;
+    state.autoRepeat = false;
+    updateAll();
+  }
+
+  function resetAll(){
+    state.currentTrials = [];
+    state.results = [];
+    state.lastForce = null;
+    state.progress = 0;
+    state.running = false;
+    state.autoRepeat = false;
+    controls.loadMass.value = 500;
+    controls.friction.value = 10;
+    controls.variation.value = 4;
+    controls.settingSlider.value = modes[state.mode].value;
+    updateAll();
+  }
+
+  function updateAll(){
+    updateLabels();
+    updateMetrics();
+    drawScene();
+    drawGraph();
+    updateTable();
+  }
+
+  Object.values(controls).forEach(function(control){
+    control.addEventListener('input',function(){
+      state.currentTrials = [];
+      state.lastForce = null;
+      state.progress = 0;
+      state.running = false;
+      updateAll();
+    });
+  });
+
+  el('runBtn').addEventListener('click',runOneTrial);
+  el('repeatBtn').addEventListener('click',repeatThreeTrials);
+  el('recordBtn').addEventListener('click',recordResult);
+  el('csvBtn').addEventListener('click',downloadCSV);
+  el('resetTrialBtn').addEventListener('click',clearCurrentSetup);
+  el('resetAllBtn').addEventListener('click',resetAll);
+
+  function animate(time){
+    if(!state.lastTime) state.lastTime = time;
+    const dt = Math.min(.04,(time-state.lastTime)/1000);
+    state.lastTime = time;
+    if(state.running){
+      state.progress += dt * .85;
+      if(state.progress >= 1){
+        finishTrial();
+      }else{
+        updateMetrics();
+        drawScene();
+      }
+    }
+    requestAnimationFrame(animate);
+  }
+
+  if(!CanvasRenderingContext2D.prototype.roundRect){
+    CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h,r){
+      this.beginPath();
+      this.moveTo(x+r,y);
+      this.lineTo(x+w-r,y);
+      this.quadraticCurveTo(x+w,y,x+w,y+r);
+      this.lineTo(x+w,y+h-r);
+      this.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+      this.lineTo(x+r,y+h);
+      this.quadraticCurveTo(x,y+h,x,y+h-r);
+      this.lineTo(x,y+r);
+      this.quadraticCurveTo(x,y,x+r,y);
+      this.closePath();
+    };
+  }
+
+  setMode('lever');
+  requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>
