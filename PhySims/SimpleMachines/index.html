@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lift the Load: Simple Machines Challenge</title>
+  <link rel="icon" type="image/png" href="/SciSims/favicon.png">
+  <style>
+    :root{
+      --bg:#f5f7fb;--panel:#fff;--soft:#f8fafc;--text:#1f2937;--muted:#64748b;--line:#dbe3ef;--blue:#2563eb;--blue2:#1d4ed8;--green:#166534;--greenSoft:#dcfce7;--orange:#b45309;--orangeSoft:#ffedd5;--red:#991b1b;--redSoft:#fee2e2;--teal:#0f766e;--shadow:0 10px 30px rgba(15,23,42,.08);--radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(180deg,#eef4ff 0%,var(--bg) 320px);color:var(--text)}
+    .page{width:min(1180px,calc(100% - 28px));margin:0 auto;padding:18px 0 36px}
+    .home-link{display:inline-flex;margin:4px 0 14px;padding:10px 14px;border-radius:999px;background:#fff;color:var(--blue);text-decoration:none;font-weight:800;box-shadow:var(--shadow);border:1px solid var(--line)}
+    .hero,.box,.canvas-card,.chart-card,.table-card,.challenge-card{background:var(--panel);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+    .hero{padding:26px;margin-bottom:18px;background:radial-gradient(circle at 20% 20%,#dbeafe 0%,transparent 32%),radial-gradient(circle at 90% 10%,#ccfbf1 0%,transparent 28%),linear-gradient(135deg,#fff 0%,#eef6ff 100%)}
+    h1{margin:0 0 10px;font-size:clamp(2rem,4vw,3.4rem);line-height:1.02;letter-spacing:-.04em}
+    h2{margin:0 0 10px;font-size:1.05rem}
+    p{line-height:1.5}.hero p,.box p,.small-note{color:var(--muted)}
+    .li-sc,.note-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}.box{padding:18px}
+    .sim-grid{display:grid;grid-template-columns:1.35fr .95fr;gap:18px;align-items:start}.canvas-card{padding:18px}.canvas-wrap{width:100%;aspect-ratio:16/10;border-radius:18px;overflow:hidden;background:#dbeafe;border:1px solid var(--line)}
+    canvas{width:100%;height:100%;display:block}.mode-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}.mode-tabs button{border:1px solid var(--line);background:#fff;color:var(--text);border-radius:14px;padding:10px 8px;font-weight:900;cursor:pointer}.mode-tabs button.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+    .controls{display:grid;gap:14px}.control-group{display:grid;gap:8px;padding:13px;background:var(--soft);border:1px solid var(--line);border-radius:16px}.control-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}label{font-weight:900;font-size:.92rem}.value{color:var(--muted);font-weight:900;font-variant-numeric:tabular-nums}input[type=range]{width:100%;accent-color:var(--blue)}
+    .button-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}button.action{border:0;border-radius:14px;padding:12px 14px;font-weight:900;cursor:pointer;background:var(--blue);color:#fff}button.action:hover{background:var(--blue2)}button.secondary{background:#e2e8f0;color:var(--text)}button.secondary:hover{background:#cbd5e1}
+    .feedback{padding:14px;border-radius:16px;border:1px solid var(--line);background:#ccfbf1;color:#134e4a;font-weight:800;line-height:1.45}.feedback.success{background:var(--greenSoft);color:var(--green);border-color:#86efac}.feedback.warn{background:var(--orangeSoft);color:var(--orange);border-color:#fed7aa}.feedback.danger{background:var(--redSoft);color:var(--red);border-color:#fecaca}
+    .results-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.metric{padding:12px;border-radius:14px;background:#fff;border:1px solid var(--line)}.metric .name{color:var(--muted);font-size:.78rem;font-weight:900;text-transform:uppercase}.metric .number{margin-top:4px;font-size:1.15rem;font-weight:950;font-variant-numeric:tabular-nums}
+    .chart-card,.table-card,.challenge-card{margin-top:18px;padding:18px}.chart-wrap{height:270px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fff}.table-scroll{overflow:auto;border:1px solid var(--line);border-radius:16px}table{width:100%;border-collapse:collapse;min-width:820px;background:#fff}th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;font-size:.92rem}th{background:#f1f5f9;color:#334155;font-size:.78rem;text-transform:uppercase}ol,ul{margin:0;padding-left:1.2rem;color:var(--muted);line-height:1.55}.small-note{margin-top:10px;font-size:.9rem}.formula{font-family:Consolas,monospace;background:#f1f5f9;border:1px solid var(--line);padding:2px 6px;border-radius:7px;white-space:nowrap}
+    @media(max-width:940px){.sim-grid,.li-sc,.note-grid{grid-template-columns:1fr}.mode-tabs{grid-template-columns:repeat(2,1fr)}.results-grid{grid-template-columns:1fr}.canvas-wrap{aspect-ratio:4/3}}
+  </style>
+</head>
+<body>
+<main class="page">
+  <a class="home-link" href="/SciSims/">&#8592; Back to main SciSims page</a>
+  <section class="hero"><h1>Lift the Load</h1><p>Use six simple machines to lift the same heavy crate. Adjust the design, compare effort force and distance, then decide whether the machine really made the task easier.</p></section>
+  <section class="li-sc"><div class="box"><h2>Learning Intention</h2><p>Students will understand that simple machines can reduce or redirect the effort force needed to lift a load, but this usually increases the distance over which the effort force must be applied.</p></div><div class="box"><h2>Success Criteria</h2><p>Students can use force, distance, work, mechanical advantage and efficiency data to compare simple machines and explain the trade-off between effort force and effort distance.</p></div></section>
+  <section class="sim-grid">
+    <div class="canvas-card"><div class="mode-tabs" id="modeTabs"></div><div class="canvas-wrap"><canvas id="simCanvas" width="1000" height="625"></canvas></div><p class="small-note" id="modeDescription">Choose a simple machine and adjust its design.</p></div>
+    <aside class="box controls"><h2>Challenge Controls</h2>
+      <div class="control-group"><div class="control-row"><label for="mass">Load mass</label><span class="value" id="massValue"></span></div><input id="mass" type="range" min="10" max="200" step="5" value="80"></div>
+      <div class="control-group"><div class="control-row"><label for="height">Lift height</label><span class="value" id="heightValue"></span></div><input id="height" type="range" min="0.5" max="5" step="0.1" value="2"></div>
+      <div class="control-group"><div class="control-row"><label for="target">Effort force target</label><span class="value" id="targetValue"></span></div><input id="target" type="range" min="50" max="1000" step="10" value="300"></div>
+      <div class="control-group"><div class="control-row"><label for="friction">Friction and energy loss</label><span class="value" id="frictionValue"></span></div><input id="friction" type="range" min="0" max="45" step="1" value="15"></div>
+      <div class="control-group"><div class="control-row"><label id="machineControlLabel" for="machineSetting">Machine setting</label><span class="value" id="machineSettingValue"></span></div><input id="machineSetting" type="range" min="1" max="6" step="1" value="4"></div>
+      <div class="button-row"><button class="action" id="runBtn">Run test</button><button class="action secondary" id="resetBtn">Reset</button></div>
+      <div class="button-row"><button class="action secondary" id="recordBtn">Record trial</button><button class="action secondary" id="csvBtn">Download CSV</button></div>
+      <div class="feedback" id="feedback">Set up a machine, then run the test.</div><div class="results-grid" id="resultsGrid"></div>
+    </aside>
+  </section>
+  <section class="chart-card"><h2>Comparison Graph</h2><p class="small-note">The graph shows predicted effort force for the current simple machine. Lower force usually means greater effort distance.</p><div class="chart-wrap"><canvas id="chartCanvas" width="1100" height="270"></canvas></div></section>
+  <section class="table-card"><h2>Recorded Trials</h2><p class="small-note">Record trials as you test different machines.</p><div class="table-scroll"><table><thead><tr><th>Trial</th><th>Machine</th><th>Setting</th><th>Load Force</th><th>Effort Force</th><th>Effort Distance</th><th>Lift Height</th><th>Work Input</th><th>Work Output</th><th>Efficiency</th><th>Outcome</th></tr></thead><tbody id="trialBody"><tr><td colspan="11">No trials recorded yet.</td></tr></tbody></table></div></section>
+  <section class="note-grid"><div class="challenge-card"><h2>Student Challenge</h2><ol><li>Choose one simple machine and lift the crate to the platform.</li><li>Keep the effort force below the target value.</li><li>Record at least one successful trial for three different machines.</li><li>Identify the best balance of low effort force and reasonable effort distance.</li><li>Explain why the machine did not remove the need to do work.</li></ol></div><div class="challenge-card"><h2>Assess the Simulation</h2><ul><li>What did this simulation help you understand?</li><li>What is one strength of the simulation as a model?</li><li>What is one limitation compared with a real machine?</li><li>How could friction, flexing, slipping, or measurement error affect a real investigation?</li><li>Overall, how useful was this simulation for explaining mechanical advantage?</li></ul></div></section>
+  <section class="challenge-card"><h2>Teacher Notes</h2><p>Use the sim to emphasise that ideal simple machines trade effort force for effort distance. The model uses simplified mechanical advantage values and then applies a friction loss.</p><p class="small-note">Core relationship: <span class="formula">work = force x distance</span>.</p></section>
+</main>
+<script>
+(function(){
+  'use strict';
+  const canvas=document.getElementById('simCanvas');
+  const ctx=canvas.getContext('2d');
+  const chart=document.getElementById('chartCanvas');
+  const gctx=chart.getContext('2d');
+  const el=id=>document.getElementById(id);
+  const controls={mass:el('mass'),height:el('height'),target:el('target'),friction:el('friction'),machineSetting:el('machineSetting')};
+  const labels={massValue:el('massValue'),heightValue:el('heightValue'),targetValue:el('targetValue'),frictionValue:el('frictionValue'),machineSettingValue:el('machineSettingValue'),machineControlLabel:el('machineControlLabel'),modeDescription:el('modeDescription'),feedback:el('feedback'),resultsGrid:el('resultsGrid'),trialBody:el('trialBody'),modeTabs:el('modeTabs')};
+  const machines={
+    lever:{name:'Lever',tab:'Lever',label:'Effort arm length',min:1,max:6,step:.1,value:4,desc:'Crowbar model: move the effort point further from the fulcrum to reduce the force needed to lift the crate.',ma:(s,h)=>s,text:s=>s.toFixed(1)+' m effort arm'},
+    pulley:{name:'Pulley',tab:'Pulley',label:'Supporting rope segments',min:1,max:6,step:1,value:3,desc:'Block-and-tackle model: add more supporting rope segments to reduce the pull force, but the rope must be pulled further.',ma:(s,h)=>s,text:s=>Math.round(s)+' rope segments'},
+    ramp:{name:'Inclined Plane',tab:'Ramp',label:'Ramp length',min:1,max:12,step:.5,value:6,desc:'Loading ramp model: make the ramp longer to reduce the force needed to raise the crate, but the crate travels further.',ma:(s,h)=>Math.max(1,s/h),text:s=>s.toFixed(1)+' m ramp'},
+    wheel:{name:'Wheel and Axle',tab:'Wheel',label:'Wheel to axle ratio',min:1,max:8,step:.5,value:4,desc:'Winch model: increase the wheel radius compared with the axle radius to lift the crate with a smaller turning force.',ma:(s,h)=>s,text:s=>s.toFixed(1)+':1 ratio'},
+    wedge:{name:'Wedge',tab:'Wedge',label:'Wedge length to rise ratio',min:1,max:8,step:.5,value:3,desc:'Lifting wedge model: push a wedge under the crate so the sloped surface raises it upward.',ma:(s,h)=>s,text:s=>s.toFixed(1)+':1 wedge ratio'},
+    screw:{name:'Screw',tab:'Screw',label:'Turns per metre lifted',min:2,max:14,step:1,value:8,desc:'Screw jack model: turn the handle to raise the lifting plate and crate a small distance with each rotation.',ma:(s,h)=>s/2,text:s=>Math.round(s)+' turns per metre'}
+  };
+  let state={mode:'pulley',progress:0,running:false,lastTime:0,trials:[]};
+  function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+  function input(){return{mass:+controls.mass.value,height:+controls.height.value,target:+controls.target.value,friction:+controls.friction.value,setting:+controls.machineSetting.value};}
+  function calc(custom){const i=input(),m=machines[state.mode],s=custom!==undefined?+custom:i.setting,w=i.mass*9.8,ma=Math.max(1,m.ma(s,i.height)),eff=clamp((100-i.friction)/100,.25,1),f=w/ma/eff,ed=i.height*ma,wo=w*i.height,wi=f*ed;return{i,m,s,w,ma,eff,f,ed,wo,wi,ok:f<=i.target,outcome:f<=i.target?'Success':'Too much force'};}
+  function n(v){return Math.round(v).toLocaleString('en-AU')+' N';} function j(v){return Math.round(v).toLocaleString('en-AU')+' J';} function mt(v){return v.toFixed(2)+' m';} function pct(v){return Math.round(v*100)+'%';}
+  function setMode(mode){state.mode=mode;state.progress=0;state.running=false;const m=machines[mode];controls.machineSetting.min=m.min;controls.machineSetting.max=m.max;controls.machineSetting.step=m.step;controls.machineSetting.value=m.value;labels.machineControlLabel.textContent=m.label;buildTabs();updateAll();}
+  function buildTabs(){labels.modeTabs.innerHTML='';Object.keys(machines).forEach(k=>{const b=document.createElement('button');b.type='button';b.textContent=machines[k].tab;b.className=k===state.mode?'active':'';b.addEventListener('click',()=>setMode(k));labels.modeTabs.appendChild(b);});}
+  function updateLabels(){const i=input(),m=machines[state.mode];labels.massValue.textContent=i.mass+' kg';labels.heightValue.textContent=i.height.toFixed(1)+' m';labels.targetValue.textContent=i.target+' N';labels.frictionValue.textContent=i.friction+'%';labels.machineSettingValue.textContent=m.text(i.setting);labels.modeDescription.textContent=m.desc;}
+  function updateResults(){const c=calc();const rows=[['Load force',n(c.w)],['Effort force',n(c.f)],['Effort distance',mt(c.ed)],['Lift height',mt(c.i.height)],['Mechanical advantage',c.ma.toFixed(2)],['Efficiency',pct(c.eff)],['Work input',j(c.wi)],['Work output',j(c.wo)]];labels.resultsGrid.innerHTML=rows.map(r=>'<div class="metric"><div class="name">'+r[0]+'</div><div class="number">'+r[1]+'</div></div>').join('');if(state.running){labels.feedback.className='feedback';labels.feedback.textContent='Running test. Watch the load rise and compare effort distance with lift height.';}else if(state.progress>=1){labels.feedback.className=c.ok?'feedback success':'feedback danger';labels.feedback.textContent=c.ok?'Success: the crate reached the platform and the effort force stayed below the target.':'The crate reached the platform, but the effort force was above the target.';}else{labels.feedback.className=c.ok?'feedback success':'feedback warn';labels.feedback.textContent=c.ok?'This design should meet the target. Run the test, then record the trial.':'This design needs more effort than the target allows. Adjust the simple machine.';}}
+  function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();ctx.fill();ctx.stroke();}
+  function bg(){ctx.clearRect(0,0,1000,625);ctx.fillStyle='#dbeafe';ctx.fillRect(0,0,1000,360);ctx.fillStyle='#e2e8f0';ctx.fillRect(0,360,1000,105);ctx.fillStyle='#cbd5e1';ctx.fillRect(0,465,1000,160);ctx.strokeStyle='rgba(15,23,42,.12)';ctx.lineWidth=2;for(let y=455;y<625;y+=32){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(1000,y);ctx.stroke();}ctx.fillStyle='#94a3b8';ctx.fillRect(690,185,180,18);ctx.fillRect(760,203,34,260);ctx.fillStyle='#64748b';ctx.fillRect(675,175,210,12);ctx.fillStyle='#475569';ctx.font='bold 18px system-ui';ctx.fillText('platform',724,168);}
+  function crate(x,y,s,label){ctx.fillStyle='#b45309';ctx.fillRect(x,y,s,s);ctx.strokeStyle='#7c2d12';ctx.lineWidth=4;ctx.strokeRect(x,y,s,s);ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x+8,y+8);ctx.lineTo(x+s-8,y+s-8);ctx.moveTo(x+s-8,y+8);ctx.lineTo(x+8,y+s-8);ctx.stroke();ctx.fillStyle='#fff';ctx.font='bold 15px system-ui';ctx.textAlign='center';ctx.fillText(label,x+s/2,y+s/2+5);ctx.textAlign='left';}
+  function arrow(x1,y1,x2,y2,col,label){const a=Math.atan2(y2-y1,x2-x1);ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-16*Math.cos(a-.45),y2-16*Math.sin(a-.45));ctx.lineTo(x2-16*Math.cos(a+.45),y2-16*Math.sin(a+.45));ctx.closePath();ctx.fill();if(label){ctx.font='bold 16px system-ui';ctx.fillText(label,x2+10,y2+4);}}
+  function bar(x,y,w,label){ctx.strokeStyle='#0f766e';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+w,y);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y-8);ctx.lineTo(x,y+8);ctx.moveTo(x+w,y-8);ctx.lineTo(x+w,y+8);ctx.stroke();ctx.fillStyle='#0f766e';ctx.font='bold 16px system-ui';ctx.fillText(label,x,y-14);}
+  function topY(base){return base-((input().height-.5)/4.5)*65;} function liftY(bottom,top){return bottom+(top-bottom)*state.progress;}
+  function pulleyWheel(x,y,r){ctx.fillStyle='#f8fafc';ctx.strokeStyle='#334155';ctx.lineWidth=5;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#94a3b8';ctx.beginPath();ctx.arc(x,y,8,0,Math.PI*2);ctx.fill();}
+  function drawLever(c){const p=state.progress,fx=470,fy=440,ev=90+clamp(c.s,1,6)*45,la=250,ang=-.06-p*.22,lx=fx-ev,rx=fx+la;ctx.save();ctx.translate(fx,fy);ctx.rotate(ang);ctx.fillStyle='#334155';ctx.fillRect(-ev,-10,ev+la+60,20);ctx.restore();ctx.fillStyle='#475569';ctx.beginPath();ctx.moveTo(fx-35,fy+52);ctx.lineTo(fx+35,fy+52);ctx.lineTo(fx,fy-18);ctx.closePath();ctx.fill();const cy=liftY(383,topY(190));crate(rx-40,cy,78,c.i.mass+' kg');arrow(lx,fy-80,lx,fy-15,'#2563eb','effort');arrow(rx+68,cy+15,rx+68,cy+82,'#dc2626','load');bar(120,510,260,'effort distance '+mt(c.ed));}
+  function drawPulley(c){const p=state.progress,seg=Math.round(c.s),cx=620,cy=liftY(390,topY(225));ctx.strokeStyle='#475569';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(450,100);ctx.lineTo(780,100);ctx.stroke();ctx.fillStyle='#475569';ctx.fillRect(600,100,25,75);pulleyWheel(520,150,48);pulleyWheel(cx,cy-25,42);if(seg>=3)pulleyWheel(710,150,42);if(seg>=5)pulleyWheel(cx+105,cy-25,34);ctx.strokeStyle='#1e293b';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(475,150);ctx.lineTo(475,460+p*75);ctx.lineTo(520,150);ctx.lineTo(cx,cy-25);if(seg>=3){ctx.lineTo(710,150);ctx.lineTo(cx+40,cy-25);}if(seg>=5){ctx.lineTo(cx+105,cy-25);ctx.lineTo(755,150);}ctx.stroke();crate(cx-45,cy+20,90,c.i.mass+' kg');arrow(420,250,420,340,'#2563eb','effort');arrow(cx+80,cy+30,cx+80,cy+100,'#dc2626','load');bar(120,510,260,'rope pulled '+mt(c.ed));}
+  function drawRamp(c){const p=state.progress,L=clamp(c.s,1,12),baseX=clamp(785-L*45,150,720),baseY=460,topX=785,top=topY(225),x=baseX+(topX-baseX)*p,y=baseY+(top-baseY)*p;ctx.fillStyle='#94a3b8';ctx.beginPath();ctx.moveTo(baseX,baseY);ctx.lineTo(topX,top);ctx.lineTo(topX,baseY);ctx.closePath();ctx.fill();ctx.strokeStyle='#475569';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(baseX,baseY);ctx.lineTo(topX,top);ctx.stroke();crate(x-42,y-82,78,c.i.mass+' kg');arrow(x-95,y-20,x-30,y-52,'#2563eb','effort');arrow(x+62,y-65,x+62,y+5,'#dc2626','load');bar(120,520,300,'ramp distance '+mt(c.ed));}
+  function drawWheel(c){const p=state.progress,cx=360,cy=315,wr=116,ar=clamp(wr/Math.max(1,c.s),14,58),gx=720,gy=165,crateY=liftY(392,topY(235));ctx.strokeStyle='#475569';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(cx,155);ctx.lineTo(cx,500);ctx.stroke();ctx.fillStyle='#64748b';ctx.fillRect(cx-70,500,140,18);ctx.save();ctx.translate(cx,cy);ctx.rotate(p*Math.PI*5);ctx.fillStyle='#f8fafc';ctx.strokeStyle='#334155';ctx.lineWidth=7;ctx.beginPath();ctx.arc(0,0,wr,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.strokeStyle='#64748b';ctx.lineWidth=5;for(let a=0;a<Math.PI*2;a+=Math.PI/4){ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a)*(wr-12),Math.sin(a)*(wr-12));ctx.stroke();}ctx.restore();ctx.fillStyle='#475569';ctx.strokeStyle='#1e293b';ctx.lineWidth=4;ctx.beginPath();ctx.arc(cx,cy,ar,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.strokeStyle='#1e293b';ctx.lineWidth=5;ctx.beginPath();ctx.arc(cx,cy,ar+7,Math.PI*.15,Math.PI*1.6);ctx.stroke();ctx.beginPath();ctx.moveTo(cx+ar+7,cy-4);ctx.lineTo(gx-44,gy);ctx.stroke();pulleyWheel(gx,gy,42);ctx.beginPath();ctx.moveTo(gx,gy+42);ctx.lineTo(gx,crateY+16);ctx.stroke();crate(gx-45,crateY+18,90,c.i.mass+' kg');arrow(cx-wr-55,cy+10,cx-wr-28,cy+78,'#2563eb','effort');arrow(gx+76,crateY+38,gx+76,crateY+110,'#dc2626','load');bar(110,520,300,'turning distance '+mt(c.ed));}
+  function drawWedge(c){
+    const p = state.progress;
+    const ratio = Math.max(1, c.s);
+    const ground = 470;
+
+    // Lift plate and crate
+    const plateX = 470;
+    const plateW = 200;
+    const plateH = 16;
+    const crateSize = 92;
+
+    const startPlateY = ground - 18;
+    const endPlateY = 205;
+    const plateY = startPlateY + (endPlateY - startPlateY) * p;
+
+    const crateX = plateX + (plateW - crateSize) / 2;
+    const crateY = plateY - crateSize;
+
+    // Wedge stays the same size
+    const wedgeLength = 210 + ratio * 18;
+    const wedgeHeight = 108;
+
+    // Pointy end moves under the object
+    const tipStartX = plateX + 8;
+    const tipEndX = plateX + plateW - 28;
+    const tipX = tipStartX + (tipEndX - tipStartX) * p;
+    const backX = tipX - wedgeLength;
+
+    // Faint starting position of the lift plate
+    ctx.fillStyle = 'rgba(71,85,105,0.14)';
+    ctx.fillRect(plateX - 8, startPlateY, plateW + 16, plateH);
+
+    // Guide rails
+    ctx.strokeStyle = 'rgba(71,85,105,0.45)';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(plateX + 16, startPlateY);
+    ctx.lineTo(plateX + 16, plateY + plateH);
+    ctx.moveTo(plateX + plateW - 16, startPlateY);
+    ctx.lineTo(plateX + plateW - 16, plateY + plateH);
+    ctx.stroke();
+
+    // Target line to show platform height
+    ctx.setLineDash([8,6]);
+    ctx.strokeStyle = 'rgba(71,85,105,0.35)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(plateX - 25, endPlateY);
+    ctx.lineTo(plateX + plateW + 25, endPlateY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Wedge
+    ctx.fillStyle = '#94a3b8';
+    ctx.beginPath();
+    ctx.moveTo(backX, ground);
+    ctx.lineTo(backX, ground - wedgeHeight);
+    ctx.lineTo(tipX, ground);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 5;
+    ctx.stroke();
+
+    // Internal sloping line for readability
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(backX + 14, ground - wedgeHeight + 12);
+    ctx.lineTo(tipX - 14, ground - 6);
+    ctx.stroke();
+
+    // Contact point between wedge and plate
+    const contactX = clamp(tipX - 42, plateX + 28, plateX + plateW - 36);
+    const slopeT = (contactX - backX) / (tipX - backX);
+    const contactY = (ground - wedgeHeight) + slopeT * wedgeHeight;
+
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(contactX - 12, contactY - 6, 24, 10);
+
+    ctx.strokeStyle = 'rgba(51,65,85,0.55)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(contactX, contactY - 1);
+    ctx.lineTo(contactX, plateY + plateH);
+    ctx.stroke();
+
+    // Lift plate
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(plateX, plateY, plateW, plateH);
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(plateX, plateY, plateW, plateH);
+
+    // Crate
+    crate(crateX, crateY, crateSize, c.i.mass + ' kg');
+
+    // Arrows and distance bar
+    arrow(backX - 95, ground - 46, backX - 12, ground - 46, '#2563eb', 'effort');
+    arrow(crateX + crateSize + 20, crateY + 18, crateX + crateSize + 20, crateY + 92, '#dc2626', 'load');
+    bar(110, 520, 300, 'wedge push distance ' + mt(c.ed));
+  }
+  function drawScrew(c){const p=state.progress,cx=500,py=liftY(405,topY(240)),spacing=clamp(36-c.s*1.7,10,30);ctx.fillStyle='#64748b';ctx.fillRect(330,488,340,18);ctx.strokeStyle='#475569';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(380,170);ctx.lineTo(380,488);ctx.moveTo(620,170);ctx.lineTo(620,488);ctx.stroke();ctx.strokeStyle='#1e293b';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(cx,155);ctx.lineTo(cx,490);ctx.stroke();ctx.strokeStyle='#f8fafc';ctx.lineWidth=3;for(let y=178;y<485;y+=spacing){ctx.beginPath();ctx.moveTo(cx-25,y+10);ctx.lineTo(cx+25,y-10);ctx.stroke();}ctx.fillStyle='#64748b';ctx.fillRect(340,py+88,320,18);ctx.strokeStyle='#475569';ctx.lineWidth=4;ctx.strokeRect(340,py+88,320,18);crate(456,py,88,c.i.mass+' kg');ctx.save();ctx.translate(cx,145);ctx.rotate(p*Math.PI*8);ctx.strokeStyle='#2563eb';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(-95,0);ctx.lineTo(95,0);ctx.stroke();ctx.restore();arrow(cx+125,145,cx+195,145,'#2563eb','effort');arrow(cx+105,py+20,cx+105,py+95,'#dc2626','load');bar(110,520,300,'turning distance '+mt(c.ed));}
+  function legend(c){let s='Ready to test',col='#1f2937';if(state.running){s='Testing '+c.m.name;col='#2563eb';}else if(state.progress>=1){s=c.ok?'Success':'Force too high';col=c.ok?'#166534':'#991b1b';}ctx.fillStyle='rgba(255,255,255,.92)';ctx.strokeStyle='rgba(203,213,225,.95)';ctx.lineWidth=2;roundRect(28,26,310,130,16);ctx.fillStyle=col;ctx.font='bold 20px system-ui';ctx.fillText(s,48,56);ctx.strokeStyle='#cbd5e1';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(44,68);ctx.lineTo(322,68);ctx.stroke();ctx.fillStyle='#475569';ctx.font='14px system-ui';ctx.fillText('Load force: '+n(c.w),48,94);ctx.fillText('Effort force: '+n(c.f),48,116);ctx.fillText('Mechanical advantage: '+c.ma.toFixed(2),48,138);}
+  function drawScene(){const c=calc();bg();if(state.mode==='lever')drawLever(c);if(state.mode==='pulley')drawPulley(c);if(state.mode==='ramp')drawRamp(c);if(state.mode==='wheel')drawWheel(c);if(state.mode==='wedge')drawWedge(c);if(state.mode==='screw')drawScrew(c);legend(c);}
+  function drawChart(){const m=machines[state.mode],i=input(),pts=[],steps=(state.mode==='pulley'||state.mode==='screw')?m.max-m.min:18;for(let k=0;k<=steps;k++){let raw=m.min+(m.max-m.min)*(k/steps);let s=m.step===1?Math.round(raw):raw;pts.push(calc(s));}gctx.clearRect(0,0,chart.width,chart.height);const w=chart.width,h=chart.height,p={l:70,r:30,t:24,b:55},maxY=Math.max(i.target*1.15,...pts.map(q=>q.f))*1.1;gctx.fillStyle='#fff';gctx.fillRect(0,0,w,h);gctx.strokeStyle='#dbe3ef';gctx.lineWidth=1;gctx.fillStyle='#64748b';gctx.font='13px system-ui';for(let k=0;k<=5;k++){const y=p.t+(h-p.t-p.b)*(k/5),v=maxY*(1-k/5);gctx.beginPath();gctx.moveTo(p.l,y);gctx.lineTo(w-p.r,y);gctx.stroke();gctx.fillText(Math.round(v)+' N',12,y+4);}const xs=v=>p.l+(v-m.min)/(m.max-m.min)*(w-p.l-p.r);const ys=v=>p.t+(1-v/maxY)*(h-p.t-p.b);const ty=ys(i.target);gctx.strokeStyle='#dc2626';gctx.lineWidth=3;gctx.setLineDash([8,6]);gctx.beginPath();gctx.moveTo(p.l,ty);gctx.lineTo(w-p.r,ty);gctx.stroke();gctx.setLineDash([]);gctx.fillStyle='#dc2626';gctx.font='bold 14px system-ui';gctx.fillText('target',w-p.r-55,ty-8);gctx.strokeStyle='#2563eb';gctx.lineWidth=5;gctx.beginPath();pts.forEach((q,idx)=>{const x=xs(q.s),y=ys(q.f);if(idx===0)gctx.moveTo(x,y);else gctx.lineTo(x,y);});gctx.stroke();gctx.fillStyle='#2563eb';pts.forEach(q=>{gctx.beginPath();gctx.arc(xs(q.s),ys(q.f),5,0,Math.PI*2);gctx.fill();});const cur=calc();gctx.fillStyle='#0f766e';gctx.beginPath();gctx.arc(xs(cur.s),ys(cur.f),8,0,Math.PI*2);gctx.fill();gctx.strokeStyle='#334155';gctx.lineWidth=2;gctx.beginPath();gctx.moveTo(p.l,p.t);gctx.lineTo(p.l,h-p.b);gctx.lineTo(w-p.r,h-p.b);gctx.stroke();gctx.fillStyle='#334155';gctx.font='bold 15px system-ui';gctx.fillText('Effort force',12,20);gctx.textAlign='center';gctx.fillText(m.label,w/2,h-16);gctx.textAlign='left';}
+  function updateTable(){if(state.trials.length===0){labels.trialBody.innerHTML='<tr><td colspan="11">No trials recorded yet.</td></tr>';return;}labels.trialBody.innerHTML=state.trials.map((t,idx)=>'<tr><td>'+(idx+1)+'</td><td>'+t.machine+'</td><td>'+t.setting+'</td><td>'+n(t.w)+'</td><td>'+n(t.f)+'</td><td>'+mt(t.ed)+'</td><td>'+mt(t.height)+'</td><td>'+j(t.wi)+'</td><td>'+j(t.wo)+'</td><td>'+pct(t.eff)+'</td><td>'+t.outcome+'</td></tr>').join('');}
+  function record(){const c=calc();state.trials.push({machine:c.m.name,setting:c.m.text(c.s),w:c.w,f:c.f,ed:c.ed,height:c.i.height,wi:c.wi,wo:c.wo,eff:c.eff,outcome:c.outcome});updateTable();}
+  function csvEscape(v){const s=String(v),lf=String.fromCharCode(10);return s.indexOf(',')>=0||s.indexOf('"')>=0||s.indexOf(lf)>=0?'"'+s.split('"').join('""')+'"':s;}
+  function downloadCSV(){if(state.trials.length===0)record();const rows=[['Trial','Machine','Setting','Load Force N','Effort Force N','Effort Distance m','Lift Height m','Work Input J','Work Output J','Efficiency %','Outcome']];state.trials.forEach((t,idx)=>rows.push([idx+1,t.machine,t.setting,Math.round(t.w),Math.round(t.f),t.ed.toFixed(2),t.height.toFixed(2),Math.round(t.wi),Math.round(t.wo),Math.round(t.eff*100),t.outcome]));const csv=rows.map(r=>r.map(csvEscape).join(',')).join(String.fromCharCode(10));const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='lift-the-load-simple-machines-trials.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);}
+  function updateAll(){updateLabels();updateResults();drawScene();drawChart();updateTable();}
+  Object.values(controls).forEach(c=>c.addEventListener('input',()=>{state.progress=0;state.running=false;updateAll();}));
+  el('runBtn').addEventListener('click',()=>{state.progress=0;state.running=true;state.lastTime=0;updateAll();});
+  el('resetBtn').addEventListener('click',()=>{controls.mass.value=80;controls.height.value=2;controls.target.value=300;controls.friction.value=15;controls.machineSetting.value=machines[state.mode].value;state.progress=0;state.running=false;state.trials=[];updateAll();});
+  el('recordBtn').addEventListener('click',record);el('csvBtn').addEventListener('click',downloadCSV);
+  function animate(t){if(!state.lastTime)state.lastTime=t;const dt=Math.min(.04,(t-state.lastTime)/1000);state.lastTime=t;if(state.running){state.progress+=dt*.42;if(state.progress>=1){state.progress=1;state.running=false;}updateResults();drawScene();}requestAnimationFrame(animate);}
+  setMode('pulley');requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>
